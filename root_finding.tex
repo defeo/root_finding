@@ -1,0 +1,497 @@
+\documentclass{sig-alternate}
+
+\usepackage{amsmath,amssymb,amsfonts,amsmath}
+\usepackage{url}
+\usepackage{color}
+\usepackage{comment}
+
+\includecomment{mycomment}
+
+%%%%%%%%%%%%%%%
+
+\newcommand{\ff}[1]{\mathbb{F}_{#1}}
+\newcommand{\fq}{\ff{q}}
+\newcommand{\fqn}{\ff{q^n}}
+
+\newcommand{\fctdegree}{d}
+\newcommand{\basefsize}{q}
+\newcommand{\extfdegree}{n}
+\newcommand{\extfsize}{\basefsize^\extfdegree}
+\newcommand{\extfactfdegree}{k}
+\newcommand{\extfactfsize}{\basefsize^{\extfdegree \cdot \extfactfdegree}}
+
+% if we define everything in terms of base field, extension field and
+% extension field used in factorization
+\newcommand{\basef}{\ff{\basefsize}}
+\newcommand{\extf}{\ff{\extfsize}}
+\newcommand{\extfactf}{\ff{\extfactfsize}}
+
+\DeclareMathOperator{\Tr}{Tr}
+% to specify the number of elements of the finite fields on which the
+% trace is defined
+\newcommand{\tr}[2]{\Tr_{\ff{#1}:\ff{#2}}}
+
+% to specify the number of elements of the finite fields on which the
+% trace is defined: light form
+\newcommand{\trl}[2]{\Tr_{#1:#2}}
+
+% to specify the notation of the finite fields on which the trace is
+% defined
+\newcommand{\trabs}[2]{\Tr_{#1:#2}}
+\newcommand{\trextbase}{\trabs{\extf}{\basef}}
+\newcommand{\trextfactext}{\trabs{\extfactf}{\extf}}
+\newcommand{\trextfactbase}{\trabs{\extfactf}{\basef}}
+
+\newcommand{\bigO}{O}
+\newcommand{\bigOt}{\tilde{O}}
+\newcommand{\smallO}{o}
+\newcommand{\Mul}{\mathsf{M}}
+
+\newcommand{\Span}{\mathbf{span}}
+\DeclareMathOperator{\Res}{Res}
+
+\newcommand{\cost}[1]{\color{blue}Cost:  #1\color{black}}
+
+%%%%%%%%%%%% Algorithms
+
+\usepackage{float,algorithm,algorithmic}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcounter{algo}
+
+\newenvironment{algorithm_noendline}[4]{\small\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+\end{minipage}\end{center}
+}
+
+\newenvironment{algorithm_endline}[4]{\small\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+      \rule{\textwidth}{0.2pt}
+\end{minipage}\end{center}
+%\vspace{-0.5cm}
+}
+
+\floatstyle{plain}
+\newfloat{algofloat}{thp}{bla}
+\floatname{algofloat}{}
+
+%%%%%%%%%%
+
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\com }{\noindent \textcolor{blue}{Commentaire Micha\"el}:}
+
+\newtheorem{Def}{Definition}
+\newtheorem{Theo}{Theorem}
+\newtheorem{Prop}{Proposition}
+\newtheorem{Lem}{Lemma}
+\newtheorem{Coro}{Corollary}
+
+\renewcommand{\paragraph}[1]{\smallskip\noindent{{\bf \rm #1.}}}
+
+\numberofauthors{3}
+\author{
+  \alignauthor Luca De Feo\\
+  \affaddr{Laboratoire PRiSM}\\
+  \affaddr{Universit\'e de Versailles}\\
+  \email{luca.de-feo@uvsq.fr}
+  \alignauthor Christophe Petit\\
+  \affaddr{Crypto Group}\\
+  \affaddr{University College London}\\
+  \email{}
+  \alignauthor Micha\"el Quisquater\\
+  \affaddr{Laboratoire PRiSM}\\
+  \affaddr{Universit\'e de Versailles}\\
+  \email{mquis@prism.uvsq.fr}
+}
+
+\title{Deterministic root finding in small characteristic finite
+  fields}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+  The resolution of polynomial equations over finite fields has many
+  applications, for example in cryptography or coding theory. Starting
+  from the work of Berlekamp in the eighties, many efficient
+  algorithms have been proposed to solve this problem faster, either
+  asymptotically or in practice.  In this paper, we consider the case
+  of polynomials over $\fqn$ where $q$ is a small number. We propose a
+  new algorithm to solve this problem, merging features of Berlekamp's
+  classical trace algorithm (BTA) and the recent successive resultant
+  algorithm (SRA).  Similarly to BTA, our algorithm separates the
+  roots of the polynomial into distinct subspaces using gcd
+  computations. Similarly to SRA, it uses particular subspaces that
+  are embedded in one another.
+
+  Our algorithm has an asymptotic complexity similar to BTA and SRA on
+  this type of polynomials ... It has this and this great advantages
+  over these algorithms. Our Sage implementations show that it is
+  great, easy to implement, very efficient, and beat previous
+  algorithms on a large range of parameters...
+
+  We also provide optimizations and a factorization version of our
+  algorithm that are of further interest for SRA.
+\end{abstract}
+
+\category{F.2.1}{Theory of computation}{Analysis of algorithms and problem complexity}[Computations in finite fields]
+\category{G.4}{Mathematics of computing}{Mathematical software}
+\terms{Algorithms,Theory}
+\keywords{Finite fields, root finding, factoring.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Notations: to remove at the end of the writing}
+
+
+\noindent {\bf Finite field:}
+\begin{itemize}
+\item $\ff{p}$: generic form
+\item $\fq$: base field 
+\item  $\fqn$ : extension field  
+\end{itemize}
+
+\medskip
+
+\noindent {\bf Abstract notation for fields}
+
+\begin{itemize}
+\item $K$: $\basef$: base field
+\item $L$:  $\extf$: extension field 
+\item $E$: $\extfactf$ : field extension of $L$ with degree $k$  
+\item $\basefsize$
+\item $\extfsize$
+\item $\extfactfsize$ : useless if we don't speak about factorization
+\item $\extfdegree$ : 
+\item $\extfactfdegree$ : useless if we don't speak about factorization
+
+\end{itemize}
+
+
+
+
+\medskip
+
+
+\noindent {\bf Trace map on finite fields:}
+
+\begin{itemize}
+\item $\tr{p^n}{p}(X)$: generic form
+\item $\trl{p^n}{p}(X)$: generic light form
+\item $\trabs{L}{K}(X)$: generic abstract form
+\item $\trextbase(X)$ :trace from the extension field to its base field 
+\item $\trextfactext(X)$ : useless if we don't speak about factorization
+\item $\trextfactbase(X)$ : useless if we don't speak about factorization
+
+\end{itemize}
+
+
+\noindent {\bf Complexity of computation in finite fields:}
+
+Ideally we should express everything in term of the cost of a multiplication in  a finite field.
+
+\begin{itemize}
+\item $\Mul(n)$: cost of polynomial multiplication
+\item Distinguish conventional arithmetic and fast arithmetic. Reuse the tables of \cite{KaltofenS97} or \cite{Umans08}.
+\end{itemize}
+
+
+
+
+\section{Introduction}
+
+This paper presents and compares two related algorithms for finding
+roots of polynomials with coefficients in a finite field $\extf$,
+where $\basefsize$ is small. The first algorithm, called the
+Successive Resultants Algorithm (SRA), was already introduced by
+C.~Petit in~\cite{cgUCL-P14}. We give here a fresh look at it and show
+how it is related to the second one. The second algorithm, called the
+Linear Decomposition Algorithm (LDA) \todo{find a better name}, is
+new, and similar in spirit to Berlekamp's Trace Algorithm
+(BTA)~\cite{berl70}.
+
+Both algorithms are deterministic. They find all the roots of a
+square-free, split polynomial of degree $\fctdegree$ using \todo{}
+operations over $\basef$ in the worst case, and an expected \todo{} on
+average. Hence, they improve over previously known deterministic
+algorithms for root finding~\cite{Shoup91b} \todo{do they?}. For some
+parameter ranges, they also compare favorably in practice with the
+best randomized algorithms for root finding~\cite{berl70,cantor1981}.
+
+Any algorithm for root finding can be extended to an algorithm for
+factoring polynomials as mentioned in~\cite{Rabin79}. Doing so with
+our algorithms does not improve over the previous literature
+\todo{unless it does?}. However we argue in
+Section~\ref{sec:factorization} that a partial application of this
+idea yields a practical improvement to the classical Cantor-Zassenhaus
+algorithm~\cite{cantor1981}.
+
+\paragraph{Previous work} 
+
+\paragraph{Our contribution}
+
+\paragraph{Outline}
+
+
+\section{Background and Notations}
+
+Let $\{v_1,\ldots,v_\extfdegree\}$ be a basis of $\fqn/\fq$. To this basis, we associate the following elements for any $i\in\{0,\ldots,\extfdegree\}$ and any $r\in\fqn$: 
+we define $V_i$ as the vector space generated by $\{v_1,\ldots,v_i\}$;
+we define $L_i$ as the characteristic polynomial of $V_i$;
+we define $\beta_i=L_i(v_{i+1})$, $\alpha_i=\beta_i^{p-1}$ and $\gamma_i=\beta_i^{-p}$;
+we define $V_{i,r}$ as the afine space $V_i+r$;
+we define $M_{i,r}$ as the characteristic polynomial of $V_{i,r}$;
+we define $\ell_{i,r}$ as the value $L_{i,r}(r)$.
+
+Note that the polynomials $L_i$ and $M_i$ are linearized polynomials as defined by Berlekamp~\cite[Ch. 11]{Berlekamp1984}. The values $\alpha_i$ and the polynomials $L_i$ are consistent with the SRA paper~\cite{cgUCL-P14}; they satisfy $L_i(x)=(x^p-\alpha_ix)\circ L_{i-1}(x)$.
+%
+Note also that $V_{i,r}=V_{i,r'}$ if and only if $r-r'\in V_i$.
+%
+We finally have
+$\ell_{i,r}=\sum_{j=i+1}^nr_jL_i(v_{j})$
+and 
+$M_{i,r}(x)=L_i(x-r)=L_i(x)-\ell_{i,r}$.
+
+\section{Reminder on SRA}
+
+\section{A New Deterministic Root-Finding Algorithm on $\extf$}
+
+\subsection{Preliminary definitions and notations}
+
+\subsection{Informal description}
+
+Our algorithm will factor $f$ into linear terms by progressively separating its roots into smaller and smaller afine subspaces. 
+%
+Precisely, the algorithm successively identifies all the subspaces $V_{i,r}=V_{i}+\sum_{j=i+1}^nr_jv_j$ which contain some root $r$ of $f$, from $i=n-1$ down to 0. Note that $V_{i-1,r}\subset V_{i,r}$, and that each of the subspaces $V_{0,r}$ contains a single root $r$.
+
+Simultaneously, the algorithm will compute monic polynomials $f_{i,r}|f$ whose roots are exactly all the roots of $f$ that are contained in $V_{i,r}$. 
+%
+These polynomials $f_{i,r}$ are computed recursively as
+%$M_{i,r}(x)=L_{i,r}(x)-\ell_{i,r}$
+$$f_{i,r}(x)=\gcd(M_{i,r}(x),f(x))
+=\gcd(M_{i,r}(x),f_{i+1,r}(x))$$
+for each of the $q$ polynomials $M_{i,r}=L_{i,r}-\ell_{i,r}$ that divide $M_{i+1,r}$. The polynomials $f_{i,r}(x)$ that are not equal to 1 correspond to the subspaces $M_{i,r}$ which contain some roots of $f$, and are therefore kept for the next step.
+%
+Note that $f_{0,r}(x)=x-r$ for any root $r$.
+
+The computation of $\gcd(M_{i,r}(x),f_{i+1,r}(x))$ is performed simultaneously for all roots using previously computed $f_{j,r}$ for $j>i$, in a way similar to multipoint evaluation algorithms.
+
+It remains to explain how the values $\ell_{i,r}$ are computed.
+The algorithm of this section stores precomputed values $L_i(v_{j})$ and maintains approximations $\sum_{j=i+1}^nr_j$ of all roots $r$, starting from the unique approximation $r=0$ when $i=n$. 
+This allows to compute $\ell_{i,r}$ as the linear combinations $\sum_{j=i+1}^nr_jL_i(v_{j})$. 
+An alternative approach is presented in Section~\ref{sec:ext:variant}, where the $\ell_{i,r}$ values are computed from the $\ell_{i+1,r}$ values by solving linearized degree $q$ equations similar to the ones appearing in the second step of SRA.
+
+
+\subsection{Algorithm\label{sec:alg:alg}}
+Like SRA, our algorithm has three main steps:
+\begin{enumerate}
+\setcounter{enumi}{-1}
+\item In a precomputing step (dependent on the field but not on $f$), we compute and store all the $\alpha_i$ values, as well as all $L_i(v_{j})$ values for $j>i$. This is done with the formulae  
+$$L_i(v_j)=L_{i-1}(v_j)^q-\alpha_{i-1}L_{i-1}(v_j), \qquad \alpha_i=(L_{i-1}(v_i))^{q-1}.$$
+\item Starting from $i=1$ up to $n$, we then compute and store the polynomials
+$$L_{i,0}(x):=L_i(x)\bmod f(x).$$
+This can be done recursively as
+$$L_{i,0}(x)=(x^q-\alpha_ix)\circ L_{i-1,0}(x)\bmod f(x)$$
+\item 	Let $r=0$ and $f_{n+1,r}=f$. \\
+Starting from $i=n$ down to 1, \todo{Check indices $i$ vs $i+1$ below} for each current approximation of a root $r=\sum_{i+1}^nr_jv_j$ (defining $V_{i,r}$), we recursively identify better approximations $r=\sum_{i}^nr_jv_j$ (defining $V_{i-1,r}$) as follows:
+	\begin{enumerate}
+	\item For all current approximations of $r$, we compute 
+	$$L_{i,r}(x):=L_{i+1,r}(x)\bmod f_{i+1,r}(x).$$
+	This is done by successively computing $L_{i,r}(x)\bmod f_{j,r}(x)$, from $j=n$ down to $i+1$, and re-using all intermediary computations that are common to several roots $r$.
+
+	\item For all current approximations of $r$ and for all $r_i\in\mathbb{F}_p$, we compute 
+	%$$\ell_{i,r}=L_{i,r}\left(\sum_{j=i+1}^nr_jv_j\right)$$
+	%as
+	$$\ell_{i,r}=\sum_{j=i+1}^nr_jL_i(v_j)$$
+
+	\item For all current approximations of $r$ and for all $r_i\in\mathbb{F}_p$, we compute 
+	$$f_{i,r}(x)=\gcd(L_{i,r}(x)-\ell_{i,r},f_{i+1,r}(x))$$
+	
+	\item If $f_{i,r}=1$, we deduce that $V_{i,r}$ contains no root of $f$. If $\deg f_{i,r}=1$ then $f_{i,r}=x-r$ and we deduce one root $r$. The polynomials $f_{i,r}$ with degree larger than 1 are kept for the next step. We accordingly update all current approximations of $r$ to new values $r+r_iv_i$.
+
+	\end{enumerate}
+
+\end{enumerate}
+
+
+
+\subsection{Comparison with BTA}
+
+Given a polynomial $f$, Berlekamp's trace algorithm attempts to decompose $f$ into smaller degree factors using the product equality
+$$f(x)=\prod_{r_n\in\fq}\gcd\left(f(x),\Tr(\alpha x)-r_n\right)$$
+for randomly chosen $\alpha\in\fqn$.
+%
+Let $\{v_1,\ldots,v_{\extfdegree}\}$ be a basis such that $v_i/\alpha$ has trace 0 for all $i<\extfdegree$ and $v_\extfdegree=\alpha^{-1}$. We then have $L_{\extfdegree-1}(x)=\Tr(\alpha x)$ and $M_{\extfdegree-1,r}(x)=\Tr(\alpha (x-r))=\Tr(\alpha x)-r_\extfdegree$.
+
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\basefsize^{\extfdegree-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\extfdegree$ for all $r_\extfdegree\in\fq$. After repeating this separation process for $O(\log_\basefsize\fctdegree)$  randomly chosen $\alpha$ values, the intersections of these afine sets become singletons, each singleton containing one root of $f$. 
+%
+In comparison, our algorithm separates the roots of $f$ into afine spaces $V_{i,r}$ of smaller and smaller dimensions, such that $V_{i,r}\subset V_{i+1,r}$. This has computation advantages, and makes the algorithm completely deterministic.
+%
+\todo{We should probably elaborate more on the advantages of Michael's algorithm, but I don't see them so clearly at the moment. BTA can also be made deterministic. I think the features are similar to ours: it looses a factor $n$ in the worst case, but this factor will just be $\log d$ usually.}
+
+
+\subsection{Another comparison with BTA}
+
+
+Berlekamp Trace Algorithm (BTA)~\cite{berl70} is based on the observation that
+
+$$X^{\extfsize}-X=\prod_{c \in \basef}   (\trextbase(X)-c)$$ 
+or equivalently 
+\begin{equation}
+\label{BTA_eq0}
+\alpha\cdot (X^{\extfsize}-X)=\prod_{c \in \basef}   (\trextbase(\alpha \cdot X)-c)
+\end{equation}
+where $\alpha \in \extf^\ast$. Therefore, if $f(X)$ is any split polynomial of $\extf[X]$, we have
+\begin{equation}
+\label{BTA_eq1}
+f(X)=\prod_{c \in \basef} \gcd(f(X),\trextbase(\alpha \cdot X)-c)  
+\end{equation}
+Relation~(\ref{BTA_eq1}) leads to a non-trivial factorization of $f$ for at least one value of $\alpha$ 
+belonging to the set of any basis of $\extf$ over $\basef$~\cite{berl70}  and $\bigO(\log(n))$ attempts are required on average to find one of them \cite{Menvanovans92}. The computation of each $\gcd$ in relation~(\ref{BTA_eq1}) costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
+ to split $f$ in at least two distinct factors costs on average $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ (see~\cite{Gathen2003}, Th 14.11). While this algorithm is very efficient on average, its time complexity is actually unbounded because of its probabilistic nature.
+ 
+
+\begin{mycomment}
+\com {\bf La complexit\'e 
+$$\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$$
+me para\^it pessimiste. A mon avis, il y a un facteur $q$ en trop car \`a chaque \'etape on a des chances de trouver plus de deux facteurs. Je suis cependant incapable de prouver cela pour le moment. On fait on peut aussi faire de 
+la multi-evaluation \`a chaque \'etage comme dans l'algorithme de cet article. Le calcul ne tient pas compte de cette observation.
+}
+\end{mycomment}
+
+
+
+
+\subsection{Complexity analysis}
+
+In this analysis, we measure the complexity by the number of multiplications over $\fqn$. 
+%
+The precomputation step of our algorithm requires $O(qn^2)$ multiplications and Step~1 requires $O(qnd\log d)$ multiplications. The iteration $n-i$ of Step~2 has a cost bounded by $O(id)$ multiplications for Step~a, $O(iqd)$ additions for Step~b and $O(qd\log d)$ multiplications for Step~c. 
+
+The total number of multiplications for all iterations of Step~2a is however bounded by $O(d\min(d,n))\leq O(dn)$.
+% worst case: lorsque l'arbre est tres desequilibre, avec 1 seule racine d'un cote et d-1 racines de l'autre, et ainsi de suite pour les sous-branches du plus gros cote. Dans ce cas, la multi-evaluation coutera O(d^2), sauf si d>n
+
+Step~2 will involve between $\log_qd$ and $n$ steps, depending on how the roots of $f$ are distributed in the afine spaces $V_{i,r}$. There will be only s$\log_qd$ steps if all the roots are contained in distinct subspaces $V_{n-\log_qd,r}$, but there will be exactly $n$ steps if $x(x+v_1)$ divides $f$ for some $x\in\fqn$. 
+%
+If $f$ is uniformly randomly chosen among all polynomials with exactly $d$ roots, then the algorithm requires $O(\log_qd)$ steps on average.
+
+
+\begin{Lem}
+Let $f$ be uniformly randomly chosen among all polynomials with exactly $d$ roots. For any $S>\log_qd$, the probability that the algorithm of Section~\ref{sec:alg:alg} requires less than $S$ steps is $\frac{q^S!}{(q^S-d)!q^{Sd}}$. 
+\end{Lem}
+\begin{proof}
+The algorithm needs less than $S$ steps if and only if the $d$ distinct roots belong to distinct subspaces $V_{n-S,r}=V_{n-S}+r=V_{n-S}+\sum_{j=n-S+1}^nr_jv_j$. Since there are $q^S$ distinct such subspaces and the roots are uniformly randomly distributed, this occurs with a probability $\frac{q^S!}{(q^S-d)!q^{Sd}}$.
+\end{proof}
+%
+\noindent By the birthday paradox, there is a close to 1/2 probability to factor $f$ completely after roughly $2\log_qd$ steps. More precisely, the expected number of steps needed by the algorithm is given by the formula
+$$E=\sum_{S=\lceil\log_qd\rceil}^nS\left(\frac{q^S!}{(q^S-d)!q^{Sd}}-\frac{q^{S-1}!}{(q^{S-1}-d)!q^{(S-1)d}}\right).$$
+
+Our algorithm performs much better on average than in the worst case. On average, the second step will have a negligible time complexity $O(qd\log^2d)$ multiplications compared to the $O(qn^2)$ and $O(qnd\log d)$ multiplications required for the precomputation and first steps.
+%
+In the worst case, the second step will require $O(qdn^2)$ multiplications and will become the bottleneck of the algorithm unless $\log d>n$.
+
+The algorithm requires to store $O(n^2)$ field elements as such, but this memory can be reduced to the $O(\log d^2)$ elements required to perform Step~2 on average, at the cost of recomputing additional $L_i(v_j)$ values if needed, or restarting the algorithm with a different basis. 
+
+
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%
+
+
+\section{Variant and Extensions}
+
+
+\subsection{Improving the worst-case complexity\label{sec:ext:variant}}
+
+The algorithm of Section~\ref{sec:alg:alg} may perform poorly in the worst case. In this section, we present a variant of this algorithm with worst case running time comparable to the average running time.
+%
+The bottleneck of the algorithm of Section~\ref{sec:alg:alg} in the worst case is the computation of all $\ell_{i,r}$ from precomputed values $L_i(v_j)$.
+
+As $\ell_{i,r}=L_i(r)$, these values can also be computed recursively by solving the equations
+$$\ell_{i+1,r}=\ell_{i,r}^q-\alpha_i\ell_{i,r}.$$
+%
+In the average case, there will be $O(d\log d)$ such equations to solve in the course of Step~2, but in the worst case there may be up to $O(dn)$ such equations to solve.
+
+Similar equations are solved in the second step of SRA. It is suggested in~\cite{cgUCL-P14} to solve them with a standard root-finding algorithm at a cost equivalent to $O(n)$ operations over $\fqn$.
+Here, we observe that we can reduce the asymptotic cost to $O(q)$ operations. As $\alpha_i=\beta_i^{p-1}$, we can re-write the above equation as 
+$$\beta_i^{-q}\ell_{i+1,r}=(\beta_i^{-1}\ell_{i,r})^q-(\beta_i^{-1}\ell_{i,r}).$$ 
+Note that the values $\beta_i$ are already computed in the precomputation step of our algorithm. We can solve the first equation by first computing $\beta_i^{-q}\ell_{i+1,r}$, then solving the equation 
+$$\beta_i^{-q}\ell_{i+1,r}=\ell^q-\ell$$
+and finally computing $\ell_{i,r}=\beta_i\ell$ for all solutions.
+
+If the field extension $\fqn/\fq$ is represented by a normal basis, the equation $\beta_i^{-q}\ell_{i+1,r}=\ell^q-\ell$ amounts to a bidiagonal system that can be solved in $O(n)$ operations over $\fq$, that is about $O(1)$ operations over $\fqn$.
+%
+Normal bases with fast arithmetic exist for all fields and can be computed efficiently~\cite{Couveignes-Lercier}.\todo{Luca: help me define efficiently}
+
+Using this method to compute the $\ell_{i,r}$ values ensures that the second step of our algorithm requires at most $O(qnd\log d)$ multiplications in the worst case, comparable to the complexity of the first step.
+%
+In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to implement and achieves the same asymptotic average case complexity up to constant factors. 
+
+
+
+
+
+
+
+
+\subsection{Optimisation when $n$ is composite}
+
+\subsection{Extension to several polynomials}
+
+
+
+\section{Applications to polynomial factorisation}
+\label{sec:factorization}
+
+\section{Experimental results}
+
+\section{Conclusion and open problems}
+
+computing $\alpha_i$ in $O(n)$
+
+
+\bibliography{refs}
+\bibliographystyle{plain}
+
+\end{document}
+
+
+
+% Local Variables:
+% ispell-local-dictionary:"american"
+% End:
+
