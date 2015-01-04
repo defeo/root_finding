@@ -603,6 +603,68 @@ The algorithm requires to store $O(n^2)$ field elements as such, but this memory
 \section{Variant and Extensions}
 
 
+
+
+
+\subsection{Removing precomputation in the average case}
+
+By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\alpha_1,\ldots,\alpha_{i-1})$ for all $i$.
+
+In the average case, the second step of our algorithm only uses the last $\alpha_i$ values. Let $S$ be an a priori bound on the number of values needed to split $f$ completely. Let $\{v_1,\ldots,v_S\}$ be a basis of a vector space of dimension $S$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(S^2)$ multiplications. By the above property on valid set, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
+
+We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We now that $L_n(x)=x^{q^n}-x$. Moreover,
+$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
+Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_ix^{q^i}$, we compute $L_i(x)=\sum_{j=0}^{i}b_ix^{q^i}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_0^{-1}$, then we recursively set $b_i=(a_i-a_{i-1}^q)\alpha_i^{-1}$.
+%
+Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n)$ operations by simple evaluation. 
+%
+Finally, the polynomial $L_i\bmod f$ can be computed in $\tilde O(dn)$ operations, or $O(dn)$ operations after the values $x^{q^i}\bmod f$ have first been computed.
+
+If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of NSA as above.
+%
+When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launch again starting from a different basis on the smaller factors.
+
+
+
+
+\subsection{Optimisations when $n$ is composite}
+
+The efficiency of the algorithm can be greatly improved when $n$ is composite. Let $n_1,n_2$ such that  $n=n_1n_2$, and let $Q=q^{n_1}$.
+
+Let $\{v_1,\ldots,v_{n_2}\}$ be a basis of $\mathbb{F}_{Q^{n_2}}/\mathbb{F}_{Q}$. To this basis corresponds a decomposition
+$$x^{Q^{n_2}}-x=\circ_{i=1}^{n_2} (x^{Q}-\alpha_i x).$$
+Note that values $\beta_i$ such that $\alpha_i=\beta_i^{p-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. As already pointed out above, we can write 
+$$(x^Q-\alpha_i x)= \beta_i\circ(x^Q-x)\circ(\beta_i^{-1}).$$
+%
+Let now $\{v_1',\ldots,v_{n_1}'\}$ be a basis of $\mathbb{F}_{Q}/\mathbb{F}_{q}$. To this basis corresponds a decomposition
+$$x^{Q}-x=\circ_{j=1}^{n_1} (x^{q}-\alpha_j' x).$$
+Substituting in the previous equation, this allows to compute a decomposition
+$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k\circ(x^Q-x)\circ(\beta_k^{-1})\right)$$
+ in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
+ 
+A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
+$$L_{n_1i+j}=K_j\circ K'_i.$$
+When $j\neq0\bmod n_1$, the equation
+$$L_{n_1i+j+1}=L_{n_1i+j}^q-\alpha_iL_{n_1i+j}$$
+implies
+$$K_{j+1}=K_{j}^q-\alpha_iK_{j}.$$
+Solving this equation costs $O(n_2)$ and is sufficient to fully characterize $L_{n_1i+j}$.
+%
+When $j=0\bmod n_1$, both components of the $L$ polynomials must be adapted, at a cost $O(n_1+n_2)$.
+%
+The values $L_{n_1i+j}(r)$ can clearly be computed at a cost $O(n_1+n_2)$ using the composition.
+%
+Finally, the polynomial $L_{n_1i+j}(r)\bmod f$ can be computed at a cost $O(d(n_1+n_2)\log d)$ using fast modular exponentiation and modular composition algorithms.
+
+These optimizations decrease the overall average cost of the algorithm (after DDF) to $\tilde O(d(\sum_in_i))$ operations. 
+
+
+
+
+
+
+
+
 \subsection{Improving the worst-case complexity\label{sec:ext:variant}}
 
 The algorithm of Section~\ref{sec:alg:alg} may perform poorly in the worst case. In this section, we present a variant of this algorithm with worst case running time comparable to the average running time.
@@ -635,8 +697,12 @@ In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to im
 
 
 
+\subsection{Factorization Algorithm over $\extf[X]$}
 
-\subsection{Optimisation when $n$ is composite}
+We can use the composite degree variant of the algorithm to compute roots of $f$ over the field $\fqn^k$, and therefore deduce the factors of degree $k$. Since $k\leq n$ and most factors of $f$ are likely to have small and smooth degree, this trivial approach has a complexity close to the degree one factorization.
+
+\todo{I suspect that the roots of a degree $k$ factor have some special distribution in the tree that can be used to improve the complexity further, but I don't see clearly how at the moment.}
+
 
 \subsection{Extension to several polynomials}
 
