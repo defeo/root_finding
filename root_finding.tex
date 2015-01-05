@@ -593,21 +593,21 @@ The algorithm requires to store $O(n^2)$ field elements as such, but this memory
 
 \subsection{Removing precomputation in the average case}
 
-By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\alpha_1,\ldots,\alpha_{i-1})$ for all $i$.
+By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
 
 In the average case, the second step of our algorithm only uses the last $\alpha_i$ values. Let $S$ be an a priori bound on the number of values needed to split $f$ completely. Let $\{v_1,\ldots,v_S\}$ be a basis of a vector space of dimension $S$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(S^2)$ multiplications. By the above property on valid set, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
 
-We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We now that $L_n(x)=x^{q^n}-x$. Moreover,
+We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
 $$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
-Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_ix^{q^i}$, we compute $L_i(x)=\sum_{j=0}^{i}b_ix^{q^i}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_0^{-1}$, then we recursively set $b_i=(a_i-a_{i-1}^q)\alpha_i^{-1}$.
+Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_i^{-1}$, then we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
 %
-Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n)$ operations by simple evaluation. 
+Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
 %
-Finally, the polynomial $L_i\bmod f$ can be computed in $\tilde O(dn)$ operations, or $O(dn)$ operations after the values $x^{q^i}\bmod f$ have first been computed.
+Finally, the polynomial $L_i\bmod f$ can be computed in $\tilde O(dn)$ operations, or $O(dn)$ operations after the values $x^{q^i}\bmod f$ have been already computed.
 
 If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of NSA as above.
 %
-When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launch again starting from a different basis on the smaller factors.
+When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launched again starting from a different basis on the smaller factors.
 
 
 
@@ -618,13 +618,13 @@ The efficiency of the algorithm can be greatly improved when $n$ is composite. L
 
 Let $\{v_1,\ldots,v_{n_2}\}$ be a basis of $\mathbb{F}_{Q^{n_2}}/\mathbb{F}_{Q}$. To this basis corresponds a decomposition
 $$x^{Q^{n_2}}-x=\circ_{i=1}^{n_2} (x^{Q}-\alpha_i x).$$
-Note that values $\beta_i$ such that $\alpha_i=\beta_i^{p-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. As already pointed out above, we can write 
-$$(x^Q-\alpha_i x)= \beta_i\circ(x^Q-x)\circ(\beta_i^{-1}).$$
+Note that values $\beta_i$ such that $\alpha_i=\beta_i^{Q-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. As already pointed out above, we can write 
+$$(x^Q-\alpha_i x)= \beta_i^Q(x^Q-x)\circ(\beta_i^{-1}x).$$
 %
 Let now $\{v_1',\ldots,v_{n_1}'\}$ be a basis of $\mathbb{F}_{Q}/\mathbb{F}_{q}$. To this basis corresponds a decomposition
 $$x^{Q}-x=\circ_{j=1}^{n_1} (x^{q}-\alpha_j' x).$$
 Substituting in the previous equation, this allows to compute a decomposition
-$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k\circ(x^Q-x)\circ(\beta_k^{-1})\right)$$
+$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k^Q(x^Q-x)\circ(\beta_k^{-1}x)\right)$$
  in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
  
 A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
