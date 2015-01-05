@@ -277,44 +277,19 @@ $\extf$, find all the roots $\rho\in\extf$ such that $f(\rho)=0$.
 \paragraph{Complexity notations} In this paper, we use an
 \emph{algebraic complexity model}, where the running time of an
 algorithm is measured in terms of the number of operations ($+$,
-$\times$, $\div$) in $\basef$, and its space requirements in terms of
-number of elements of $\basef$ stored. As customary, we use the
+$\times$, $\div$) in $\extf$, and its space requirements in terms of
+number of elements of $\extf$ stored. As customary, we use the
 $\bigO$-notation to neglect constant factors, and the
 $\bigOt$-notation to further neglect poly-logarithmic factors. All
 asymptotic complexities will be expressed in terms of the parameters
 $\qq$, $\nn$ and $\dd$.
 
 We denote by $\Mul : \mathbb{N} \to \mathbb{N}$ a function such that
-polynomials in $\basef[X]$ of degree at most $m$ can be multiplied in
-$\Mul(m)$ operations ($+$, $\times$) in $\basef$, and we make the
+polynomials in $\extf[X]$ of degree at most $m$ can be multiplied in
+$\Mul(m)$ operations ($+$, $\times$) in $\extf$, and we make the
 usual super-linearity assumptions on
 $\Mul$~\cite[Chapter~8]{Gathen2003}.  Using FFT multiplication, we can
-take $\Mul(m)\in\bigOt(m)$.  Using the so-called \emph{Kronecker's
-  trick}~\cite{todo}, bivariate polynomials in $\basef[X,Y]$ of degree
-$(m,n)$ can be multiplied in $O(\Mul(mn))$.
-
-\paragraph{Representation of $\extf$} We suppose that elements of
-$\extf$ are represented via an $\basef$-basis, then elements of
-$\extf$ can be added, subtracted or multiplied by a scalar
-$c\in\basef$ using $O(\nn)$ operations. Throughout this document we
-adopt the convention of using Greek letters to represent elements of
-$\extf$, and Latin symbols for the elements of $\basef$.
-
-In most of the document, we further suppose that elements are
-represented on the monomial basis $1,\zeta,\dots,\zeta^{\nn-1}$, where
-$\zeta$ is a generator of $\extf$ over $\basef$.  Using this
-representation, elements of $\extf$ can be multiplied using
-$O(\Mul(n))$ operations, and inverted using $O(\Mul(n)\log n)$
-operations~\cite{todo}.  Using Kronecker's trick, polynomials of
-degree at most $\dd$ in $\extf[X]$ can then be multiplied in
-$O(\Mul(\dd\nn))$ operations. \todo{Check complexities for Euclidean
-  division and gcd.}
-
-In Section~\ref{sec:ext:variant}, we will need a normal basis,
-instead. Using the \emph{elliptic normal bases}
-of~\cite{Couveignes-Lercier}, we can multiply and invert elements of
-$\extf$ for the same asymptotic cost as with monomial
-bases. \todo{What about operations on $\extf[X]$?}
+take $\Mul(m)\in\bigOt(m)$.
 
 
 \subsection{Nested subspace decomposition of $\extf$}
@@ -364,10 +339,20 @@ that $\{\gamma_{i,i+1},\dots,\gamma_{i,\nn}\}$ is a basis.
 
 \begin{Lem}
   The coefficients of the matrix $\Gamma$ can be computed using
-  $O(\qq\nn^2\Mul(n))$ operations over $\basef$.
+  $O(\nn^2\log\qq)$ operations over $\extf$.
 \end{Lem}
 \begin{proof}
-  \todo{This is just the usual precomputation algorithm.}
+  By the recursive definition of $L_i$, it is clear that
+  \begin{equation}
+    \gamma_{i,j} =
+    \begin{cases}
+      \upsilon_j &\text{for $i=0$},\\
+      \gamma_{i-1,j}^\qq - \gamma_{i-1,i}^{\qq-1}\gamma_{i-1,j} &\text{for $i>0$}.
+    \end{cases}
+  \end{equation}
+  Thus, each $\gamma_{i,j}$ can be computed from the previous ones
+  using $O(\log\qq)$ operations, and there is a total $O(\nn^2)$ of
+  them to compute.
 \end{proof}
 
 The eigenvalues of $\Gamma$ play a special role in our algorithms,
