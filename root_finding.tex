@@ -4,6 +4,7 @@
 \usepackage{url}
 \usepackage{color}
 \usepackage{comment}
+\usepackage{mdwlist}
 
 \includecomment{mycomment}
 
@@ -58,13 +59,14 @@
 
 %%%%%%%%%%%% Algorithms
 
-\usepackage{float,algorithm,algorithmic}
+\usepackage{float,algorithm}
+\usepackage[noend]{algorithmic}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
 \newcounter{algo}
 
-\newenvironment{algorithm_noendline}[4]{\small\begin{center}\begin{minipage}{0.48\textwidth}
+\newenvironment{algorithm_noendline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
       \refstepcounter{algo}
       \label{#4}
       \sf
@@ -84,7 +86,7 @@
 \end{minipage}\end{center}
 }
 
-\newenvironment{algorithm_endline}[4]{\small\begin{center}\begin{minipage}{0.48\textwidth}
+\newenvironment{algorithm_endline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
       \refstepcounter{algo}
       \label{#4}
       \sf
@@ -249,9 +251,9 @@ roots of polynomials with coefficients in a finite field $\extf$,
 where $\qq$ is small. The first algorithm, called the Successive
 Resultants Algorithm (SRA), was already introduced by C.~Petit
 in~\cite{cgUCL-P14}. We give here a fresh look at it and show how it
-is related to the second one. The second algorithm, called the Nested
-Subspaces Algorithm (NSA), is new, and similar in spirit to
-Berlekamp's Trace Algorithm (BTA)~\cite{berl70}.
+is related to the second one. The second algorithm, called the Affine
+Refinement Method (ARM), is new, and similar in spirit to Berlekamp's
+Trace Algorithm (BTA)~\cite{berl70}.
 
 Both algorithms are deterministic. They find all the roots of a
 square-free, split polynomial of degree $\dd$ using \todo{} operations
@@ -330,6 +332,7 @@ $\extf\to\extf$, with kernel $V_i$. It will be convenient to encode
 this information in an $\nn\times\nn$ matrix, thus we define
 $\gamma_{i,j}=L_i(v_j)$, and
 \begin{equation}
+  \label{eq:Gamma}
   \Gamma =
   \begin{pmatrix}
     \gamma_{0,1} & \cdots & \gamma_{0,\nn}\\
@@ -464,39 +467,87 @@ $f_0$.  Said otherwise, for any root $\rho$ of $f$, SRA computes
 successive approximations $L_n(\rho),L_{n-1}(\rho),\dots,L_0(\rho)$,
 ultimately yielding the original root because $L_0(\rho)=\rho$.
 
-On the other hand, NSA isolates the roots of $f$ by
+On the other hand, ARM isolates the roots of $f$ by
 \emph{intersecting} them with the subspaces $V_{i,\rho}$, starting
 from the largest space $V_{n,0}$, and iteratively going down to the
 smallest ones $V_{0,\rho}$.  The successive intersections are computed
 by means of GCDs.  Said otherwise, for any root $\rho=\sum_j
-r_j\upsilon_j$ of $f$, NSA computes successive approximations
+r_j\upsilon_j$ of $f$, ARM computes successive approximations
 $\rho_k=\sum_{j>k}r_j\upsilon_j$, from $\rho_n=0$ down to
 $\rho_0=\rho$.
-
 
 
 \comd
 {\bf }La vision n'est pas la m\^eme que ci-dessus ("application to root finding") mais ce n'est pas en contradiction. J'ai essay\'e de faire un mais mais ce n'est pas complet. De mon point de vue la notion d'approximation ne vient que lorsque l'on instantie les espaces $V_i$ et $V_i^\ast$. A partir des coefficients $r_i$, on peut calculer les $\sum_{i<j} r_i v_i$.
 
+\section{Preliminaries}
 
-\section{Link between ASM and SRA}
+In this section we review the fundamental subroutines upon which are
+going to be based the algorithms of the next sections.
 
-In this section we show that ASM and SRA methods can be seen as
+\todo{Do we need to remind the costs of:
+  \begin{itemize}
+  \item gcd?
+  \item square-free factorization?
+  \item ddf?
+  \item modular composition?
+  \item iterated frobenius and similar tricks?
+  \item multipoint evaluation / interpolation?
+  \end{itemize}
+}
+
+\begin{Lem}
+  Let $f$ be a polynomial in $\extf$ of degree $\dd\gg\qq$. Let
+  $\delta_0,\dots,\delta_\dd\in\extf$ be a list of evaluation points,
+  and let $\beta\in\extf$.  All the values
+  \begin{equation*}
+    f(\delta_i + c\beta) \qquad\text{for any $0\le i\le d$ and any $c\in\basef$}
+  \end{equation*}
+  can be computed using $O(\Mul(\dd) \log_\qq\dd +
+  \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over $\extf$.
+\end{Lem}
+\begin{proof}
+  \todo{(Luca) See Python code. Note: this is a minor gain, compared
+    to a classic multi-point evaluation (which would cost
+    $O(\qq\Mul(d)\log d)$), but it is a gain, and it even is
+    practical, thus we may leave this if we have space.}
+\end{proof}
+
+\begin{Lem}
+  Let $f$ be a polynomial in $\extf$ of degree $d<\qq^{\nn-1}$, and
+  let $\beta\in\extf$. The resultant
+  \begin{equation*}
+    \Res_X(f(X), Y-X^\qq+\beta^{\qq-1} X)
+  \end{equation*}
+  can be computed using $O(\Mul(\dd) \log\dd +
+  \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over $\extf$.
+\end{Lem}
+\begin{proof}
+  \todo{(Luca or whoever feels like writing it) This one's easy: its
+    just one application of the previous lemma, plus the cost of one
+    interpolation $O(\Mul(d)\log d)$}
+\end{proof}
+
+
+
+\section{Link between ARM and SRA}
+
+In this section we show that ARM and SRA methods can be seen as
 \emph{dual} to each other if we remember that
 $$\gcd(f(X),g(X)) \ne 1 \mbox{  if and only if }\Res_X(f(X),g(X))=0\,.$$
 
 \medskip
 
-\noindent {\bf Pre-computation}: Both methods, ASM and SRA, start by computing the decomposition of the field equation following the procedure described in relation~(\ref{Li_generation}), i.e.
+\noindent {\bf Pre-computation}: Both methods, ARM and SRA, start by computing the decomposition of the field equation following the procedure described in relation~(\ref{Li_generation}), i.e.
  $$X^{\qn}-X=(X^\qq - \alpha_\nn) \circ (X^\qq - \alpha_{\nn-1}) \circ \cdots \circ (X^\qq - \alpha_1) \,.$$
 where $\alpha_i \in \extf$. This determine in particular the different linearized polynomials $L_i$ and the spaces $V_i=\Ker~L_i$ and $V_i^\ast=\Ima~L_i$. Note that this phase depends only on the field and may be re-used for the root-finding of several polynomials $f \in \extf[X]$ defined on the same field.
 
 \medskip
 
-\noindent {\bf ASM}: The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $l_i$.
+\noindent {\bf ARM}: The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $l_i$.
  It is achieved by the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
- \label{base_ASM}
+ \label{base_ARM}
 \gcd(f(X),L_i(X)-l_i)     \mbox{ for any }  l_i  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
@@ -505,7 +556,7 @@ $$\gcd(f(X),L_0(X)-l_0)=\gcd(f(X),X-l_0) \ne 1\,,$$
 provide the linear factors of $f$. Practically, these gcd's are computed in a dichotomic way. Let us first define
  $$f_{i,r}(X)=\gcd(f(X),L_i(X)-L_i(r))\,.$$
 where $r \in \extf$. Hence $f_{i,r}(X)=f_{i,r'}(X)$ if and only if $r-r' \in V_i$.
-According to~(\ref{base_ASM}) and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.
+According to~(\ref{base_ARM}) and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.
  $$f_{n,0}(X)=\gcd(f(X),L_n(X))=\gcd(f(X),X^{q^\nn}-X)\,.$$
 The recursive step is based on~(\ref{node_product}) and works as follow: for any $L_i(r) \in V_i^\ast$ such that $f_{i,r}(X)$ is neither a constant polynomial nor a linear factors,
   $$
@@ -518,12 +569,56 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
  Note that according to the linearity of $L_i$, the value $L_{i-1}(r)$ is common to the $\qq$ polynomials $f_{i-1,r+c \cdot  v_i}(X)$ to be determined and must be computed only once. 
  
  This procedure builds a tree where at each level only the nodes containing non-constant or linear polynomials are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct
- linear factors of $f$ (without their algebraic multiplicity). Note that all the other gcd's of~(\ref{base_ASM}) can be easily deduced without any computation from the leafs of the tree but they won't bring any new information to our problem.
+ linear factors of $f$ (without their algebraic multiplicity). Note that all the other gcd's of~(\ref{base_ARM}) can be easily deduced without any computation from the leafs of the tree but they won't bring any new information to our problem.
  
 
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
   
+ \begin{algorithm}
+   \caption{Affine Refinement Method}
+   \label{alg:arm}
+   \begin{algorithmic}[1]
+   \REQUIRE {A polynomial $f\in\extf[X]$ of degree $d$,\\
+     A basis $v_1,\dots,v_\nn$ of $\extf$,\\
+     The matrix $\Gamma=(\gamma_{i,j})$ defined in~\eqref{eq:Gamma}.}
+   \ENSURE {The roots of $f$ in $\extf$.}
+   \STATE Set $L_0 = X$;
+   \FOR {$1 \le i \le \nn$}
+   \STATE Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
+   \ENDFOR
+   \STATE Initialize tree with root $f_{\nn,0} = f \mod L_\nn$;
+   \FOR {$\nn \ge i \ge 1$}
+   \FOR {any node $f_{k,r}$ of degree $>1$ in the tree}
+   \STATE Compute $\ell_{i-1,r} = L_{i-1}(r) = \sum_j r_j\gamma_{i-1,j}$;
+   \ENDFOR
+   \FOR {any leaf in the tree $f_{i,r}$ of degree $>1$}
+   \STATE Compute $\bar{L}_r = L_{i-1}\mod f_{i,r}$;
+   \FOR {any $c\in\basef$}
+   \STATE $f_{i-1,r+c\cdot v_i} = \gcd(f_{i,r}, \bar{L}_r - \ell_{i-1,r} - c\gamma_{i-1,i})$;
+   \ENDFOR
+   \ENDFOR
+   \IF {all leaves have degree $\le 1$}
+   \RETURN The root of each leaf of degree $1$.
+   \ENDIF
+   \ENDFOR
+   \end{algorithmic}
+ \end{algorithm}
 
+ \begin{Lem}
+   Algorithm~\ref{alg:arm} (ARM) is correct. If the root tree for the
+   input $f$ and $v_1,\dots,v_\nn$ has depth $h$, it computes its
+   output using $O(n\Mul(d)\log q + h^2d + h\qq\Mul(d)\log d)$ operations over $\extf$.
+ \end{Lem}
+ \begin{proof}
+   \todo{Breakup:
+     \begin{itemize}
+     \item Step 3: $n\Mul(d)\log q$,
+     \item Step 7: $h^2d$ (even $hd$ on average),
+     \item Step 9: $h\Mul(d)\log d$ by a subproduct tree,
+     \item Step 11: $h\qq\Mul(d)\log d$.
+     \end{itemize}
+   }
+ \end{proof}
 
 \medskip
 
@@ -554,7 +649,7 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
 
 
 
-\section{Improvements and Complexity analysis of ASM and SRA}
+\section{Improvements and Complexity analysis of ARM and SRA}
 
 %The roots of the resultants are recursively determined, i.e.
 %  $$g^{(n)}(Y_n)=0   with Y_n  \in \{X \mid X^q-\alpha_n X = 0 \}    $$
@@ -738,7 +833,7 @@ Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(
 %
 Finally, the polynomial $L_i\bmod f$ can be computed in $\tilde O(dn)$ operations, or $O(dn)$ operations after the values $x^{q^i}\bmod f$ have been already computed.
 
-If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of NSA as above.
+If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of ARM as above.
 %
 When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launched again starting from a different basis on the smaller factors.
 
