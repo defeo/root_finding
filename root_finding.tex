@@ -896,14 +896,37 @@ If the polynomial $f$ is not squarefree and split, it is more efficient to first
 %
 When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launched again starting from a different basis on the smaller factors.
 
+\comd
+Je ne comprends pas du tout cette partie
+\comf
+
+$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k^Q(x^Q-x)\circ(\beta_k^{-1}x)\right)$$
+ in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
+ 
+A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
+$$L_{n_1i+j}=K_j\circ K'_i.$$
+When $j\neq0\bmod n_1$, the equation
+$$L_{n_1i+j+1}=L_{n_1i+j}^q-\alpha_iL_{n_1i+j}$$
+implies
+$$K_{j+1}=K_{j}^q-\alpha_iK_{j}.$$
+Solving this equation costs $O(n_2)$ and is sufficient to fully characterize $L_{n_1i+j}$.
+%
+When $j=0\bmod n_1$, both components of the $L$ polynomials must be adapted, at a cost $O(n_1+n_2)$.
+%
+The values $L_{n_1i+j}(r)$ can clearly be computed at a cost $O(n_1+n_2)$ using the composition.
+%
+Finally, the polynomial $L_{n_1i+j}(r)\bmod f$ can be computed at a cost $O(d(n_1+n_2)\log d)$ using fast modular exponentiation and modular composition algorithms.
+
+These optimizations decrease the overall average cost of the algorithm (after DDF) to $\tilde O(d(\sum_in_i))$ operations. 
 
 
+\comf
 
+
+\subsection{Decomposition of the field equation when $n$ is composite}
 
 
 \comd 
-
-{\bf J'ai r\'e\'ecrit cette partie en utilisant ce qu'avait fait Christophe et en rajoutant des constructions. Ce n'est pas parfait je dois encore un peu am\'eliorer}.
 
 
 
@@ -932,169 +955,148 @@ where $\circ^{k} P(X)$ means that $P(X)$ is composed $k$ times with itself.
 
  
 %texte de Christophe.
-\noindent {\bf b.} Consider the case where $\nn$ is composite, i.e. $n=n_1n_2$. Let $\{v_1,\ldots,v_{n_2}\}$ be a basis of $\mathbb{F}_{\qq^{n_1 \cdot n_2}}/\mathbb{F}_{\qq^{n_1}}$. To this basis corresponds a decomposition
-$$X^{\qq^\nn}-X=X^{(\qq^{n_1})^{n_2}}-X=\circ_{i=1}^{n_2} (X^{\qq^{n_1}}-\alpha_i X).$$
-where $\alpha_i=\beta_i^{\qq^{n_1}-1}$ for some $\beta_i \in \extf$.
+\noindent {\bf a.} Consider the case where $\nn$ is composite, i.e. $n=n_1n_2$. Let $\{v_1,\ldots,v_{n_2}\}$ be a basis of $\mathbb{F}_{\qq^{n_1 \cdot n_2}}/\mathbb{F}_{\qq^{n_1}}$. To this basis corresponds a decomposition
+\begin{equation}
+\label{decomp_n2}
+X^{\qq^\nn}-X=X^{(\qq^{n_1})^{n_2}}-X=\circ_{j=1}^{n_2} (X^{\qq^{n_1}}-\beta_j^{\qq^{n_1}-1} X)\,,
+\end{equation}
+for some $\beta_i \in \extf$.
 %Note that values $\beta_i$ such that $\alpha_i=\beta_i^{Q-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. 
-As already pointed out above, we can write 
-$$(X^{\qq^{n_1}}-\alpha_i X)= (\beta_i^{\qq^{n_1}} X) \circ (X^{\qq^{n_1}}-X)\circ(\beta_i^{-1}X).$$
+Also,  
+\begin{equation}
+\label{basic_decomp}
+(X^{\qq^{n_1}}-\beta_j^{\qq^{n_1}-1} X)= (\beta_j^{\qq^{n_1}} X) \circ (X^{\qq^{n_1}}-X)\circ(\beta_j^{-1}X)\,.
+\end{equation}
 Now $X^{\qq^{n_1}}-X$ may be decomposed according to  $\{v_1',\ldots,v_{n_1}'\}$, a basis of $\mathbb{F}_{\qq^{n_1}}/\basef$, i.e.
-$$X^{\qq^{n_1}}-X=\circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X)\,,$$
-where $\alpha_j' \in \mathbb{F}_{\qq^{n_1}}$. Therefore, substituting this decomposition in the previous equation leads to 
-
-$$(X^{\qq^{n_1}}-\alpha_i X)= (\beta_i^{\qq^{n_1}} X) \circ    \left(    \circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X)  \right) \circ(\beta_i^{-1}X)$$
-Observe that $(\beta_i^{\qq^{n_1}} X) \circ \left( \circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X)   \circ(\beta_i^{-1}X) \right)$ may be written as
-$$\circ_{j=1}^{n_1} \left( ((\beta_i^{\qq^{j-1}})^\qq X) \circ  (X^{\qq}-\alpha_j' X) \circ   ((\beta_i^{\qq^{j-1}})^{-1}X)  \right)\,.$$ 
-Also $((\beta_i^{\qq^{j-1}})^\qq X) \circ  (X^{\qq}-\alpha_j' X) \circ   ((\beta_i^{q^{j-1}})^{-1}X)=X^\qq-(\beta_i^{\qq^{j-1}})^{q-1} \alpha_{j}' X$.
-Therefore
+\begin{equation}
+\label{decomp_basef}
+X^{\qq^{n_1}}-X=\circ_{i=1}^{n_1} (X^{\qq}-(\beta_i')^{\qq-1} X)\,,
+\end{equation}
+where $\beta_i' \in \mathbb{F}_{\qq^{n_1}}$. Therefore, substituting this decomposition in the previous equation, $(X^{\qq^{n_1}}-\beta_j^{\qq^{n_1}-1} X)$ reduces to 
+$$(\beta_j^{\qq^{n_1}} X) \circ    \left(    \circ_{i=1}^{n_1} (X^{\qq}  -(\beta_i')^{\qq-1}    X)  \right) \circ(\beta_j^{-1}X)\,.$$
+%It follows that $X^{\qq^\nn}-X$ decomposes as
+%$$\circ_{j=1}^{n_2} \left(   (\beta_j^{\qq^{n_1}} X) \circ    \left(    \circ_{i=1}^{n_1} (X^{\qq}  -(\beta_i')^{\qq-1}    X)  \right) \circ(\beta_j^{-1}X)    \right) $$
+This last expression may be written as
+$$\circ_{i=1}^{n_1} \left( ((\beta_j^{\qq^{i-1}})^\qq X) \circ  (X^{\qq}- (\beta_i')^{\qq-1}    X) \circ   ((\beta_j^{\qq^{i-1}})^{-1}X)  \right)\,.$$ 
+Noting that each expression in the above decomposition is simply $X^\qq-(  \beta_i'  \beta_j^{\qq^{i-1}})^{q-1}  X$, we have
 \begin{equation}
 \label{decomp_partial}
-(X^{\qq^{n_1}}-\alpha_i X)=\circ_{j=1}^{n_1} (X^\qq-(\beta_i^{\qq^{j-1}})^{q-1} \alpha_{j}' X)
+(X^{\qq^{n_1}}- \beta_j^{\qq^{n_1}-1} X)=\circ_{i=1}^{n_1} (X^\qq-(\beta_i' \beta_j^{\qq^{i-1}}) )^{q-1} X)
 \end{equation}
 Finally,
 \begin{equation}
 \label{decomp_total}
-X^{\qq^\nn}-X=\circ_{i=1}^{n_2} \circ_{j=1}^{n_1} (X^\qq-(\beta_i^{\qq^{j-1}})^{q-1} \alpha_{j}' X)
+X^{\qq^\nn}-X=\circ_{j=1}^{n_2} \left( \circ_{i=1}^{n_1} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)
 \end{equation}
-Note that in this decomposition, all the coefficient $(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j$ belong to the general field $\extf$. This decomposition requires $\bigO(n_1^2+n_2^2)$ operations in $\extf$ and generalizes to $O(\sum n_i^2)$ when $n=\prod_i n_i$.
+or équivalente
+$$
+X^{\qq^n}-X=\circ_{k=1}^{n_1 \cdot n_2} (X^q-\Delta_k^{q-1} X)
+$$
+where $\Delta_{i+n_1 j}=\beta_i'  \beta_j^{\qq^{i-1}} \in \extf$.
+\medskip
 
- \comd
-il faut que $j$ aille de $n_1$ \`a 1, je ne sais pas si c'est clair, de la gauche ($j=n_1$) vers la droite $j=1$.
+\noindent {\bf Complexity:} This decomposition requires to compute the $\beta_i$'s and $\beta_i'$'s which costs $\bigO(\log q \cdot (n_1^2 +n_2^2))$ operations in $\extf$ and the $\beta_i'  \beta_j^{\qq^{i-1}}$'s 
+ which costs $\bigO(\log q \cdot n_1 \cdot n_2)$ operations in $\extf$. The overall cost is therefore $\bigO(\log q \cdot (n_1^2 +n_2^2 +n_1 \cdot n_2 ))$ operations in $\extf$ and generalizes to $O(\log q \cdot (\sum_i n_i^2 + n))$ when $n=\prod_i n_i$.
 
-IL faut mieux sp\'ecificier la complexit\'e
+\medskip
 
-Je ne sais pas si c'est mieux de faire d\'écouler le cas tour quadratique du cas composite ou pas. Je crains que cela ne soit moins clair que maintenant.
-
- \comf
-
-
-\noindent {\bf Remark:} In the particular case of quadratic extension, $n_2=2$, we have
-$$X^{\qq^\nn}-X=(X^{\qq^{n_1}}-X) \circ  (X^{\qq^{n_1}}+X)  \,.$$
+\noindent {\bf Remark:} In the particular case of a quadratic extension with characteristic $\ne 2$, we have $n=n_1 \cdot n_2$ where $n_2=2$. Also,
+$$X^{\qq^\nn}-X=(X^{\qq^{n_1}}+X)  \circ (X^{\qq^{n_1}}-X)  \,.$$
 Note that 
-$$(X^{\qq^{n_1}}+X)=(\beta^{\qq^{n_1}} X)  \circ  (X^{\qq^{n_1}}-X) \circ (\beta^{-1}  X)$$
+$$(X^{\qq^{n_1}}+X)=(X^{\qq^{n_1}} - \beta^{\qq^{n_1}-1} X)$$
  where $\beta=\alpha^{\frac{\qq^{n_1}+1}{2}}$ and $\alpha$ is a primitive element of $\extf^\ast$.
-Decomposing $X^{\qq^{n_1}}-X$ as 
-$$X^{\qq^{n_1}}-X=\circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X)   \mbox{ \;  where   \; }  \alpha_j' \in \mathbb{F}_{\qq^{n_1}} \,,$$
-we have
-$$(X^{\qq^{n_1}}+X)=(\beta^{\qq^{n_1}} X)  \circ  \left(\circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X) \right)      \circ (\beta^{-1}  X)$$
-or equivalently
-$$(X^{\qq^{n_1}}+X)=\circ_{j=1}^{n_1} \left(X^q-(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' X\right)\,.$$
-Finally,
-$$X^{\qq^\nn}-X=\circ_{j=1}^{n_1} (X^{\qq}-\alpha_j' X)   \circ \left( \circ_{j=1}^{n_1} \left(X^q-(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' X\right)      \right)$$
+Therefore, $\beta_1=1$ and $\beta_2=\beta$ in the relation~(\ref{decomp_n2}) and it follows from~(\ref{basic_decomp}) that
+$$X^{\qq^\nn}-X=(X^{\qq^{n_1}}-X) \circ  (\beta^{\qq^{n_1}} X) \circ (X^{\qq^{n_1}}-X) \circ  (\beta^{-1} X) $$
+Note that in the case of towers of quadratic extensions this principle may be recursively applied and the coefficients in the decomposition may be determined without having to specify a basis.
 
-
-
-%Consider the case of a quadratic extension towers $\extf$ of a field $\basef$ with characteristic $\ne 2$, i.e. $\nn=2^k$. For any $i \le k$, we have $X^{\qq^{2^i}}-X$ is $q-$associated to the polynomial $x^{\qq^{2^i}}-1=(x^{\qq^{2^{i-1}}}-1) \cdot (x^{\qq^{2^{i-1}}}+1)$. Therefore, 
- % $$X^{\qq^{2^i}}-X=(X^{\qq^{2^{i-1}}}-X)\circ  (X^{\qq^{2^{i-1}}}+X)\,.$$
-%\noindent Note that 
-%$$(X^{\qq^{2^{i-1}}}+X)=(\beta_i^{\qq^{2^{i-1}}} X)  \circ  (X^{\qq^{2^{i-1}}}-X) \circ (\beta_i^{-1}  X)$$
-% where $\beta_i=\alpha^{\frac{1}{2} \cdot \frac{\qq^{2^{k}-1}}{\qq^{2^{i-1}}-1}}$ and $\alpha$ is a primitive element of $\extf^\ast$.
-% Therefore, starting from $X^{\qq^{2^k}}-X$ the decomposition works recursively as 
-% $$X^{\qq^{2^i}}-X=(X^{\qq^{2^{i-1}}}-X)\circ  (\beta_i^{\qq^{2^{i-1}}} X) \circ (X^{\qq^{2^{i-1}}}-X) \circ (\beta^{-1}_i X) \,.$$
-% Assuming that $(X^{\qq^{2^{i-1}}}-X)$ may be decomposed as $\circ_{j=1}^{2^{i-1}} (X^\qq-\alpha_j X)$ where $\alpha_j \in \extf$, we note that $(\beta_i^{\qq^{2^{i-1}}} X) \circ (X^{\qq^{2^{i-1}}}-X) \circ (\beta^{-1}_i X)$
-%  may be written as 
-%$$ \circ_{j=1}^{2^{i-1}} (\beta_i^{\qq^{j-1}})^\qq \circ (X^\qq -\alpha_j X) \circ ((\beta_i^{\qq^{j-1}})^{-1}   X)=\circ_{j=1}^{2^{i-1}} (X^\qq -(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j X)\,.$$
-% Therefore,
+\medskip
  
-%$$ X^{\qq^{2^i}}-X=\circ_{j=1}^{2^{i-1}} (X^\qq-\alpha_j X) \circ \left(\circ_{j=1}^{2^{i-1}} (X^\qq -(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j X)  \right) $$
-%Note that in this decomposition, all the coefficient $(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j$ belong to the general field $\extf$.
-
-
-% \comd
-%IL faut mieux sp\'ecificier la complexit\'e
- %\comf
-
-
+\medskip 
  
-\noindent {\bf b.} Consider again the case where $\nn$ is composite, i.e. $n=\prod_{i=1}^r n_i$. In this construction, the $\alpha_i$'s appearing in the decomposition
- $$X^{\qq^\nn}-X=\circ_{i=1}^{n} (X^\qq-\alpha_i X)  $$
- satisfy the property that for any $t=1 \cdots r$, we have $\alpha_1, \cdots, \alpha_{\deg(t)} \in \mathbb{F}_{\qq^{\deg(t)}}$ where $\deg(t)=\prod_{i=1}^t n_i$.
- Consider the following decomposition
+\noindent {\bf b.} Consider again the case where $\nn$ is composite, i.e. $n=\prod_{i=1}^r n_i$. In this construction, the $\delta_i$'s appearing in the decomposition
+$$X^{\qq^\nn}-X=(X^\qq-\Delta_n^{\qq-1} X) \circ  \cdots \circ (X^\qq-\Delta_1^{\qq-1} X) $$
+are determined in such a way that:
+\begin{itemize}
+\item $\Ima L_k \subseteq \mathbb{F}_{\qq^{m_t}}$ where $L_k(X)=\circ_{j=1}^k (X^q-\Delta_j^{q-1} X)$,
+\item $\Delta_{k} \in \mathbb{F}_{\qq^{m_t}}$,
+\end{itemize}
+for any $k$ with $n-m_{t} \le k < n-m_{t-1}$ and $m_t=\prod_{i \le t} n_i$.
+
+\medskip
+
+\noindent Consider the following decomposition
 $$X^{\qq^{\nn}}-X=(X^{\qq}-X) \circ   \tr{\qq^\nn}{\qq}(X)  \,.  $$
 According the embedded trace formula, we have
-$$\tr{\qq^\nn}{\qq}(X)=\circ_{t=1}^r  \tr{\deg(t)}{\deg(t-1)}(X) $$
+$$\tr{\qq^\nn}{\qq}(X)=\circ_{t=1}^r  \tr{\qq^{m_t}}{\qq^{m_{t-1}}}(X) $$
 Therefore, 
- $$X^{\qq^{\nn}}-X=(X^{\qq}-X) \circ \left( \circ_{t=1}^r  \tr{\deg(t)}{\deg(t-1)}(X) \right)     \,.  $$
-Note that all the polynomials appearing in this decomposition linearized polynomials. Moreover they belong to $\basef[X]$ and therefore they commute.
- We can consequently consider the decomposition of each of them separately. By definition, 
- $$  \tr{\deg(t)}{\deg(t-1)}(X)=\sum_{i=0}^{n_t-1} X^{\qq^{\deg(t-1)\cdot i}}  $$
- Let $\{u_1, \cdots, u_{n_t-1}\}$ be a basis of $\Ker \tr{\deg(t)}{\deg(t-1)}$ over $\mathbb{F}_{\qq^{\deg(t-1)}}$.
+ \begin{equation}
+ \label{decomp_trace}
+ X^{\qq^{\nn}}-X=(X^{\qq}-X) \circ \left( \circ_{t=1}^r  \tr{\qq^{m_t}}{\qq^{m_{t-1}}}(X) \right)     \,. 
+\end{equation}
+Note that all the polynomials appearing in this decomposition are linearized polynomials. Moreover they belong to $\basef[X]$ and therefore they commute.
+ We can consequently consider the decomposition of each of them separately. By definition
+ $$  \tr{\qq^{m \cdot s}}{\qq^{m}}(X) =\sum_{i=0}^{s-1} X^{\qq^{m\cdot i}}  $$
+ Let $\{u_1, \cdots, u_{s-1}\}$ be a basis over $\mathbb{F}_{\qq^{m}}$ of $\Ker  \tr{\qq^{m \cdot s}}{\qq^{m}}$.
  Define  
- $$L_0(X)=0 \mbox{ and } L_{i+1}(X)=L_i(X)^{\qq^{\deg(t-1)}}-L_i(u_{i+1})^{\qq^{\deg(t-1)}-1} \cdot L_i(X)$$
- for $i=0, \cdots n_t-2$. Note that $L_{n_t-1}(X)=\tr{\deg(t)}{\deg(t-1)}(X)$.
+ $$K_0(X)=0 \mbox{ and } K_{j+1}(X)=K_j(X)^{\qq^{m}}-K_j(u_{j+1})^{\qq^{m}-1} \cdot K_j(X)$$
+ for $j=0, \cdots s-2$. Note that $K_{s-1}(X)=\tr{\qq^{m \cdot s}}{\qq^{m}}(X)$.
  Therefore, 
- $$\tr{\deg(t)}{\deg(t-1)}(X)=\circ_{i=1}^{n_t-1} (X^{\qq^{\deg(t-1)}} - \alpha_i X) \,,$$
- where $\alpha_i=\beta_i^{\qq^{\deg(t-1)}-1}$ and $\beta_i=L_{i-1}(u_{i})$. Note that $\alpha_i, \beta_i \in \mathbb{F}_{\qq^{\deg(t)}}$ because  $u_i \in \mathbb{F}_{\qq^{\deg(t)}}$. Proceeding as relation~(\ref{decomp_partial}),
-$$ X^{\qq^{\deg(t-1)}} - \alpha_i X=(\beta_i^{\qq^{\deg(t-1)}} X  ) \circ (X^{\qq^{\deg(t-1)}} - X)  \circ (\beta_i^{-1}X) $$
-Decomposing $X^{\qq^{\deg(t-1)}} - X$ as relation~(\ref{decomp_total}), i.e. 
-$$X^{\qq^{\deg(t-1)}} - X=\circ_{j=1}^{\deg(t-1)} (X^{\qq} -\alpha_i' X) \mbox{ where } \alpha_j' \in \mathbb{F}_{\qq^{\deg(t-1)}}\,,$$
-we have
-$$ X^{\qq^{\deg(t-1)}} - \alpha_i X=\circ_{j=1}^{\deg(t-1)} \left(X^q-(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' X\right)\,.$$
-and all the coefficients $(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' \in \mathbb{F}_{\qq^{\deg(t)}}$.
-$$\tr{\deg(t)}{\deg(t-1)}(X)=\circ_{i=1}^{n_t-1}  \circ_{j=1}^{\deg(t-1)} \left(X^q-(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' X\right) \,,$$
-and all the coefficients $(\beta_i^{\qq^{j-1}})^{\qq-1} \alpha_j' \in \mathbb{F}_{\qq^{\deg(t)}}$.
+ \begin{equation}
+ \label{betai}
+\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{j=1}^{s-1} (X^{\qq^{m}} - \beta_j^{\qq^{m}-1}   X) \,,
+\end{equation}
+ where $\beta_j=K_{j-1}(u_{j})$. Note that $\beta_j \in \mathbb{F}_{\qq^{m \cdot s}}$ because  $u_j \in \mathbb{F}_{\qq^{m \cdot s}}$. According to relation~(\ref{decomp_partial}),
+$$(X^{\qq^{m}}- \beta_j^{\qq^{m}-1} X)=\circ_{i=1}^{m} (X^\qq-( \beta_i' \beta_j^{\qq^{i-1}}) )^{q-1} X)$$
+where $\beta_j' \in \mathbb{F}_{\qq^m}$ satisfy
+\begin{equation}
+\label{betajprim}
+X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)\,,
+\end{equation}
+It follows that
+ $$\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{j=1}^{s-1} \left( \circ_{i=1}^{m} (X^\qq-( \beta_i' \beta_j^{\qq^{i-1}}) )^{q-1} X)   \right) \,,$$
+and all the coefficients $\beta_i' \beta_j^{\qq^{i-1}} \in \mathbb{F}_{\qq^{m \cdot s}}$.
+Defining $\delta_{i+jm}=\beta_i' \beta_j^{\qq^{i-1}} $, we have
+$$\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{k=1+m}^{m \cdot s}  (X^{\qq} -\delta_k^{\qq-1} X )$$
+where $\delta_k \in \mathbb{F}_{\qq^{m \cdot s}}$ for $m  < k \le m \cdot s$. If we define $\delta_1=1$ and we apply this trace decomposition for all the pairs $(m,s)=(m_{t-1},n_t)$ for $t=1 \cdots r$, 
+relation~(\ref{decomp_trace}) reduces to  
+$$X^{\qq^{\nn}}-X=(X^{\qq} -\delta_1^{\qq-1} X ) \circ (X^{\qq} -\delta_2^{\qq-1} X ) \circ \cdots \circ (X^{\qq} -\delta_n^{\qq-1} X )$$
+where $\delta_k \in \mathbb{F}_{\qq^{m_t}}$ for $m_{t-1}  < k \le m_t$ for $t=1 \cdots r$. In order to be in agreement with the numbering of the text, we need to define $\Delta_i=\delta_{n-i}$.
+We have
+$$X^{\qq^{\nn}}-X=(X^{\qq.} -\Delta_n^{\qq-1} X ) \circ (X^{\qq} -\Delta_{n-1}^{\qq-1} X ) \circ \cdots \circ (X^{\qq} -\Delta_1^{\qq-1} X )$$
+and $\Delta_k \in \mathbb{F}_{\qq^{m_t}}$ for $n-m_{t}  \le  k < n- m_{t-1}$ for $t=1 \cdots r$.
+Also, $L_i(X)$ is defined as 
+$$L_i(X)= (X^q-\Delta_i^{q-1} X) \circ \cdots \circ (X^q-\Delta_1^{q-1} X)\,,$$
+therefore for any $n-m_t \le k < n-m_{t-1}$, $L_k(X)$ may be decomposed as
+$$(X^q-\Delta_k^{q-1}X) \circ \cdots \circ (X^q-\Delta_{n-m_t+1}^{q-1}X) \circ  \tr{\qq^{n}}{\qq^{m_t}}(X)\,.$$
+Noting that the above $\Delta$'s all belong to $\mathbb{F}_{\qq^{m_t}}$ and that $\Ima \tr{\qq^{n}}{\qq^{m_t}}=\mathbb{F}_{\qq^{m_t}}$, we conclude that $\Ima L_k \subseteq \mathbb{F}_{\qq^{m_t}}$ for $n-m_{t}  \le  k < n- m_{t-1}$.
+
+\medskip
+
+\noindent {\bf Complexity:} Consider the cost a trace when $(m,s)=(m_{t-1},n_t)$. The computation of the $\beta_j$ taking place in relation~(\ref{betai}) cost $\bigO(\log q * n_t^2)$. The computation of the $\beta_j'$ taking place in relation~(\ref{betai}) costs $\bigO(\log q * (\sum_{i=1}^{t-1}  n_i^2 + m_{t-1} ) )$ according to the case {\bf a}. The computation of the $\delta$'s is 
+$\bigO(\log q * m_t)$. The overall cost a trace is therefore $\bigO(\log q * (\sum_{i=1}^{t}  n_i^2 + m_{t} ) )$. The computation of the $r$ traces costs therefore 
+$$\bigO\left( \log q \left( \sum_{t=1}^r (\sum_{i=1}^{t}  n_i^2 + m_{t})\right) \right)$$ 
+or 
+$$\bigO\left(\log q \cdot r   \cdot \left(\sum_{i=1}^{r} n_i^2 + n\right)\right)$$ 
+when $n=\prod_{i=1}^r n_i$. 
+
+
+\medskip
+
+\noindent {\bf Application to the SRA:} This decomposition is particularly interesting in the case of the SRA. Indeed, with this decomposition the $L_i$'s project the roots of $f$ to the successive subfields of $\extf$, i.e.  $\mathbb{F}_{\qq^{m_t}}$ for $t=1 \cdots r$.
+ Assume that $V_i^\ast=\Ima~L_i \subseteq \mathbb{F}_{\qq^h}$ for a particular $h$. The corresponding resultant $f^{(i)}$ will therefore belong to $\mathbb{F}_{\qq^h}[X]$ and all the arithmetic will therefore take place in this subfield.
+  
+
+
+
+%and we have $L_{n-m_t}(X)=\tr{\qq^{n}}{\qq^{m_t}}(X)$. Therefore, 
+%$$\Ima L_{n-m_t}=\mathbb{F}_{\qq^{m_t}}\,.$$
+%Finally, for any $n-m_t \le k < n-m_{t-1}$, $L_k(X)$ may be decomposed as
+%$$(X^q-\Delta_k^{q-1}X) \circ \cdots \circ (X^q-\Delta_{n-m_t+1}^{q-1}X) \circ  \tr{\qq^{n}}{\qq^{m_t}}(X)\,.$$
+%Noting that the above $\Delta$'s belong to $\mathbb{F}_{\qq^{m_t}}$ and $\Ima \tr{\qq^{n}}{\qq^{m_t}}=\mathbb{F}_{\qq^{m_t}}$, we conclude that $\Ima L_k \subseteq \mathbb{F}_{\qq^{m_t}}$ for $n-m_{t}  \le  k < n- m_{t-1}$.
+%$$circ_{k=1}^n (X^{\qq} -\delta_k^{\qq-1} X )\,.$$
+
 
  
- 
-\comd
-Je ne comprends pas du tout cette partie
-\comf
-
-$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k^Q(x^Q-x)\circ(\beta_k^{-1}x)\right)$$
- in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
- 
-A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
-$$L_{n_1i+j}=K_j\circ K'_i.$$
-When $j\neq0\bmod n_1$, the equation
-$$L_{n_1i+j+1}=L_{n_1i+j}^q-\alpha_iL_{n_1i+j}$$
-implies
-$$K_{j+1}=K_{j}^q-\alpha_iK_{j}.$$
-Solving this equation costs $O(n_2)$ and is sufficient to fully characterize $L_{n_1i+j}$.
-%
-When $j=0\bmod n_1$, both components of the $L$ polynomials must be adapted, at a cost $O(n_1+n_2)$.
-%
-The values $L_{n_1i+j}(r)$ can clearly be computed at a cost $O(n_1+n_2)$ using the composition.
-%
-Finally, the polynomial $L_{n_1i+j}(r)\bmod f$ can be computed at a cost $O(d(n_1+n_2)\log d)$ using fast modular exponentiation and modular composition algorithms.
-
-These optimizations decrease the overall average cost of the algorithm (after DDF) to $\tilde O(d(\sum_in_i))$ operations. 
-
-
-\comf
-
-
-
-\subsection{Optimisations when $n$ is composite}
-
-The efficiency of the algorithm can be greatly improved when $n$ is composite. Let $n_1,n_2$ such that  $n=n_1n_2$, and let $Q=q^{n_1}$.
-
-Let $\{\upsilon_1,\ldots,\upsilon_{n_2}\}$ be a basis of $\mathbb{F}_{Q^{n_2}}/\mathbb{F}_{Q}$. To this basis corresponds a decomposition
-$$x^{Q^{n_2}}-x=\circ_{i=1}^{n_2} (x^{Q}-\alpha_i x).$$
-Note that values $\beta_i$ such that $\alpha_i=\beta_i^{Q-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. As already pointed out above, we can write 
-$$(x^Q-\alpha_i x)= \beta_i^Q(x^Q-x)\circ(\beta_i^{-1}x).$$
-%
-Let now $\{\upsilon_1',\ldots,\upsilon_{n_1}'\}$ be a basis of $\mathbb{F}_{Q}/\mathbb{F}_{q}$. To this basis corresponds a decomposition
-$$x^{Q}-x=\circ_{j=1}^{n_1} (x^{q}-\alpha_j' x).$$
-Substituting in the previous equation, this allows to compute a decomposition
-$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k^Q(x^Q-x)\circ(\beta_k^{-1}x)\right)$$
- in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
- 
-A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
-$$L_{n_1i+j}=K_j\circ K'_i.$$
-When $j\neq0\bmod n_1$, the equation
-$$L_{n_1i+j+1}=L_{n_1i+j}^q-\alpha_iL_{n_1i+j}$$
-implies
-$$K_{j+1}=K_{j}^q-\alpha_iK_{j}.$$
-Solving this equation costs $O(n_2)$ and is sufficient to fully characterize $L_{n_1i+j}$.
-%
-When $j=0\bmod n_1$, both components of the $L$ polynomials must be adapted, at a cost $O(n_1+n_2)$.
-%
-The values $L_{n_1i+j}(r)$ can clearly be computed at a cost $O(n_1+n_2)$ using the composition.
-%
-Finally, the polynomial $L_{n_1i+j}(r)\bmod f$ can be computed at a cost $O(d(n_1+n_2)\log d)$ using fast modular exponentiation and modular composition algorithms.
-
-These optimizations decrease the overall average cost of the algorithm (after DDF) to $\tilde O(d(\sum_in_i))$ operations. 
-
 
 
 
