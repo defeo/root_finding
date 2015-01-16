@@ -308,3 +308,102 @@ def sra(f, basis=None):
         roots = newroots
     
     return roots
+
+def naive_bta(f):
+    '''
+    Berlekamp's Trace Algorithm, original version.
+    '''
+    if f.degree() == 1:
+        return [-f[0]]
+    elif f.is_constant():
+        return []
+    
+    K = f.base_ring()
+    Fp = K.prime_subfield()
+    X = f.parent().gen()
+    z = K.gen()
+    p = K.characteristic()
+    n = K.degree()
+
+    # Compute Tr(ax) mod f
+    a = K.random_element()
+    aXp = a*X
+    Tr = aXp
+    for i in range(n-1):
+        aXp = power_mod(aXp, p, f)
+        Tr += aXp
+
+    roots = []
+    for c in Fp:
+        nf = f.gcd(Tr - c)
+        if not nf.is_constant():
+            roots.extend(naive_bta(nf))
+            f = f // nf
+            if f.degree() <= 1:
+                roots.extend(naive_bta(f))
+                break
+            Tr = Tr % f
+
+    return roots
+
+def bta(f):
+    '''
+    Berlekamp's Trace Algorithm, optimized with a subproduct tree version.
+    '''
+    K = f.base_ring()
+    Fp = K.prime_subfield()
+    X = f.parent().gen()
+    z = K.gen()
+    p = K.characteristic()
+    n = K.degree()
+
+    # Product tree of f
+    Node = namedtuple('Node', ['f', 'Tr'])
+    tree = Tree(Node(f, None))
+    roots = []
+
+    while True:
+        # We descend the product tree
+        for node in tree:
+            parent = node.parent()
+            if parent is None:
+                # Compute Tr(ax) mod f
+                a = K.random_element()
+                aXp = a*X
+                Tr = aXp
+                for i in range(n-1):
+                    aXp = power_mod(aXp, p, node.val.f)
+                    Tr += aXp
+                node.val = Node(node.val.f, Tr)
+            else:
+                node.val = Node(node.val.f, parent.val.Tr % node.val.f)
+
+            # If trace is constant, all node roots have the same
+            # "twisted" trace. We will treat again this node.
+            if node.is_leaf() and not node.val.Tr.is_constant():
+                f = node.val.f
+                Tr = node.val.Tr
+                d = f.degree()
+                for c in Fp:
+                    nf = f.gcd(Tr - c)
+                    if not nf.is_constant():
+                        if nf.degree() == 1:
+                            roots.append(-nf[0])
+                            d -= 1
+                        else:
+                            node.add_child(Node(nf, None))
+                            d -= nf.degree()
+                        f = f // nf
+                        if f.degree() == 1:
+                            roots.append(-f[0])
+                            d -= 1
+                            break
+                        elif f.is_constant():
+                            break
+                        Tr = Tr % f
+
+                # If we haven't added any children, this node has been
+                # completely factored and can be pruned.
+                # If the tree is left empty, done.
+                if node.is_leaf() and node.prune() is None:
+                    return roots
