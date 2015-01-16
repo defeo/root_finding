@@ -1117,8 +1117,8 @@ Let us suppose $n=n_1n_2$. For $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,
 \begin{eqnarray*}
 K_{1,i_1}(X)&:=&\circ_{j_1=0}^{i_1} (X^{\qq}-\alpha_{j_1} X)\\
 K_{2,i_2}(X)&:=&\circ_{j_2=0}^{i_2} (\beta_{j_2}^{\qq^{n_1}} X)  \circ  (X^{\qq^{n_1}}-X) \circ (\beta_{j_2}^{-1}  X)\\
-L_{i_1,i_2}(X)&:=&K_{1,i_1}(X)\circ(\beta_{j_2+1}^{-1}  X)\circ K_{2,i_2}(X)\\
-&=&\beta_{i_2}^{-q^{n_1}}L_{i_2n_1+i_1}(X)
+L_{i_1,i_2}(X)&:=&(\beta_{i_2+1}^{q^{n_1}}X)\circ K_{1,i_1}(X)\circ(\beta_{i_2+1}^{-1}  X)\circ K_{2,i_2}(X)\\
+&=&L_{i_2n_1+i_1}(X)
 \end{eqnarray*}
 Using this decomposition formula, storing $L_{i_2n_2+i_1}$ only requires $O(n_2)$ elements over $\mathbb{F}_{\qn}$ and $O(n_1)$ elements over $\mathbb{F}_{\qq^{n_1}}$, instead of $O(n)$ elements over $\mathbb{F}_{\qn}$. 
 
