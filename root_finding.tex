@@ -878,51 +878,6 @@ The algorithm requires to store $O(n^2)$ field elements as such, but this memory
 
 
 
-\subsection{Removing precomputation in the average case}
-
-By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
-
-In the average case, the second step of our algorithm only uses the last $\alpha_i$ values. Let $S$ be an a priori bound on the number of values needed to split $f$ completely. Let $\{\upsilon_1,\ldots,\upsilon_S\}$ be a basis of a vector space of dimension $S$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(S^2)$ multiplications. By the above property on valid set, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
-
-We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
-$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
-Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_i^{-1}$, then we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
-%
-Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
-%
-Finally, the polynomial $L_i\bmod f$ can be computed in $\tilde O(dn)$ operations, or $O(dn)$ operations after the values $x^{q^i}\bmod f$ have been already computed.
-
-If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of ARM as above.
-%
-When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launched again starting from a different basis on the smaller factors.
-
-\comd
-Je ne comprends pas du tout cette partie
-\comf
-
-$$L_{n_1i+j}=\circ_{\ell=1}^j(x^{q}-\alpha_\ell' x) \circ_{k=1}^i \left(\beta_k^Q(x^Q-x)\circ(\beta_k^{-1}x)\right)$$
- in a time $O(n_1^2+n_2^2)$. This idea can be iterated if $n_1$ is itself composite, and the complexity of computing the decompositions becomes $O(\sum n_i^2)$.
- 
-A similar gain can be obtained in all steps of the algorithm of the previous section. First, it can clearly be applied to the computation of the $\alpha_i$ values. Then, instead of writing all $L_{n_1i+j}$ polynomials with $n$ coefficients, we keep them in a composed form
-$$L_{n_1i+j}=K_j\circ K'_i.$$
-When $j\neq0\bmod n_1$, the equation
-$$L_{n_1i+j+1}=L_{n_1i+j}^q-\alpha_iL_{n_1i+j}$$
-implies
-$$K_{j+1}=K_{j}^q-\alpha_iK_{j}.$$
-Solving this equation costs $O(n_2)$ and is sufficient to fully characterize $L_{n_1i+j}$.
-%
-When $j=0\bmod n_1$, both components of the $L$ polynomials must be adapted, at a cost $O(n_1+n_2)$.
-%
-The values $L_{n_1i+j}(r)$ can clearly be computed at a cost $O(n_1+n_2)$ using the composition.
-%
-Finally, the polynomial $L_{n_1i+j}(r)\bmod f$ can be computed at a cost $O(d(n_1+n_2)\log d)$ using fast modular exponentiation and modular composition algorithms.
-
-These optimizations decrease the overall average cost of the algorithm (after DDF) to $\tilde O(d(\sum_in_i))$ operations. 
-
-
-\comf
-
-
 \subsection{Decomposition of the field equation when $n$ is composite}
 
 
@@ -988,7 +943,7 @@ Finally,
 \label{decomp_total}
 X^{\qq^\nn}-X=\circ_{j=1}^{n_2} \left( \circ_{i=1}^{n_1} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)
 \end{equation}
-or équivalente
+or Ã©quivalente
 $$
 X^{\qq^n}-X=\circ_{k=1}^{n_1 \cdot n_2} (X^q-\Delta_k^{q-1} X)
 $$
@@ -1134,21 +1089,60 @@ In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to im
 
 
 
+\section{Linking with BTA: ARM variant without precomputation}
+
+By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
+
+In the average case, the second step of our algorithm only uses the last $\alpha_i$ values. Let $S$ be an a priori bound on the number of values needed to split $f$ completely. Let $\{\upsilon_1,\ldots,\upsilon_S\}$ be a basis of a vector space of dimension $S$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(S^2\log\qq)$ multiplications. By the above property on valid set, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
+
+We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
+$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
+Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_i^{-1}$, then we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
+%
+Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
+%
+Finally, the values $x^{q^j}\bmod f$ are computed using $O(dn\log q)$ operations, after which each polynomial
+$L_i\bmod f$ can be computed in $O(dn)$ operations.
+
+If the polynomial $f$ is not squarefree and split, it is more efficient to first perform a DDF using modular composition algorithms such as Kedlaya-Umans in theory, or ?? in practice. Starting from an a priori bound $S=2\log d$, we then compute the last $\alpha_i$ values and finally perform the second step of ARM as above.
+%
+When the a priori bound turns out to be insufficient (in the unlikely event that two roots belong to the same subspace $M_{i,r}$), this algorithm fails to completely factor $f$ into linear terms. However, the whole process (except for DDF) can then be launched again starting from a different basis on the smaller factors.
+
+We point out that when $S=1$, this algorithm reduces to Berlekamp's trace algorithm.
 
 
-\subsection{Factorization Algorithm over $\extf[X]$}
+\subsection{Improvement when $n$ is composite}
 
-We can use the composite degree variant of the algorithm to compute roots of $f$ over the field $\fqn^k$, and therefore deduce the factors of degree $k$. Since $k\leq n$ and most factors of $f$ are likely to have small and smooth degree, this trivial approach has a complexity close to the degree one factorization.
+Let us suppose $n=n_1n_2$. For $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,n_2\}$, we define 
+\begin{eqnarray*}
+K_{1,i_1}(X)&:=&\circ_{j_1=0}^{i_1} (X^{\qq}-\alpha_{j_1} X)\\
+K_{2,i_2}(X)&:=&\circ_{j_2=0}^{i_2} (\beta_{j_2}^{\qq^{n_1}} X)  \circ  (X^{\qq^{n_1}}-X) \circ (\beta_{j_2}^{-1}  X)\\
+L_{i_1,i_2}(X)&:=&K_{1,i_1}(X)\circ(\beta_{j_2+1}^{-1}  X)\circ K_{2,i_2}(X)\\
+&=&\beta_{i_2}^{-q^{n_1}}L_{i_2n_1+i_1}(X)
+\end{eqnarray*}
+Using this decomposition formula, storing $L_{i_2n_2+i_1}$ only requires $O(n_2)$ elements over $\mathbb{F}_{\qn}$ and $O(n_1)$ elements over $\mathbb{F}_{\qq^{n_1}}$, instead of $O(n)$ elements over $\mathbb{F}_{\qn}$. 
 
-\todo{I suspect that the roots of a degree $k$ factor have some special distribution in the tree that can be used to improve the complexity further, but I don't see clearly how at the moment.}
+On average, the algorithm will need $S=O(\log d)$ steps. Computing enough $\alpha_{j_1}$ and $\beta_{j_2}$ values requires $O(S^2\log q)$ multiplications over $\mathbb{F}_{\qq^{n_1}}$ if $S<n_1$, and $O(n_1^2\log q)$ multiplications over $\mathbb{F}_{\qq^{n_1}}$ plus $O\left(\frac{S^2}{n_1}\log \qq\right)$ multiplications over $\mathbb{F}_{\qn}$ if $S\geq n_1$.
+
+We now show how to compute $L_{i-1}$ from all $L_j$ with $j>i$ when these polynomials are represented as above. When $i<n_1$, this essentially involve solving the equation 
+$$K_{1,i_1+1}(x)=K_{1,i_1}(x)^q-\alpha_{i_1}K_{1,i_1}(x).$$
+This costs $O(n_1)$ multiplications over $\mathbb{F}_{\qq^{n_1}}$ for each value of $i$.
+%
+We must additionally compute $K_{2,i_2}(x)$ for all $n_2-1\geq i_2>n_2-S/n_1$. This costs $O(Sn_2/n_1)$ multiplications over $\mathbb{F}_{\qq^{n}}$ in total.
+
+We then show how to compute $L_{i_1,i_2}\bmod f$ for all $i_1,i_2$ such that $n-(i_2n_2+i_1)<S$. First we compute all polynomials $X^{q^{i_1}}$ and $X^{q^{n_1i_2}}$ modulo $f$ for $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,n_2\}$, at the cost of $O(\log q+n_1+n_2)$ modular compositions.
+Then we compute all $K_{1,i_1}$ and $K_{2,i_2}$ needed modulo $f$ by linear combinations, at a total cost of $O(d(\min(S,n_1)n_1+\max(1,S/n_1)n_2))$ operations over $\mathbb{F}_{\qn}$. Finally, we compute the $S$ compositions of $K_{1,i_1}$ and $K_{2,i_2}$ modulo $f$ needed. 
+%
+Each modular composition can asymptotically be done in time $O(d^{1})$ operations over $\mathbb{F}_{\qn}$ using Kedlaya-Umans' algorithm~\cite{}.
+
+We finally show how to compute $L_{i_1,i_2}(\rho)=L_{i_1,i_2}(X)\bmod(X-\rho)$. 
+We use the same technique as the one we used to compute $L_{i_1,i_2}\bmod f$, but replacing the polynomial $f(X)$ by $f'(X):=X^m-\rho^m$ with $m\in\{2,3\}$ such that $\gcd(m,q)=1$. This produces $L_{i_1,i_2}\bmod f'$, which we reduce modulo $X-\rho$ to obtain $L_{i_1,i_2}(\rho)$.
 
 
-\subsection{Extension to several polynomials}
 
 
 
-\section{Applications to polynomial factorisation}
-\label{sec:factorization}
+
 
 \section{Experimental results}
 
