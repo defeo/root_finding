@@ -1128,7 +1128,7 @@ We now show how to compute $L_{i-1}$ from all $L_j$ with $j>i$ when these polyno
 $$K_{1,i_1+1}(x)=K_{1,i_1}(x)^q-\alpha_{i_1}K_{1,i_1}(x).$$
 This costs $O(n_1)$ multiplications over $\mathbb{F}_{\qq^{n_1}}$ for each value of $i$.
 %
-We must additionally compute $K_{2,i_2}(x)$ for all $n_2-1\geq i_2>n_2-S/n_1$. This costs $O(Sn_2/n_1)$ multiplications over $\mathbb{F}_{\qq^{n}}$ in total.
+We must additionally compute $K_{2,i_2}(x)$ for all $n_2-1\geq i_2>n_2-S/n_1$. This costs $O(Sn_2/n_1\cdot n_1\log q)=O(Sn_2\log q)$ multiplications over $\mathbb{F}_{\qq^{n}}$ in total.
 
 We then show how to compute $L_{i_1,i_2}\bmod f$ for all $i_1,i_2$ such that $n-(i_2n_2+i_1)<S$. First we compute all polynomials $X^{q^{i_1}}$ and $X^{q^{n_1i_2}}$ modulo $f$ for $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,n_2\}$, at the cost of ?????
 %$O(\log q+n_1+n_2)$ 
