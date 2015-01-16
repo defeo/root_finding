@@ -1130,7 +1130,9 @@ This costs $O(n_1)$ multiplications over $\mathbb{F}_{\qq^{n_1}}$ for each value
 %
 We must additionally compute $K_{2,i_2}(x)$ for all $n_2-1\geq i_2>n_2-S/n_1$. This costs $O(Sn_2/n_1)$ multiplications over $\mathbb{F}_{\qq^{n}}$ in total.
 
-We then show how to compute $L_{i_1,i_2}\bmod f$ for all $i_1,i_2$ such that $n-(i_2n_2+i_1)<S$. First we compute all polynomials $X^{q^{i_1}}$ and $X^{q^{n_1i_2}}$ modulo $f$ for $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,n_2\}$, at the cost of $O(\log q+n_1+n_2)$ modular compositions.
+We then show how to compute $L_{i_1,i_2}\bmod f$ for all $i_1,i_2$ such that $n-(i_2n_2+i_1)<S$. First we compute all polynomials $X^{q^{i_1}}$ and $X^{q^{n_1i_2}}$ modulo $f$ for $i_1\in\{0,\ldots,n_1-1\}$ and $i_2\in\{0,\ldots,n_2\}$, at the cost of ?????
+%$O(\log q+n_1+n_2)$ 
+modular compositions.
 Then we compute $K_{2,i_2}\bmod f$ for $i_2=n_2-\lceil S/n_2\rceil$ by linear combinations, at a cost of $O(n_2)$ operations over $\mathbb{F}_{\qn}$. Finally, we iteratively compute $L_{i_1,i_2}\bmod f$ from $(i_1,i_2)=(0,n_2-\lceil S/n_2\rceil)$ up to $(n_1-1,n_2-1)$, at a cost of $O(\log q d)$ operations per step.
 %
 Each modular composition can asymptotically be done in time $O(d^{1})$ operations over $\mathbb{F}_{\qn}$ using Kedlaya-Umans' algorithm~\cite{}.
