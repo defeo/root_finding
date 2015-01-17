@@ -876,16 +876,10 @@ The algorithm requires to store $O(n^2)$ field elements as such, but this memory
 
 \section{Variant and Extensions}
 
-
 \subsection{Decomposition of the field equation when $n$ is composite}
 
-
-\comd 
-
-
-
-\noindent Both root-finding method, SRA and ARM, require first to write down the field equation as the composition of elementary linearized polynomials, i.e. $X^{q^n}-X=\circ_{i=1}^n (X^q-\alpha_i \cdot X)$.
-As previously seen, the $\alpha_i$ can be computed in $\mathcal{O}(n^2)$ operations in $\mathbb{F}_{q^n}$. When $n$ is composite, generic formula may be deduced 
+\noindent Both root-finding method, SRA and ARM, require first to write down the field equation as the composition of elementary linearized polynomials, i.e. $X^{q^n}-X=\circ_{i=1}^n (X^q-\alpha_i^{q-1} \cdot X)$.
+As previously seen, the $\alpha_i$ can be computed in $\mathcal{O}(\log q \cdot n^2)$ operations in $\mathbb{F}_{q^n}$. When $n$ is composite, generic formula may be deduced 
 which allows to decrease the time complexity of the computation.
 
 \medskip   
@@ -903,25 +897,36 @@ where $\circ^{k} P(X)$ means that $P(X)$ is composed $k$ times with itself.
 
 \medskip
 
-\noindent In what follows, we consider w.l.o.g the decomposition of the field equation $X^{\qq^n}-X$ where $\gcd(n,p)=1$ and $p$ is the characteristic of the field.
+\noindent In what follows, we consider w.l.o.g the decomposition of the field equation $X^{\qq^n}-X$ where $\gcd(n,p)=1$ and $p$ is the characteristic of the field. We first prove a technical lemma which will allow us to decompose field equation in different ways.
 
 \medskip
 
- 
-%texte de Christophe.
-\noindent {\bf a. Generic field equation decomposition for composite fields} Consider the case where $\nn$ is composite, i.e. $n=m \cdot s$. Let $\{v_1,\ldots,v_{s}\}$ be a basis of $\mathbb{F}_{\qq^{m \cdot s}}/\mathbb{F}_{\qq^{m}}$. To this basis corresponds a decomposition
-\begin{equation}
-\label{decomp_n2}
-X^{\qq^\nn}-X=X^{(\qq^{m})^{s}}-X=\circ_{j=1}^{s} (X^{\qq^{m}}-\beta_j^{\qq^{m}-1} X)\,,
-\end{equation}
-for some $\beta_i \in \extf$.
-%Note that values $\beta_i$ such that $\alpha_i=\beta_i^{Q-1}$ can be computed simultaneously to the $\alpha_i$ at no further cost. 
+According to theorem 3.68 of "Finite Fields"~\cite{LildNiderreiter}, any $\qq^m$-linearized polynomial $L'(X)$ over $\mathbb{F}^{\qq^{m \cdot s}}$ $L'(X)$ may be decomposed into $\qq^m$-linearized polynomials as $L'(X)=L_I(X) \circ L(X)$ where $L_I(X)$ has no root in $\mathbb{F}^{\qq^{m \cdot s}}$ and  $L(X)$ is the $\qq^m$-linearized minimal polynomial of $Ker~L'$. The next Lemma show how to decompose the $L(X)$ part.
+
+\begin{Lem}
+\label{linearized_decomposition}
+Let $\{u_1, \cdots, u_r\}$ be a basis of a vector subspace of $\mathbb{F}_{\qq^{ms}}/\mathbb{F}_{\qq^m}$ and $L(X)$ be the
+ $\qq^m$-linearized minimal polynomial over $\mathbb{F}_{\qq^{ms}}$ of this basis. Assume we know the decomposition
+$X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)$ where $\beta_i' \in \mathbb{F}_{\qq^{m}}$. Then, $L(X)$ may be decomposed as
+$$L(X)=\circ_{j=1}^{r} \left( \circ_{i=1}^{m} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)$$
+where $\beta_j \in \mathbb{F}_{\qq^{m\cdot s}}$. Moreover, the $\beta_i$ and the cross-product $\beta_i' \beta_j^{q^{i-1}}$ may be computed in 
+$$\bigO(\log q \cdot m \cdot r^2 \cdot \Mul(m \cdot s))$$
+operations in $\basef$.
+\end{Lem}
+\begin{proof}
+By hypothesis,  $\{u_1, \cdots, u_r\}$ is a basis of $\Ker L$ over $\mathbb{F}_{\qq^m}$.  To this basis, we associate the polynomials $K_j$ defined by $K_0(X)=X$ and 
+$$K_{j+1}(X)=K_j(X)^{\qq^{m}}-K_j(u_{j+1})^{\qq^{m}-1} \cdot K_j(X)$$
+ for $j=0, \cdots r-1$. Note that $K_r(X)=L(X)$ because they are both monic, $\Ker K_r=\Ker L$, they share the same degree and $L$ is minimal. Therefore,
+$$L(X)=\circ_{j=1}^r (X^{\qq^m} -\beta_j^{\qq^m-1}X) $$
+where $\beta_j=K_{j-1}(u_i) \in \mathbb{F}_{\qq^{ms}}$.
+%(X^{\qq^m} -X $$
+%\beta_j^{\qq^{m}-1}
 Also,  
 \begin{equation}
 \label{basic_decomp}
 (X^{\qq^{m}}-\beta_j^{\qq^{m}-1} X)= (\beta_j^{\qq^{m}} X) \circ (X^{\qq^{m}}-X)\circ(\beta_j^{-1}X)\,.
 \end{equation}
-Now $X^{\qq^{m}}-X$ may be decomposed according to  $\{v_1',\ldots,v_{m}'\}$, a basis of $\mathbb{F}_{\qq^{m}}/\basef$, i.e.
+By hypothesis $X^{\qq^{m}}-X$ may be decomposed as
 \begin{equation}
 \label{decomp_basef}
 X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)\,,
@@ -940,28 +945,38 @@ Noting that each expression in the above decomposition is simply $X^\qq-(  \beta
 Finally,
 \begin{equation}
 \label{decomp_total}
-X^{\qq^\nn}-X=\circ_{j=1}^{s} \left( \circ_{i=1}^{m} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)
+L(X)=\circ_{j=1}^{r} \left( \circ_{i=1}^{m} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)
 \end{equation}
-or équivalente
-$$
-X^{\qq^n}-X=\circ_{k=1}^{\nn} (X^q-\Delta_k^{q-1} X)
-$$
-where $\Delta_{i+m j}=\beta_i'  \beta_j^{\qq^{i-1}} \in \extf$.
+%or equivalently
+%$$
+%L(X)=\circ_{k=1}^{\nn} (X^q-\Delta_k^{q-1} X)
+%$$
+%where $\Delta_{i+m j}=\beta_i'  \beta_j^{\qq^{i-1}} \in \extf$.
+\medskip
+\end{proof}
+
+
+\noindent {\bf a. Generic field equation decomposition for composite fields}
+
+Consider the polynomial $L(X)=X^{\qq^{m \cdot s}}-X$. This polynomial is monic, $\qq^{m}-$linearized, split and with degree $\qq^{m \cdot s}$. Therefore, according to Lemma~
+\ref{linearized_decomposition}, $X^{\qq^{m \cdot s}}-X$ may be decomposed as 
+$$X^{\qq^{m\cdot s}}-X=\circ_{j=1}^{s} \left( \circ_{i=1}^{m} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)$$
+
+%\circ_{k=1}^{m \cdot s} (X^q-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1} X)\,.$$
+The $\beta_i \in \mathbb{F}_{\qq^{m \cdot s}}$ and the cross product $\beta_i'  \beta_j^{\qq^{i-1}}$ may be computed in 
+$$\bigO(\log q \cdot m \cdot s^2 \cdot \Mul(m \cdot s))$$
+operations in $\basef$ provided we know the $\beta'_j \in \mathbb{F}_{\qq^m}$ of the decomposition $X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)$.
+
 \medskip
 
-\noindent {\bf Complexity:} Denote by $\Decomp(\nn)$ the complexity in terms of operations in $\basef$ to compute the $\alpha_i$'s in the decomposition 
+Denote by $\Decomp(\nn)$ the complexity in terms of operations in $\basef$ to compute the $\alpha_i$'s in the decomposition 
 $$X^{\qq^\nn}-X=\circ_{i=1}^{\nn} (X^q-\alpha_i^{q-1} X)\,.$$
-where $\alpha_i \in extf$. In what follows, we assume that the elements of $\mathbb{F}_{\qq^{\nn}}$ are represented in the tower "representation" in order to be able to 
-performed operations on elements of the subfield $\mathbb{F}_{\qq^m}$ at the cost of operations on the field $\mathbb{F}_{\qq^m}$.
-
-
-The computation of the  $\beta_i$'s costs $\bigO(\log (q^m) \cdot s^2)$ operations in $\extf$ (see Lemma~\ref{precomputation_complexity}) 
- while the computation $\beta_i'$'s costs by definition $\Decomp(m)$ operations in $\basef$. The computation of the cross products  $\beta_i'  \beta_j^{\qq^{i-1}}$'s costs $\bigO(\log q \cdot m \cdot s)$ operations in $\extf$. Therefore,
-$$\Decomp(m\cdot s)=\bigO(\log q \cdot m \cdot s^2 \cdot \Mul(m \cdot s)) +  \Decomp(m)\,.$$
+where $\alpha_i \in \extf$. In what follows, we assume that the elements of $\mathbb{F}_{\qq^{\nn}}$ are represented in the tower "representation" in order to be able to 
+performed operations on elements of the subfield $\mathbb{F}_{\qq^m}$ at the cost of operations on the field $\mathbb{F}_{\qq^m}$. According to the above discussion, we may write
+$$\Decomp(m \cdot s)=\bigO(\log q \cdot m \cdot s^2 \cdot \Mul(m \cdot s))+\Decomp(n)\,.$$
 Applying this formula recursively to $n=\prod_i n_i$, we have
 $$\Decomp(n)=\bigO\left(\log q \left(\sum_i m_i \cdot n_i^2 \cdot \Mul(m_i \cdot n_i) \right) \right)$$
-where $m_i=\prod_{j < i} n_j$.
-
+where $m_i=\prod_{j < i} n_j$. Note that  $\Decomp(\nn)$ is actually the complexity of the decomposition of all the subfields of $\extf$.
 
 \medskip
 
@@ -975,83 +990,76 @@ $$X^{\qq^\nn}-X=(X^{\qq^{m}}-X) \circ  (\beta^{\qq^{m}} X) \circ (X^{\qq^{m}}-X)
 Note that in the case of towers of quadratic extensions this principle may be recursively applied and the coefficients in the decomposition may be determined without having to specify a basis.
 
 \medskip
- 
-\medskip 
- 
-\noindent {\bf b. Generic field equation decomposition for composite fields with additional properties.} Consider again the case where $\nn$ is composite, i.e. $n=\prod_{i=1}^r n_i$. In this construction, the $\delta_i$'s appearing in the decomposition
+
+
+\noindent {\bf b. Generic field equation decomposition for composite fields with additional properties.} Consider again the case where $\nn$ is composite, i.e. $n=\prod_{i=1}^r n_i$. Remember that $m_t =\prod_{i <t} n_i$. In this construction, the $\Delta_i$'s appearing in the decomposition
 $$X^{\qq^\nn}-X=(X^\qq-\Delta_n^{\qq-1} X) \circ  \cdots \circ (X^\qq-\Delta_1^{\qq-1} X) $$
 are determined in such a way that:
 \begin{itemize}
-\item $\Ima L_k \subseteq \mathbb{F}_{\qq^{m_t \cdot n_t}}$ where $L_k(X)=\circ_{j=1}^k (X^q-\Delta_j^{q-1} X)$,
-\item $\Delta_{k} \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$,
+\item $\Ima L_{n-k} \subseteq \mathbb{F}_{\qq^{m_t \cdot n_t}}$ where $L_{i}(X)=\circ_{j=1}^{i} (X^q-\Delta_j^{q-1} X)$,
+\item $\Delta_{n-k} \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$,
 \end{itemize}
-for any $k$ with $n-n_t \cdot m_{t} \le k < n-m_{t}$ and $m_t=\prod_{i < t} n_i$.
+for any $k$ with $m_{t}< k \le n_t \cdot m_{t}$ and $m_t=\prod_{i < t} n_i$.
 
 \medskip
 
 \noindent Consider the following decomposition
 $$X^{\qq^{\nn}}-X=(X^{\qq}-X) \circ   \tr{\qq^\nn}{\qq}(X)  \,.  $$
 According the embedded trace formula, we have
-$$\tr{\qq^\nn}{\qq}(X)=\circ_{t=1}^r  \tr{\qq^{m_t \cdot n_t}}{\qq^{m_{t}}}(X) $$
-Therefore, 
+%$$\tr{\qq^\nn}{\qq}(X)=\circ_{t=1}^r  \tr{\qq^{m_t \cdot n_t}}{\qq^{m_{t}}}(X) $$
+%Therefore, 
  \begin{equation}
  \label{decomp_trace}
  X^{\qq^{\nn}}-X=(X^{\qq}-X) \circ \left( \circ_{t=1}^r  \tr{\qq^{m_t \cdot n_t}}{\qq^{m_{t}}}(X) \right)     \,. 
 \end{equation}
-Note that all the polynomials appearing in this decomposition are linearized polynomials. Moreover they belong to $\basef[X]$ and therefore they commute.
+Note that all the polynomials appearing in this decomposition are $q$-linearized polynomials. Moreover they belong to $\basef[X]$ and therefore they commute.
  We can consequently consider the decomposition of each of them separately. By definition
  $$  \tr{\qq^{m \cdot s}}{\qq^{m}}(X) =\sum_{i=0}^{s-1} X^{\qq^{m\cdot i}}  $$
- Let $\{u_1, \cdots, u_{s-1}\}$ be a basis over $\mathbb{F}_{\qq^{m}}$ of $\Ker  \tr{\qq^{m \cdot s}}{\qq^{m}}$.
- Define  
- $$K_0(X)=0 \mbox{ and } K_{j+1}(X)=K_j(X)^{\qq^{m}}-K_j(u_{j+1})^{\qq^{m}-1} \cdot K_j(X)$$
- for $j=0, \cdots s-2$. Note that $K_{s-1}(X)=\tr{\qq^{m \cdot s}}{\qq^{m}}(X)$.
- Therefore, 
- \begin{equation}
- \label{betai}
-\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{j=1}^{s-1} (X^{\qq^{m}} - \beta_j^{\qq^{m}-1}   X) \,,
-\end{equation}
- where $\beta_j=K_{j-1}(u_{j})$. Note that $\beta_j \in \mathbb{F}_{\qq^{m \cdot s}}$ because  $u_j \in \mathbb{F}_{\qq^{m \cdot s}}$. According to relation~(\ref{decomp_partial}),
-$$(X^{\qq^{m}}- \beta_j^{\qq^{m}-1} X)=\circ_{i=1}^{m} (X^\qq-( \beta_i' \beta_j^{\qq^{i-1}}) )^{q-1} X)$$
-where $\beta_j' \in \mathbb{F}_{\qq^m}$ satisfy
+This polynomial is monic, $\qq^{m}-$linearized, split and with degree $\qq^{m \cdot (s-1)}$. Therefore, according to Lemma~\ref{linearized_decomposition}, we have
 \begin{equation}
-\label{betajprim}
-X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)\,,
+\label{decomposition_trace}
+\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{j=1}^{s-1} \left( \circ_{i=1}^{m} (X^\qq-(\beta_i'  \beta_j^{\qq^{i-1}})^{q-1}   X) \right)\,.
 \end{equation}
-It follows that
- $$\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{j=1}^{s-1} \left( \circ_{i=1}^{m} (X^\qq-( \beta_i' \beta_j^{\qq^{i-1}}) )^{q-1} X)   \right) \,,$$
-and all the coefficients $\beta_i' \beta_j^{\qq^{i-1}} \in \mathbb{F}_{\qq^{m \cdot s}}$.
-Defining $\delta_{i+jm}=\beta_i' \beta_j^{\qq^{i-1}} $, we have
+The $\beta_i \in \mathbb{F}_{\qq^{m \cdot s}}$ and the cross product $\beta_i'  \beta_j^{\qq^{i-1}}$ may be computed in 
+$$\bigO(\log q \cdot m \cdot s^2 \cdot \Mul(m \cdot s))$$
+operations in $\basef$ provided we know the $\beta'_j \in \mathbb{F}_{\qq^m}$ of the decomposition $X^{\qq^{m}}-X=\circ_{i=1}^{m} (X^{\qq}-(\beta_i')^{\qq-1} X)$.
+It follows that the cost of the decomposition of $\tr{\qq^{m \cdot s}}{\qq^{m}}(X)$ in terms of operations in $\basef$ is
+\begin{equation}
+\label{recursive_complexity_trace}
+\bigO(\log q \cdot m \cdot s^2 \cdot \Mul(m \cdot s)) +\Decomp(m)
+\end{equation}
+According relation~(\ref{decomp_trace}) that the cost in terms of operations in $\basef$ of the decomposition of $X^{\qq^\nn}-X$ is the cost of computation of the $r$ traces when $(m,s)=(m_{t},n_t)$ for $t=1 \cdots r$. The cost to decompose all the proper subfields of $\extf$ is $\Decomp(m_r)$. The additional cost to compute each trace corresponding to $(m_t,n_t)$ is 
+$$\bigO\left(\log q \left(m_t \cdot n_t^2 \cdot \Mul(m_t \cdot n_t) \right) \right)\,.$$
+Therefore the additional cost to compute the $r$ traces is $\Decomp(\nn)$ and we conclude that the overall cost for this decomposition of $X^{\qq^\nn}-X$ is 
+$$\Decomp(\nn)\,.$$
+
+Now, define $\delta_{i+jm}=\beta_i' \beta_j^{\qq^{i-1}} $. According to relation~(\ref{decomposition_trace}) we have
 $$\tr{\qq^{m \cdot s}}{\qq^{m}}(X)=\circ_{k=1+m}^{m \cdot s}  (X^{\qq} -\delta_k^{\qq-1} X )$$
-where $\delta_k \in \mathbb{F}_{\qq^{m \cdot s}}$ for $m  < k \le m \cdot s$. If we define $\delta_1=1$ and we apply this trace decomposition for all the pairs $(m,s)=(m_{t},n_t)$ for $t=1 \cdots r$, 
+where $\delta_{k} \in \mathbb{F}_{\qq^{m \cdot s}}$ for $m  < k \le m \cdot s$. If we define $\delta_1=1$ and we apply this trace decomposition for all the pairs $(m,s)=(m_{t},n_t)$ for $t=1 \cdots r$, 
 relation~(\ref{decomp_trace}) reduces to  
 $$X^{\qq^{\nn}}-X=(X^{\qq} -\delta_1^{\qq-1} X ) \circ (X^{\qq} -\delta_2^{\qq-1} X ) \circ \cdots \circ (X^{\qq} -\delta_n^{\qq-1} X )$$
-where $\delta_k \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $m_{t}  < k \le m_t \cdot n_t$ for $t=1 \cdots r$. In order to be in agreement with the numbering of the text, we need to define $\Delta_i=\delta_{n-i}$.
+where $\delta_{k} \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $m_{t}  < k \le m_t \cdot n_t$ for $t=1 \cdots r$. In order to be in agreement with the numbering of the text, we need to define $\Delta_i=\delta_{n-i}$.
 We have
 $$X^{\qq^{\nn}}-X=(X^{\qq.} -\Delta_n^{\qq-1} X ) \circ (X^{\qq} -\Delta_{n-1}^{\qq-1} X ) \circ \cdots \circ (X^{\qq} -\Delta_1^{\qq-1} X )$$
-and $\Delta_k \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $n-m_{t} \cdot n_t  \le  k < n- m_{t}$ for $t=1 \cdots r$.
+and $\Delta_{n-k} \in \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $m_{t}  < k \le m_t \cdot n_t$ for $t=1 \cdots r$.
 Also, $L_i(X)$ is defined as 
-$$L_i(X)= (X^q-\Delta_i^{q-1} X) \circ \cdots \circ (X^q-\Delta_1^{q-1} X)\,,$$
-therefore for any $n-m_t \cdot n_t \le k < n-m_{t}$, $L_k(X)$ may be decomposed as
-$$(X^q-\Delta_k^{q-1}X) \circ \cdots \circ (X^q-\Delta_{n-m_t \cdot n_t+1}^{q-1}X) \circ  \tr{\qq^{n}}{\qq^{m_t \cdot n_t}}(X)\,.$$
-Noting that the above $\Delta$'s all belong to $\mathbb{F}_{\qq^{m_t \cdot n_t}}$ and that $\Ima \tr{\qq^{n}}{\qq^{m_t \cdot n_t}}=\mathbb{F}_{\qq^{m_t \cdot n_t}}$, we conclude that $\Ima L_k \subseteq \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $n-m_{t} \cdot n_t  \le  k < n- m_{t}$.
-
-\medskip
-
-\noindent {\bf Complexity:} Consider the cost a trace when $(m,s)=(m_{t},n_t)$. The computation of the $\beta_j$ taking place in relation~(\ref{betai}) costs $\bigO(\log q^{m_{t}} \cdot n_t^2)$ operations in $\mathbb{F}_{\qq^{m_t \cdot n_t}}$. The computation of the $\beta_j'$ taking place in relation~(\ref{betajprim}) costs $\Decomp(m_t)$ operations in $\basef$. Finally, the cost of the cross products is $\bigO(\log q \cdot  m_{t} \cdot n_t)$ operations in $\mathbb{F}_{\qq^{m_t \cdot n_t}}$. Suming up those evaluation, the cost of the decomposition of the trace $\tr{\qq^{m_t \cdot n_t}}{\qq^{m_t}}(X)$ in terms of operations in $\basef$ is 
-$$\bigO(\log q\cdot m_t \cdot n_t^2 \cdot \Mul(m_t \cdot n_t)) + \Decomp(m_t)$$
-or equivalently
-$$\bigO\left(\log q \left(\sum_{i \le t} m_i \cdot n_i^2 \cdot \Mul(m_i \cdot n_i) \right) \right)\,.$$
-The cost of the decomposition of $X^{\qq^\nn}-X$ is the cost of computation of the $r$ traces for $t=1 \cdots r$. 
-
-\comd
-Je ne sais pas tr\`es comment faire les simplifications... est-ce qu'il faut borner la somme sur les traces par $r \Decomp(\nn)$ ou bien peut-on n\'egliger les petites traces par rapport \`a la plus grande et dans ce cas la somme est $\Decomp(\nn)$ 
-\comf
+$$L_i(X)= (X^q-\Delta_i^{q-1} X) \circ \cdots \circ (X^q-\Delta_1^{q-1} X)\,.$$
+Therefore for any $m_{t} < k \le  m_t \cdot n_t$, $L_{n-k}(X)$ may be decomposed as
+$$(X^q-\Delta_{n-k}^{q-1}X) \circ \cdots \circ (X^q-\Delta_{n-m_t \cdot n_t+1}^{q-1}X) \circ  \tr{\qq^{n}}{\qq^{m_t \cdot n_t}}(X)\,.$$
+Noting that the above $\Delta$'s all belong to $\mathbb{F}_{\qq^{m_t \cdot n_t}}$ and that $\Ima \tr{\qq^{n}}{\qq^{m_t \cdot n_t}}=\mathbb{F}_{\qq^{m_t \cdot n_t}}$, we conclude that $\Ima L_{n-k} \subseteq \mathbb{F}_{\qq^{m_t \cdot n_t}}$ for $ m_{t}  < k \le m_{t} \cdot n_t$.
 
 \medskip
 
 \noindent {\bf Application to the SRA:} This decomposition is particularly interesting in the case of the SRA. Indeed, with this decomposition the $L_i$'s project the roots of $f$ to the successive subfields of $\extf$, i.e.  $\mathbb{F}_{\qq^{m_t}}$ for $t=1 \cdots r$.
  Assume that $V_i^\ast=\Ima~L_i \subseteq \mathbb{F}_{\qq^h}$ for a particular $h$. The corresponding resultant $f^{(i)}$ will therefore belong to $\mathbb{F}_{\qq^h}[X]$ and all the arithmetic will therefore take place in this subfield.
   
+%\subsection{Expected number of iterations of ARM}
+
+%As already observe by Menezez Van Oorschott and Vanstone~\ref{Menvanovans92}, the expected number of iteration of ARM may be analyzed  using results in the theory of digital tries.
+
+
+
+
 
 
 
