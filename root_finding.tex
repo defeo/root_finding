@@ -32,6 +32,9 @@
 \DeclareMathOperator{\Ker}{Ker}
 \DeclareMathOperator{\Ima}{Im} 
 \DeclareMathOperator{\Decomp}{Decomp} 
+\DeclareMathOperator{\Var}{Var} 
+\DeclareMathOperator{\Exp}{E} 
+
 
 % to specify the number of elements of the finite fields on which the
 % trace is defined
@@ -749,6 +752,67 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
 \comd
 {\bf To be done: je pense travailler l\`a-dessus vendredi}We now detail the general strategy for the computation of the gcd's and the roots of the resultants. The way it is effectively computed by Menezes, Van Oorschot and Vanstone\cite{MOV92} and Petit~\cite{} will be discussed in the section concerning the improvements and the complexity of the algorithms.
 \comf
+
+
+\section{Expected number of iterations of ARM}
+
+Define the operator which associate to each element of $\extf$ its $k$ last components in the basis $\{v_1, \cdots, v_n\}$, i.e. 
+$$\pi_k:\extf \rightarrow \mathbb{F}_{\qq}^{k}: \rho=\sum_j r_j v_j \mapsto \pi_k(\rho)=(r_{n-k+1}, \cdots , r_n)\,.$$
+Consider the $\qq$-ary tree were each node may be uniquely specified by $\pi_i(\rho)$ and contains $f_{n-i,\rho}$ the minimal polynomial of the distinct roots of $f$ belonging to $V_{n-i,\rho}$. The root of the tree is specified by $\emptyset$ and contains $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. If each branch from a node are labelled with a element of $\basef$, the components of $\pi_i(\rho)$ specify the path from the root to that node.
+
+As already explained in section~\ref{ARM_SRA_description}, ARM algorithm consists essentially in building a subtree of the above tree.  Only nodes containing polynomials 
+$f_{n-i,\rho}$ with degree strictly higher than 1 are branched. It means that leafs of this subtree contain either a constant polynomial or a linear factor of $f$ and may appear at whatever level. Observe that a leaf $\pi_i(\rho)$ containing a linear factor of $f$ is present in this subtree if and only if $V_{n-i,\rho}$ contains only one root of $f$ and $i$ minimal.
+ The number of iteration $h$ of ARM is therefore the height of the subtree or equivalently the number of "digits", starting from the end, we need to consider to distinguish the roots $\rho=\sum_j r_j v_j$  of $f$. This height will depends on the way the roots of the polynomial $f$ are distributed among the $V_{i,\rho}$'s.
+ 
+\medskip 
+ 
+\noindent {\bf Worst case analysis:} As observed by Menezes, Van Oorschot and Vanstone~\ref{Menvanovans92}, the depth of the subtree of ARM will be maximal if $f$ contains two roots in some $V_{1,\rho}$. In this case, those two roots will be separated only at the $\nn^{th}$ iteration. Also, as observed by C. Petit~\ref{cgUCL-P14} the number of nodes of the subtree will be maximal, and so is the complexity of ARM (and SRA), if the roots of $f$ may be divided in pairs such that each of them belong to a distinct $V_{1,\rho}$. 
+ 
+\medskip 
+
+\noindent {\bf Statistical analysis:}
+As already observed by Menezes, Van Oorschot and Vanstone~\ref{Menvanovans92}, this problem is highly related to the expected height of data structure called \emph{digital tries}. The match is nevertheless not complete and digital tries may be viewed as a limit object of our situation. Therefore, we discuss here relevance of the results on digital tries to our problem.
+
+Let first remind what is a digital tries. It is a ordered tree data structure that is used to store a dynamic set or associative array where the keys are (possibly infinite) strings whose components belong to an alphabet $\mathcal{A}$ with $m$ elements. Therefore it is an $m-$ary tree with the property that nodes on level $l$ represent the set of all keys that begin with a certain sequence of $l$ characters called its \emph{prefix}. The root is associated with the empty string. The access path from the root to a leaf is minimal prefix of the key contained in the leaf. The height of a \emph{digital tries} is therefore the minimum number of digits required to distinguish the keys. Many authors studied the statistical behaviour of a digital tries, e.g.~\cite{szpankowski1986analysis} which depends on the way the keys are generated. The Bernoulli model is as follow:
+\begin{enumerate}
+\item A key $X_k=(x_{k1},x_{k2}, \cdots)$ is a sequence of elements (digits) from the alphabet $\mathcal{A}$ which form an independent sequences of Bernoulli trials with $P(x_{kj}=\alpha_i)=p_i$ for $k=1,\cdots, n$ and $i=1, \cdots, m$
+\item The keys $X_1, \cdots, X_{\dd} $ are independent where $\dd$ is a fixed value.
+\end{enumerate}
+One of the main quantity of interest is the height $H_{\dd}$ of the a digital trie under the Bernoulli model. As proved in Szpankowski~\cite{szpankowski1986analysis}, if we define  $u^{-1}=\sum_{i} p_i^2$ we have:
+\begin{enumerate}
+\item $\Exp(H_{\dd}) \le 2 \log_m \dd +1 +\frac{1-ln~2}{ln~u} + \bigO(\dd^{-1})$,
+\item $\lim\limits_{\dd \to \infty} P(H_\dd < x + 2 \cdot \log_u \dd)=exp(-exp(-x \cdot ln~u))$.
+\end{enumerate}
+From the second statement, Szpankowski~\cite{szpankowski1986analysis} derived that: 
+\begin{enumerate}
+\item $\Pr(H_\dd <x) \approx exp(-exp(-ln~ u \cdot (x-2 \cdot \log_u \dd)))$
+\item $\Var H_\dd \approx \frac{\pi^2}{6 \cdot (ln~u)^2}$
+\end{enumerate}
+
+\noindent {\bf Link between digital tries and our context:} The main difference between the two contexts is that the height of our tree is bounded by the degree of the field extension, denoted by $H'_\dd$, while the height of digital tries $H_\dd$ are only bounded by the number of keys they contain. If the roots of the root of the tree $f_{n,0}$ are uniformly chosen in $\extf$ and independently and assumed to be $\dd$, in this case the key are the roots of $f_{n,0}$ and it is not hard to see that $H'_\dd \le min(H_\dd,\nn)$. 
+ Note that in practice, the roots of $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
+
+Analysing the statistical behavior of $H_\dd$ with the parameters $m=\qq$ and $p_i=\frac{1}{\qq}$ will allows to give bounds on indicators on  $H'_\dd$. We have that $u^{-1}=\sum_i (1/\qq)^2=1/\qq$. Therefore, $u=\qq$.
+Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
+$$\Exp(H' _\dd) \le  min(2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1}), \nn)\,.$$
+The two next results requires that we may approximate $H'_\dd$ by $H_\dd$ and in particular that independency holds. Therefore that $\dd \le \qq^{\frac{\nn}{2}}$
+$$\Pr(H'_\dd <x) \approx exp(-exp(-ln~\qq \cdot (x-2 \cdot \log_\qq \dd)))\,.$$
+and 
+$$\Var H'_\dd \approx \frac{\pi^2}{6 \cdot (ln~\qq)^2}\,.$$
+Those two results express the fact that generally, the algorithm won't escape very much from his average.
+
+
+Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\ref{Menvanovans92} on the the bound on the number of iterations which is stated as $ 2\log_q \nn + \bigO(1)$  instead of $2\log_q \dd + \bigO(1)$. This leads to typos in their complexity evaluation of the Affine method, ARM and BTA.
+
+
+\comd
+J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
+\comf 
+
+
+
+
+
 
 
 
