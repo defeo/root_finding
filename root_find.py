@@ -309,7 +309,7 @@ def sra(f, basis=None):
     
     return roots
 
-def naive_bta(f):
+def bta(f):
     '''
     Berlekamp's Trace Algorithm, original version.
     '''
@@ -337,18 +337,19 @@ def naive_bta(f):
     for c in Fp:
         nf = f.gcd(Tr - c)
         if not nf.is_constant():
-            roots.extend(naive_bta(nf))
+            roots.extend(bta(nf))
             f = f // nf
             if f.degree() <= 1:
-                roots.extend(naive_bta(f))
+                roots.extend(bta(f))
                 break
             Tr = Tr % f
 
     return roots
 
-def bta(f):
+def not_so_good_bta(f):
     '''
-    Berlekamp's Trace Algorithm, optimized with a subproduct tree version.
+    Berlekamp's Trace Algorithm, with an unsuccessful optimization via
+    a subproduct tree.
     '''
     K = f.base_ring()
     Fp = K.prime_subfield()

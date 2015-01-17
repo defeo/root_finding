@@ -1,7 +1,7 @@
 \documentclass{sig-alternate}
 
 \usepackage{amsmath,amssymb,amsfonts,amsmath}
-\usepackage{url}
+\usepackage{hyperref}
 \usepackage{color}
 \usepackage{comment}
 \usepackage{mdwlist}
@@ -532,6 +532,7 @@ going to be based the algorithms of the next sections.
 
 
 \section{Link between ARM and SRA}
+\label{sec:arm-sra}
 
 In this section we show that ARM and SRA methods can be seen as
 \emph{dual} to each other if we remember that
@@ -585,7 +586,7 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
    \ENSURE {The roots of $f$ in $\extf$.}
    \STATE Set $L_0 = X$;
    \FOR {$1 \le i \le \nn$}
-   \STATE Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
+   \STATE\label{alg:arm:Li} Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
    \ENDFOR
    \STATE Initialize tree with root $f_{\nn,0} = f \mod L_\nn$;
    \FOR {$\nn \ge i \ge 1$}
@@ -595,7 +596,7 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
    \FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
    \STATE Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
    \FOR {any $c\in\basef$}
-   \STATE $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(f_{i,\rho}, \bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i})$;
+   \STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(f_{i,\rho}, \bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i})$;
    \ENDFOR
    \ENDFOR
    \IF {all leaves have degree $\le 1$}
@@ -654,7 +655,7 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    \ENSURE {The roots of $f$ in $\extf$.}
    \STATE Let $f^{(0)}=f$;
    \FOR {$1\le i \le \nn$}
-   \STATE $\hat{f}^{(i)}(Y) = \Res_X(f^{(i-1)}(X), Y - X^\qq + \gamma_{i-1,i}^{\qq-1}X)$;
+   \STATE\label{alg:sra:resultant} $\hat{f}^{(i)}(Y) = \Res_X(f^{(i-1)}(X), Y - X^\qq + \gamma_{i-1,i}^{\qq-1}X)$;
    \STATE Compute $f^{(i)}$, the square-free part of $\hat{f}^{(i)}$;
    \IF {$\deg f^{(i)} = \qq^{\nn-i}$}
    \STATE Set $h=i$;
@@ -666,7 +667,7 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    \FOR {any $\rho\in A_i$}
    \STATE Compute $\ell_{i,\rho}=L_i(\rho)=\sum_jr_j\gamma_{i,j}$;
    \ENDFOR
-   \STATE $E_i = \left(f^{(i)}(\ell_{i,\rho} + c\gamma_{i,i+1}) \text{ for any $\rho\in A_{i+1}$ and $c\in\basef$}\right)$;
+   \STATE\label{alg:sra:eval} $E_i = \left(f^{(i)}(\ell_{i,\rho} + c\gamma_{i,i+1}) \text{ for any $\rho\in A_{i+1}$ and $c\in\basef$}\right)$;
    \FOR {any $\rho\in A_i$}
    \STATE Add $\rho+c\upsilon_{i+1}$ to $A_i$ only if $f^{(i)}(\rho+c\gamma_{i,i+1})=0$.
    \ENDFOR
@@ -1148,16 +1149,84 @@ We finally compute $L_{i_1,i_2}(\rho)=L_{i_1,i_2}(X)\bmod(X-\rho)$ using the sam
 
 
 
-
-
-
-
 \section{Experimental results}
+
+To compare the behavior of the various algorithms, we implemented ARM,
+SRA and BTA in the computer algebra system Sage~\cite{Sage}, and
+compared them with the default root-finding algorithms implemented in
+Pari/GP~\cite{Pari} and NTL~\cite{ntl}. Due to the limitations of
+these systems, we could only test the algorithms as described in
+Section~\ref{sec:arm-sra}: Indeed, we did not have at our disposal any
+implementation of normal basis arithmetic to implement the variant
+described in Section~\ref{sec:ext:variant}.
+
+As expected, the dominant costs for ARM were the computation of the
+polynomials in Step~\ref{alg:arm:Li} and the gcd calculations in
+Step~\ref{alg:arm:gcd}. The dominant costs for SRA were the resultant
+computations in Step~\ref{alg:sra:resultant} and the evaluations in
+Step~\ref{alg:sra:eval}. Unsurprisingly, ARM and BTA showed remarkably
+close performances.
+
+We tested our algorithms on an Intel Core i5-3427U CPU at 1.80GHz. The
+source code and the test cases can be downloaded from
+\url{http://github.com/defeo/root_finding/}. We selected various base
+fields $\extf$ of characteristic $2$ and $5$. We ran all algorithms on
+randomly selected split (non-necessarily square-free) polynomials of
+increasing degree. The best performers were Pari/GP and ARM, the worst
+was NTL. The gap between the best and the worst algorithms was never
+higher than a factor of $\approx 5$. Figure~\ref{fig:benchmarks} shows
+the running times for two finite fields of size roughly $10$ bits.
+
+\begin{figure}
+  \hspace{-0.05\textwidth}
+  \includegraphics[width=0.55\textwidth]{benchmark}
+  \caption{Timings in seconds for $\ff{2^{10}}$ (left) and $\ff{5^4}$
+    (right). Abscissa is polynomial degree.}
+  \label{fig:benchmarks}
+\end{figure}
+
+We used the versions of Pari/GP (v2.7.1) and NTL (v6.1.0) shipped in
+the latest Sage distribution (v6.4.1). It should be noted that this is
+not the latest NTL version, however we are not aware of any
+performance improvements in the latest version (v8.0) concerning root
+finding. It is also worth mentioning that the implementation of
+polynomials over $\extf$ in Sage 6.4 is backed by the NTL library
+(more precisely, by the multi-precision type \texttt{ZZ\_pEX}), thus
+the performance of our implementation is essentially to be compared
+with NTL's one.
+
+To the best of our knowledge, both Pari/GP and NTL implement the
+variant of Cantor-Zassenhaus~\cite{cantor1981} described
+in~\cite{GathenS92}. The difference in performances is likely best
+explained by the fact that the NTL type \texttt{ZZ\_pEX} is not the
+best fit for small characteristic, while Pari/GP optimizes the field
+element representation in this case. The fact that our own
+implementations performed between the two, and sometimes even better,
+shows that these algorithms are practical. However, the observed
+differences in performance being so small, they are more likely
+attributed to differences in the specific implementation, rather than
+to the algorithms themselves.
+
+We conclude that the algorithms reviewed in this paper are of
+practical interest for finding polynomial roots in small
+characteristic finite fields. In some cases, this in contrast with
+what was previously thought, e.g., for ARM. Although general purpose
+libraries will probably find no interest in implementing these
+algorithms alongside the classical Cantor-Zassenhaus method, they may
+turn out to have useful applications in particular finite field
+problems.
+
+
 
 \section{Conclusion and open problems}
 
 computing $\alpha_i$ in $O(n)$
 
+\paragraph{Aknowledgements} Luca De Feo would like to thank the
+Pari/GP team for kindly hosting him in Bordeaux during the preparation
+of the paper, and for giving him useful insights on the internals of
+Pari/GP. He also thanks Jean-Pierre Flori for his invaluable help
+figuring out the gory details of the Sage/NTL interface.
 
 \bibliography{refs}
 \bibliographystyle{plain}
