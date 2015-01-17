@@ -498,37 +498,136 @@ going to be based the algorithms of the next sections.
   \end{itemize}
 }
 
-\begin{Lem}
-  Let $f$ be a polynomial in $\extf$ of degree $\dd\gg\qq$. Let
-  $\delta_0,\dots,\delta_\dd\in\extf$ be a list of evaluation points,
-  and let $\beta\in\extf$.  All the values
-  \begin{equation*}
-    f(\delta_i + c\beta) \qquad\text{for any $0\le i\le d$ and any $c\in\basef$}
-  \end{equation*}
-  can be computed using $O(\Mul(\dd) \log_\qq\dd +
-  \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over $\extf$.
-\end{Lem}
-\begin{proof}
-  \todo{(Luca) See Python code. Note: this is a minor gain, compared
-    to a classic multi-point evaluation (which would cost
-    $O(\qq\Mul(d)\log d)$), but it is a gain, and it even is
-    practical, thus we may leave this if we have space.}
-\end{proof}
+\begin{algorithm}
+  \caption{Polynomial evaluation at special points}
+  \label{alg:multi-ev}
+  \begin{algorithmic}[1]
+    \REQUIRE A polynomial $f\in\extf[X]$ of degree $\dd$,\\
+    $\delta_0,\dots,\delta_\dd\in\extf$ and $\beta\in\extf$.
+    \ENSURE $f(\delta_i+c\beta)$ for all $0\le i \le \dd$ and $c\in\basef$.
+    \STATE Let $\alpha = \beta^{\qq-1}$;
+    \STATE\label{alg:multi-ev:mod} Compute $\bar{f}(X,Y) = f \mod Y-X^\qq+\alpha X$;
+    \STATE Let $\bar{f}(X,Y) = \sum_j \bar{f}_j(Y)X^j$;
+    \STATE\label{alg:multi-ev:Delta} Compute $\Delta_i=\delta_i^\qq-\alpha\delta_i$ for $0\le i\le\dd$;
+    \FOR {$0\le j<\qq$}
+    \STATE\label{alg:multi-ev:multi-ev} Compute $\eta_{i,j}=\bar{f}_j(\Delta_i)$ for $0\le i\le\dd$;
+    \ENDFOR
+    \STATE Let $f_i(X) = \sum_j \eta_{i,j}X^j=\bar{f}(X,\Delta_i)$;
+    \FOR {$0\le i \le\dd$}
+    \STATE\label{alg:multi-ev:final-ev} Compute $\varepsilon_{i,c}=f_i(\delta_i+c\beta)$ for all $c\in\basef$;
+    \ENDFOR
+    \RETURN $\varepsilon_{i,c}$ for $0\le i\le\dd$ and $c\in\basef$.
+  \end{algorithmic}
+\end{algorithm}
 
 \begin{Lem}
-  Let $f$ be a polynomial in $\extf$ of degree $d<\qq^{\nn-1}$, and
-  let $\beta\in\extf$. The resultant
-  \begin{equation*}
-    \Res_X(f(X), Y-X^\qq+\beta^{\qq-1} X)
-  \end{equation*}
-  can be computed using $O(\Mul(\dd) \log\dd +
-  \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over $\extf$.
+  \label{lem:multi-ev}
+  Algorithm \ref{alg:multi-ev} is correct. On input a polynomial of
+  degree $\dd\gg\qq$ and $O(\dd)$ evaluation points, it computes its
+  output using $O(\Mul(\dd) \log\dd + \qq^2\Mul(\dd/\qq)\log\dd +
+  \qq^2\dd)$ operations over $\extf$.
 \end{Lem}
 \begin{proof}
-  \todo{(Luca or whoever feels like writing it) This one's easy: its
-    just one application of the previous lemma, plus the cost of one
-    interpolation $O(\Mul(d)\log d)$}
+  Observe that
+  $\prod_{c\in\basef}(X-\delta_i-c\beta)=X^\qq-\alpha X-\Delta_i$, with
+  $\Delta_i$ defined as in step~\ref{alg:multi-ev:Delta}. Hence
+  \begin{equation*}
+    f_i(X)=f(X)\mod \prod_{c\in\basef}(X-\delta_i-c\beta)
+  \end{equation*}
+  Correctness follows immediately.
+
+  We now analyze the complexity. In step~\ref{alg:multi-ev:mod}, we
+  reduce $f$ so that $\bar{f}$ has degree $<\qq$ in $X$. This
+  reduction can be computed in $O(\Mul(d)\log d)$ using a
+  divide-and-conquer approach.
+
+  By construction, the polynomials $\bar{f}_j(Y)$ have degree
+  $O(\dd/\qq)$, hence step~\ref{alg:multi-ev:multi-ev} can be computed
+  in $O(\qq\Mul(\dd/\qq)\log\dd)$ splitting the points $\Delta_i$ in
+  $q$ batches, and using $\qq$ classical multi-point
+  evaluations. Hence, the overall cost of the for loop is
+  $O(\qq^2\Mul(\dd/\qq)\log\dd)$.
+
+  Finally, step~\ref{alg:multi-ev:final-ev} can be computed again by
+  multipoint evaluation in degree $O(\qq)$. However, we assume that
+  $\qq$ is too small, to apply an asymptotically fast algorithm, thus
+  we account $O(\qq^2)$ operations for this step, giving $O(\qq^2\dd)$
+  operations for the whole loop. All other steps have negligible cost.
 \end{proof}
+
+\begin{algorithm}
+  \caption{Resultant with a special polynomial}
+  \label{alg:resultant}
+  \begin{algorithmic}[1]
+    \REQUIRE A polynomial $f\in\extf[X]$ of degree $\dd<\qq^{n-1}$,\\
+    an element $\beta\in\extf$.
+    \ENSURE The resultant $\Res_X\bigl(f(X), Y-X^\qq+\beta^{\qq-1}X).$
+    \STATE Let $\alpha=\beta^{\qq-1}$,
+    \STATE\label{alg:resultant:select} Select points $\delta_0,\dots,\delta_d$ s.t. all $\delta_i^\qq-\alpha\delta_i$ are distinct;
+    \STATE\label{alg:resultant:multi-ev} Compute $\varepsilon_{i,c}=f(\delta_i+c\beta)$ for $0\le i\le\dd$ and $c\in\basef$;
+    \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^\dd\prod_c\varepsilon_{i,c}$.
+  \end{algorithmic}
+\end{algorithm}
+
+
+\begin{Lem}
+  Algorithm~\ref{alg:resultant} is correct. On input a polynomial of
+  degree $d\ll\qq^{\nn-1}$, it computes its output using $O(\Mul(\dd)
+  \log\dd + \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over
+  $\extf$.
+\end{Lem}
+\begin{proof}
+  It is well known that the resultant commutes with evaluation, i.e., if
+  \begin{equation}
+    g(Y) = \Res_X\bigl(f(X), Y-X^\qq+\beta^{\qq-1}X\bigr),
+  \end{equation}
+  then
+  \begin{equation}
+    g(\Delta) = \Res_X\bigl(f(X), \Delta-X^\qq+\beta^{\qq-1}X\bigr),
+  \end{equation}
+  for any $\Delta\in\extf$. Our algorithm is just a specialization of
+  the classical evaluation-interpolation approach to compute bivariate
+  resultants. We know that the polynomial $g$ has degree $\dd$, thus
+  we only need to evaluate at $d+1$ points.
+
+  To make things simpler, we start by changing the sign of the right
+  operand, setting
+  \begin{equation}
+    h(Y) = \Res_X\bigl(f(X), X^\qq-\beta^{\qq-1}X-Y\bigr) = (-1)^\dd g(Y).
+  \end{equation}
+  Let now $\delta\in\extf$ be such that
+  $\Delta=\delta^\qq-\beta^{\qq-1}\delta$. By linearity we have
+  \begin{multline}
+    \label{eq:lin-resultant}
+    \Res_X\bigl(f(X), X^\qq-\beta^{\qq-1}X-\Delta\bigr) =\\
+    \Res_X\Bigl(f(X), \prod_{c\in\extf}(X-\delta - c\beta)\Bigr) =\\
+    \prod_{c\in\extf} \Res_X\bigl(f(X), X-\delta - c\beta\bigr) =\\
+    \prod_{c\in\extf} f(\delta+c\beta),
+  \end{multline}
+  where the second and third equalities comes from the
+  multiplicativity of the resultant. The correctness of the algorithm
+  now follows immediately.
+
+  We now go to the complexity. The interpolation points at
+  step~\ref{alg:resultant:select} can be selected at random, keeping
+  track of the values $\Delta_i=\delta_i^\qq-\beta^{\qq-1}\delta_i$,
+  and discarding duplicates. If $\dd\ll\qq^{n+1}$, we are likely to
+  find enough points in $O(d)$
+  tries. Step~\ref{alg:resultant:multi-ev} is computed using
+  Algorithm~\ref{alg:multi-ev}, at the cost given in
+  Lemma~\ref{lem:multi-ev}. Finally, step~\ref{alg:resultant:interp}
+  is computed using a classical fast interpolation algorithm, at a
+  cost $O(\Mul(d)\log d)$.
+\end{proof}
+
+Observe that the condition in Algorithm~\ref{alg:resultant} of having
+$\dd+1$ points $\delta_i$ such that
+$\Delta_i=\delta_i^\qq-\beta^{\qq-1}\delta_i$ are all distinct can
+only be verified if $\dd+1\le\qq^{\nn-1}$. If more interpolation
+points are needed, Eq.~\eqref{eq:lin-resultant} cannot be applied
+anymore, but the evaluation-interpolation approach is still possible
+at a slightly worse cost. However, this is not a major concern for the
+algorithms we present next.
 
 
 
