@@ -591,16 +591,22 @@ where $\alpha_i \in \extf$. This determine in particular the different linearize
 
 \medskip
 
-\noindent {\bf ARM}: The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
- It is achieved by the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
+\noindent {\bf ARM}: The method consists in \emph{intersecting} the roots of $f$ with the corresponding fibers of $L_i$ identified by $\ell_i \in V_i^\ast$.
+%The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
+ It is achieved by computing the non-constant gcd's among the set
+% the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
  \label{base_ARM}
-\gcd(f(X),L_i(X)-\ell_i)     \mbox{ for any }  \ell_i  \in V_i^\ast\,,
+\gcd(f(X),L_i(X)-\ell_i)     \mbox{ with }  \ell_i  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
 It will anyway leads to the root of $f$ because 
 $$\gcd(f(X),L_0(X)-\ell_0)=\gcd(f(X),X-\ell_0) \ne 1\,,$$ 
-provide the linear factors of $f$. Practically, these gcd's are computed in a dichotomic way. Let us first define
+provide the linear factors of $f$. 
+Note that 
+$$\gcd(f(X),L_i(X)-l_i) \ne 1$$
+means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
+Practically, these gcd's are computed in a dichotomic way. Let us first define
  $$f_{i,\rho}(X)=\gcd(f(X),L_i(X)-L_i(\rho))\,.$$
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
 According to~(\ref{base_ARM}) and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.
@@ -615,8 +621,7 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
   $$ 
  Note that according to the linearity of $L_i$, the value $L_{i-1}(\rho)$ is common to the $\qq$ polynomials $f_{i-1,\rho+c \cdot  \upsilon_i}(X)$ to be determined and must be computed only once. 
  
- This procedure builds a tree where at each level only the nodes containing non-constant or linear polynomials are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct
- linear factors of $f$ (without their algebraic multiplicity). Note that all the other gcd's of~(\ref{base_ARM}) can be easily deduced without any computation from the leafs of the tree but they won't bring any new information to our problem.
+ This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity). Note that all the other gcd's of~(\ref{base_ARM}) can be easily deduced without any computation from the leafs of the tree but they won't bring any new information to our problem.
  
 
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
@@ -671,7 +676,19 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
 \medskip
 
 \noindent {\bf SRA}: The method consists in only \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ for $i$ starting from $n$ and going down to 0.
-It has two steps:
+It is achieved by the computation of the values $l_i \in V_i^\ast$ annealing 
+ \begin{equation}
+ \label{base_SRA}
+\Res_X(f(X),L_i(X)-l_i) \,,
+\end{equation}
+for $i$ starting from $n$ and going down to 0. It will anyway leads to the root of $f$ because 
+$$\Res_X(f(X),L_0(X)-\ell_0)=\Res_X(f(X),X-\ell_0)=0\,,$$
+means that $\ell_0$ is a root of $f$. Note that 
+$$\Res_X(f(X),L_i(X)-l_i) =0$$
+means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
+Observe the complete correspondence between ARM and SRA if you remember that 
+$\gcd(f(X),L_i(X)-l_i) \ne 1$ if and only if $\Res_X(f(X),L_i(X)-l_i) =0$.
+Pratically, those resultant are computed using the power of polynomials. It has two steps:
 \begin{enumerate}
 \item The computation of polynomials $g^{(i)}$ having as roots the $L_i$-projection onto $V_i^\ast$ of the roots of $f$,  i.e.
   $$g^{(i)}(Y_i)=\Res_{X}(f(X), L_i(X)-Y_i )  \mbox{ for }i=0 \cdots n \,.$$
@@ -689,6 +706,11 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    for any $\ell_{i-1} \in V_i^\ast$ such that $\ell_{i-1}^q-\alpha_i \cdot \ell_{i-1}=\ell_i$. This procedure builds a tree where at level $i$ the nodes are the roots of $g^{(i)}$. 
    The leafs of the tree at level $n$ are the roots of $f$.
 \end{enumerate}
+
+
+
+
+
   
  \begin{algorithm}
    \caption{Successive Resultant Algorithm}
@@ -747,11 +769,6 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    $O(nq\Mul(d)\log d + n^2d)$.
  \end{Theo}
 
-
-
-\comd
-{\bf To be done: je pense travailler l\`a-dessus vendredi}We now detail the general strategy for the computation of the gcd's and the roots of the resultants. The way it is effectively computed by Menezes, Van Oorschot and Vanstone\cite{MOV92} and Petit~\cite{} will be discussed in the section concerning the improvements and the complexity of the algorithms.
-\comf
 
 
 \section{Expected number of iterations of ARM}
