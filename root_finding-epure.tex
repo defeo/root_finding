@@ -773,7 +773,7 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
 
 Define the operator which associate to each element of $\extf$ its $k$ last components in the basis $\{v_1, \cdots, v_n\}$, i.e. 
 $$\pi_k:\extf \rightarrow \mathbb{F}_{\qq}^{k}: \rho=\sum_j r_j v_j \mapsto \pi_k(\rho)=(r_{n-k+1}, \cdots , r_n)\,.$$
-Consider the $\qq$-ary tree were each node may be uniquely specified by $\pi_i(\rho)$ and contains $f_{n-i,\rho}$ the minimal polynomial of the distinct roots of $f$ belonging to $V_{n-i,\rho}$. The root of the tree is specified by $\emptyset$ and contains $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. If each branch from a node are labelled with a element of $\basef$, the components of $\pi_i(\rho)$ specify the path from the root to that node.
+Consider the $\qq$-ary tree were each node may be uniquely specified by $\pi_i(\rho)$ and contains $f_{n-i,\rho}$ the minimal polynomial of the distinct roots of $f$ belonging to $V_{n-i,\rho}$. The root of the tree is specified by $\emptyset$ and contains $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. If each branch from a node are labelled with a element of $\basef$, the components of $\pi_i(\rho)$ specify the path from the root to that node.
 
 As already explained in section~\ref{ARM_SRA_description}, ARM algorithm consists essentially in building a subtree of the above tree.  Only nodes containing polynomials 
 $f_{n-i,\rho}$ with degree strictly higher than 1 are branched. It means that leafs of this subtree contain either a constant polynomial or a linear factor of $f$ and may appear at whatever level. Observe that a leaf $\pi_i(\rho)$ containing a linear factor of $f$ is present in this subtree if and only if $V_{n-i,\rho}$ contains only one root of $f$ and $i$ minimal.
@@ -805,7 +805,7 @@ From the second statement, Szpankowski~\cite{szpankowski1986analysis} derived th
 \end{enumerate}
 
 \noindent {\bf Link between digital tries and our context:} The main difference between the two contexts is that the height of our tree is bounded by the degree of the field extension, denoted by $H'_\dd$, while the height of digital tries $H_\dd$ are only bounded by the number of keys they contain. If the roots of the root of the tree $f_{n,0}$ are uniformly chosen in $\extf$ and independently and assumed to be $\dd$, in this case the key are the roots of $f_{n,0}$ and it is not hard to see that $H'_\dd \le min(H_\dd,\nn)$. 
- Note that in practice, the roots of $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
+ Note that in practice, the roots of $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
 
 Analysing the statistical behavior of $H_\dd$ with the parameters $m=\qq$ and $p_i=\frac{1}{\qq}$ will allows to give bounds on indicators on  $H'_\dd$. We have that $u^{-1}=\sum_i (1/\qq)^2=1/\qq$. Therefore, $u=\qq$.
 Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
@@ -821,7 +821,7 @@ Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\ref{Me
 
 
 \comd
-J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
+J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
 \comf 
 
 
