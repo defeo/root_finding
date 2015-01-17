@@ -1126,7 +1126,7 @@ The a priori bound $h$ may in fact not be sufficient, with a probability dependi
 
 \subsection{Link with BTA}
 
-Given a polynomial $f$, Berlekamp's trace algorithm attempts to decompose $f$ into smaller degree factors using the product equality
+Given a polynomial $f$, Berlekamp's trace algorithm (BTA)attempts to decompose $f$ into smaller degree factors using the product equality
 \begin{equation}\label{BTA_eq1}
 f(x)=\prod_{r_n\in\fq}\gcd\left(f(x),\Tr(\alpha x)-r_n\right)
 \end{equation}
@@ -1136,14 +1136,14 @@ Let $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ be a basis such that $\upsilon_i/\alp
 
 
  \begin{Lem}
- Berlekamp's trace algorithm (SRA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
+ Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
  \end{Lem}
-\begin{Proof}
+\begin{proof}
 For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
 % 
 On average, $\bigO(\log(n))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
 splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
-\end{Proof}
+\end{proof}
 
 From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets become singletons, each singleton containing one root of $f$. 
 %
