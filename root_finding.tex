@@ -1103,61 +1103,69 @@ In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to im
 
 
 
-
 \section{ARM variant without precomputation, and link to BTA}
 
+\subsection{Berlekamp's trace algorithm}
 
-
-
-
-\subsection{ARM variant without precomputation}
-
-By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ therefore leads to other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
-
-In the average case, the second step of our algorithm only uses the last $\alpha_i$ values. Let $h$ be an a priori bound on the number of values needed to split $f$ completely. Let $\{\upsilon_1,\ldots,\upsilon_S\}$ be a basis of a vector space of dimension $h$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(h^2\log\qq)$ multiplications. By the above property on valid set, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
-
-We must now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
-$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
-Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n)$ multiplications as follows: first we set $b_0=a_0\alpha_i^{-1}$, then we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
-%
-Given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
-%
-Finally, the values $x^{q^j}\bmod f$ are computed using $O(dn\log q)$ operations, after which each polynomial
-$L_i\bmod f$ can be computed in $O(dn)$ operations.
-
-The a priori bound $h$ may in fact not be sufficient, with a probability depending on how it is chosen. In this case, the $h$ levels produce a factorization of $f$ which involves some polynomials of degree larger than 1. To further decompose these factors, the algorithm can then be applied recursively on each of them, using a new set of $\alpha_i$ values. We point out that this new set will a priori contain less elements than the first one, since the degrees of all individual factors are a priori smaller than the degree of $f$.
-
-
-
-
-
-
-\subsection{Link with BTA}
-
-Given a polynomial $f$, Berlekamp's trace algorithm (BTA)attempts to decompose $f$ into smaller degree factors using the product equality
+Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
 \begin{equation}\label{BTA_eq1}
 f(x)=\prod_{r_n\in\fq}\gcd\left(f(x),\Tr(\alpha x)-r_n\right)
 \end{equation}
 for randomly chosen $\alpha\in\fqn$.
+
+
+
 %
-Let $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ be a basis such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$. We then have $L_{\nn-1}(x)=\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\Tr(\alpha (x-r))=\Tr(\alpha x)-r_\nn$.
-
-
- \begin{Lem}
- Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
- \end{Lem}
-\begin{proof}
+% \begin{Lem}
+% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
+% \end{Lem}
+%\begin{proof}
 For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
 % 
 On average, $\bigO(\log(n))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
 splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
-\end{proof}
+%\end{proof}
 
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets become singletons, each singleton containing one root of $f$. 
+
+
+\subsection{ARM variant without precomputation\label{sec:BTA:ARMvariant}}
+
+Both ARM and SRA require a precomputation cost of $O(n^2)$, essentially to compute all the $\alpha_i$ values. However, the second step of ARM only uses the $h=O(\log d)$ last $\alpha_i$ values  to split $f$ completely in the average case. We now present a variant of ARM that avoids any expensive precomputation.
+
+By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Consequently, any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ leads to $n-1$ other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
+%
+Let then $\{\upsilon_1,\ldots,\upsilon_h\}$ be a basis of a vector space of dimension $h$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(h^2\log\qq)$ multiplications. By the above property on valid sets, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
+
+Given the $h$ last $\alpha_i$ values, we now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
+$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
+Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n\log q)$ operations as follows: first we compute $\alpha_i^{-1}$, then we set $b_0=a_0\alpha_i^{-1}$, and we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
+%
+The values $x^{q^j}\bmod f$ are computed using $O(dn\log q)$ operations, after which each polynomial
+$L_i\bmod f$ can be computed in $O(dn)$ operations.
+%
+Finally given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
+%
+Besides these modifications, the general structure of SRA algorithm does not change.
+
+Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, the last $h$ levels produce a factorization of $f$ which involves some polynomials of degree larger than 1. To further decompose these factors, we can apply the algorithm again on each of them, using a new set of $\alpha_i$ values generated from a basis of a new randomly chosen vector space. We point out that this vector space will a priori be smaller than the first one, since the degrees of all individual factors are a priori smaller than the degree of $f$.
+
+
+
+
+
+
+\subsection{Comparison between ARM and BTA}
+
+Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
+$$X^{\qq^\nn}-X=(X^\qq-\alpha X)\circ\Tr(\alpha x).$$
+If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(x)=\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\Tr(\alpha (x-r))=\Tr(\alpha x)-r_\nn$.
+
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
 %
 In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
 
-Finally, we observe that the above variant of SRA reduces to Berlekamp's trace algorithm when $h=1$.
+We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces exactly to BTA when $h=1$.
+
 
 
 
