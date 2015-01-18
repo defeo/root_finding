@@ -383,14 +383,14 @@ map.
 Let us finally remind some well-known facts about resultants.
 Consider the polynomial $f \in \extf[X]$ and the projections $P_1, P_2 \in  \extf[X]$ and define $P$ as $P_2 \circ P_1$.
 According to the property about the root's of resultants,
-$$g(Y)=\Res_X(f(X),P(X)-Y)=\prod_{\{\rho \mid f(\rho)=0\}} (P(\rho)-Y) \,.$$
+$$g(Y)=\Res_X(P(X)-Y,f(X))=\prod_{\{\rho \mid f(\rho)=0\}} (Y-P(\rho)) \,.$$
 Therefore, the roots of the resultant $g(Y)$ are the projection of the roots of $f(X)$ throught $P$.
 Also, 
 \begin{equation}
 \label{resultant_compose}
-g(Y)=\Res_{Y_1}(g^{(1)}(Y_1),Y-L_2(Y_1))
+g(Y)=\Res_{Y_1}(L_2(Y_1)-Y,g^{(1)}(Y_1))
 \end{equation}
- where $g^{(1)}(Y_1)=\Res_{Y}(f(X),Y_1-L_1(X))$. Finally, 
+ where $g^{(1)}(Y_1)=\Res_{Y_1}(L_1(X)-Y_1,f(X))$. Finally, 
  the algebraic multiplicity of a root of $g$ is the number of roots of $f$ projected to this root.
 \comf
 
@@ -449,7 +449,7 @@ going to be based the algorithms of the next sections.
     $\delta_0,\dots,\delta_\dd\in\extf$ and $\beta\in\extf$.
     \ENSURE $f(\delta_i+c\beta)$ for all $0\le i \le \dd$ and $c\in\basef$.
     \STATE Let $\alpha = \beta^{\qq-1}$;
-    \STATE\label{alg:multi-ev:mod} Compute $\bar{f}(X,Y) = f \mod Y-X^\qq+\alpha X$;
+    \STATE\label{alg:multi-ev:mod} Compute $\bar{f}(X,Y) = f \mod X^\qq-\alpha X-Y$;
     \STATE Let $\bar{f}(X,Y) = \sum_j \bar{f}_j(Y)X^j$;
     \STATE\label{alg:multi-ev:Delta} Compute $\Delta_i=\delta_i^\qq-\alpha\delta_i$ for $0\le i\le\dd$;
     \FOR {$0\le j<\qq$}
@@ -504,11 +504,11 @@ going to be based the algorithms of the next sections.
   \begin{algorithmic}[1]
     \REQUIRE A polynomial $f\in\extf[X]$ of degree $\dd<\qq^{n-1}$,\\
     an element $\beta\in\extf$.
-    \ENSURE The resultant $\Res_X\bigl(f(X), Y-X^\qq+\beta^{\qq-1}X).$
+    \ENSURE The resultant $\Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y,f(X)).$
     \STATE Let $\alpha=\beta^{\qq-1}$,
     \STATE\label{alg:resultant:select} Select points $\delta_0,\dots,\delta_d$ s.t. all $\delta_i^\qq-\alpha\delta_i$ are distinct;
     \STATE\label{alg:resultant:multi-ev} Compute $\varepsilon_{i,c}=f(\delta_i+c\beta)$ for $0\le i\le\dd$ and $c\in\basef$;
-    \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^\dd\prod_c\varepsilon_{i,c}$.
+    \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^{\dd}  \prod_c\varepsilon_{i,c}$.
   \end{algorithmic}
 \end{algorithm}
 
@@ -522,30 +522,30 @@ going to be based the algorithms of the next sections.
 \begin{proof}
   It is well known that the resultant commutes with evaluation, i.e., if
   \begin{equation}
-    g(Y) = \Res_X\bigl(f(X), Y-X^\qq+\beta^{\qq-1}X\bigr),
+    g(Y) = \Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y,f(X),\bigr),
   \end{equation}
   then
   \begin{equation}
-    g(\Delta) = \Res_X\bigl(f(X), \Delta-X^\qq+\beta^{\qq-1}X\bigr),
+    g(\Delta) = \Res_X\bigl(X^\qq - \beta^{\qq-1}X -\Delta , f(X)\bigr),
   \end{equation}
   for any $\Delta\in\extf$. Our algorithm is just a specialization of
   the classical evaluation-interpolation approach to compute bivariate
   resultants. We know that the polynomial $g$ has degree $\dd$, thus
   we only need to evaluate at $d+1$ points.
 
-  To make things simpler, we start by changing the sign of the right
-  operand, setting
-  \begin{equation}
-    h(Y) = \Res_X\bigl(f(X), X^\qq-\beta^{\qq-1}X-Y\bigr) = (-1)^\dd g(Y).
-  \end{equation}
+ % To make things simpler, we start by changing the sign of the right
+  %operand, setting
+  %\begin{equation}
+  %  h(Y) = \Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y, f(X)\bigr) = (-1)^\dd g(Y).
+  %\end{equation}
   Let now $\delta\in\extf$ be such that
   $\Delta=\delta^\qq-\beta^{\qq-1}\delta$. By linearity we have
   \begin{multline}
     \label{eq:lin-resultant}
-    \Res_X\bigl(f(X), X^\qq-\beta^{\qq-1}X-\Delta\bigr) =\\
-    \Res_X\Bigl(f(X), \prod_{c\in\extf}(X-\delta - c\beta)\Bigr) =\\
-    \prod_{c\in\extf} \Res_X\bigl(f(X), X-\delta - c\beta\bigr) =\\
-    \prod_{c\in\extf} f(\delta+c\beta),
+    \Res_X\bigl(X^\qq-\beta^{\qq-1}X-\Delta,f(X)\bigr) =\\
+    \Res_X\Bigl(  \prod_{c\in\extf}(X-\delta - c\beta),f(X) \Bigr) =\\
+    (-1)^{\dd} \prod_{c\in\extf} \Res_X\bigl(f(X), X-\delta - c\beta\bigr) =\\
+     (-1)^{\dd} \prod_{c\in\extf} f(\delta+c\beta),
   \end{multline}
   where the second and third equalities comes from the
   multiplicativity of the resultant. The correctness of the algorithm
@@ -595,25 +595,25 @@ where $\alpha_i \in \extf$. This determine in particular the different linearize
 % the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
  \label{base_ARM}
-\gcd(f(X),L_i(X)-\ell_i)     \mbox{ with }  \ell_i  \in V_i^\ast\,,
+\gcd(L_i(X)-\ell_i,f(X))     \mbox{ with }  \ell_i  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
 It will anyway leads to the root of $f$ because 
-$$\gcd(f(X),L_0(X)-\ell_0)=\gcd(f(X),X-\ell_0) \ne 1\,,$$ 
+$$\gcd(L_0(X)-\ell_0,f(X))=\gcd(X-\ell_0,f(X)) \ne 1\,,$$ 
 provide the linear factors of $f$. 
 Note that 
-$$\gcd(f(X),L_i(X)-l_i) \ne 1$$
+$$\gcd(L_i(X)-l_i,f(X)) \ne 1$$
 means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
 Practically, these gcd's are computed in a dichotomic way. Let us first define
- $$f_{i,\rho}(X)=\gcd(f(X),L_i(X)-L_i(\rho))\,.$$
+ $$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
 According to~(\ref{base_ARM}) and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.
- $$f_{n,0}(X)=\gcd(f(X),L_n(X))=\gcd(f(X),X^{q^\nn}-X)\,.$$
+ $$f_{n,0}(X)=\gcd(L_n(X),f(X))=\gcd(X^{q^\nn}-X,f(X))\,.$$
 The recursive step is based on~(\ref{node_product}) and works as follow: for any $L_i(\rho) \in V_i^\ast$ such that $f_{i,\rho}(X)$ is neither a constant polynomial nor a linear factors,
   $$
   \begin{array}{lll}
-  f_{i,\rho}(X)&=&\prod_{c \in \basef} \gcd(f_{i,\rho}(X),M_{i-1,\rho+c \cdot \upsilon_i}(X)) \\
-               &=&\prod_{c \in \basef} \gcd(f_{i,\rho}(X),L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i)) \\
+  f_{i,\rho}(X)&=&\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i,\rho}(X)) \\
+               &=&\prod_{c \in \basef} \gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),f_{i,\rho}(X)) \\
                &=&\prod_{c \in \basef} f_{i-1,\rho+c \cdot  \upsilon_i}(X)\\
   \end{array}              
   $$ 
@@ -644,7 +644,7 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
    \FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
    \STATE Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
    \FOR {any $c\in\basef$}
-   \STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(f_{i,\rho}, \bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i})$;
+   \STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
    \ENDFOR
    \ENDFOR
    \IF {all leaves have degree $\le 1$}
@@ -677,22 +677,22 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
 It is achieved by the computation of the values $l_i \in V_i^\ast$ annealing 
  \begin{equation}
  \label{base_SRA}
-\Res_X(f(X),L_i(X)-l_i) \,,
+\Res_X(L_i(X)-l_i,f(X)) \,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0. It will anyway leads to the root of $f$ because 
-$$\Res_X(f(X),L_0(X)-\ell_0)=\Res_X(f(X),X-\ell_0)=0\,,$$
+$$\Res_X(L_0(X)-\ell_0,f(X))=\Res_X(X-\ell_0,f(X))=0\,,$$
 means that $\ell_0$ is a root of $f$. Note that 
-$$\Res_X(f(X),L_i(X)-l_i) =0$$
+$$\Res_X(L_i(X)-l_i,f(X)) =0$$
 means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
 Observe the complete correspondence between ARM and SRA if you remember that 
-$\gcd(f(X),L_i(X)-l_i) \ne 1$ if and only if $\Res_X(f(X),L_i(X)-l_i) =0$.
+$\gcd(L_i(X)-l_i,f(X)) \ne 1$ if and only if $\Res_X(L_i(X)-l_i,f(X)) =0$.
 Pratically, those resultants are computed using the power of polynomials. It has two steps:
 \begin{enumerate}
 \item The computation of polynomials $g^{(i)}$ having as roots the $L_i$-projection onto $V_i^\ast$ of the roots of $f$,  i.e.
-  $$g^{(i)}(Y_i)=\Res_{X}(f(X), L_i(X)-Y_i )  \mbox{ for }i=0 \cdots n \,.$$
+  $$g^{(i)}(Y_i)=\Res_{X}(L_i(X)-Y_i,f(X))  \mbox{ for }i=0 \cdots n \,.$$
   The polynomials $g^{(0)}, \cdots g^{(n)}$ are iteratively computed such that the roots of $g^{(i)}$ are the projection onto 
   $V_i^\ast$ of the roots of $g^{(i-1)}$. According to the definition of $L_i$ and relation~(\ref{resultant_compose}), we have
-  $$g^{(i)}(Y_i)=\Res_{X_{i-1}}(g^{(i-1)}(X_{i-1}),X^q_{i-1} - \alpha_i X_{i-1} -Y_i ) \,.$$
+  $$g^{(i)}(Y_i)=\Res_{X_{i-1}}(X^q_{i-1} - \alpha_i X_{i-1} -Y_i,g^{(i-1)}(X_{i-1})) \,.$$
  and $g ^{(0)}=f$.
 \item The computation of the roots of the resultants, i.e.
 $$g^{(i)}(Y_i)=0  \mbox{ where }  Y_i \in   V_i^\ast$$
@@ -720,7 +720,7 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    \ENSURE {The roots of $f$ in $\extf$.}
    \STATE Let $f^{(0)}=f$;
    \FOR {$1\le i \le \nn$}
-   \STATE\label{alg:sra:resultant} $\hat{f}^{(i)}(Y) = \Res_X(f^{(i-1)}(X), Y - X^\qq + \gamma_{i-1,i}^{\qq-1}X)$;
+   \STATE\label{alg:sra:resultant} $\hat{f}^{(i)}(Y) = \Res_X(X^\qq - \gamma_{i-1,i}^{\qq-1}X-Y,f^{(i-1)}(X))$;
    \STATE Compute $f^{(i)}$, the square-free part of $\hat{f}^{(i)}$;
    \IF {$\deg f^{(i)} = \qq^{\nn-i}$}
    \STATE Set $h=i$;
@@ -769,11 +769,11 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
 
 
 
-\section{Expected number of iterations of ARM}
+\subsection{Expected number of iterations of ARM}
 
 Define the operator which associate to each element of $\extf$ its $k$ last components in the basis $\{v_1, \cdots, v_n\}$, i.e. 
 $$\pi_k:\extf \rightarrow \mathbb{F}_{\qq}^{k}: \rho=\sum_j r_j v_j \mapsto \pi_k(\rho)=(r_{n-k+1}, \cdots , r_n)\,.$$
-Consider the $\qq$-ary tree were each node may be uniquely specified by $\pi_i(\rho)$ and contains $f_{n-i,\rho}$ the minimal polynomial of the distinct roots of $f$ belonging to $V_{n-i,\rho}$. The root of the tree is specified by $\emptyset$ and contains $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. If each branch from a node are labelled with a element of $\basef$, the components of $\pi_i(\rho)$ specify the path from the root to that node.
+Consider the $\qq$-ary tree were each node may be uniquely specified by $\pi_i(\rho)$ and contains $f_{n-i,\rho}$ the minimal polynomial of the distinct roots of $f$ belonging to $V_{n-i,\rho}$. The root of the tree is specified by $\emptyset$ and contains $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. If each branch from a node are labelled with a element of $\basef$, the components of $\pi_i(\rho)$ specify the path from the root to that node.
 
 As already explained in section~\ref{ARM_SRA_description}, ARM algorithm consists essentially in building a subtree of the above tree.  Only nodes containing polynomials 
 $f_{n-i,\rho}$ with degree strictly higher than 1 are branched. It means that leafs of this subtree contain either a constant polynomial or a linear factor of $f$ and may appear at whatever level. Observe that a leaf $\pi_i(\rho)$ containing a linear factor of $f$ is present in this subtree if and only if $V_{n-i,\rho}$ contains only one root of $f$ and $i$ minimal.
@@ -805,7 +805,7 @@ From the second statement, Szpankowski~\cite{szpankowski1986analysis} derived th
 \end{enumerate}
 
 \noindent {\bf Link between digital tries and our context:} The main difference between the two contexts is that the height of our tree is bounded by the degree of the field extension, denoted by $H'_\dd$, while the height of digital tries $H_\dd$ are only bounded by the number of keys they contain. If the roots of the root of the tree $f_{n,0}$ are uniformly chosen in $\extf$ and independently and assumed to be $\dd$, in this case the key are the roots of $f_{n,0}$ and it is not hard to see that $H'_\dd \le min(H_\dd,\nn)$. 
- Note that in practice, the roots of $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
+ Note that in practice, the roots of $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
 
 Analysing the statistical behavior of $H_\dd$ with the parameters $m=\qq$ and $p_i=\frac{1}{\qq}$ will allows to give bounds on indicators on  $H'_\dd$. We have that $u^{-1}=\sum_i (1/\qq)^2=1/\qq$. Therefore, $u=\qq$.
 Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
@@ -821,7 +821,7 @@ Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\ref{Me
 
 
 \comd
-J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(f(X),X^{\qq^\nn} -X)$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
+J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
 \comf 
 
 
