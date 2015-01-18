@@ -1,3 +1,4 @@
+% !TEX encoding = UTF-8 Unicode
 \documentclass{sig-alternate}
 
 \usepackage{amsmath,amssymb,amsfonts,amsmath}
@@ -790,30 +791,31 @@ As already observed by Menezes, Van Oorschot and Vanstone~\ref{Menvanovans92}, t
 
 Let first remind what is a digital tries. It is a ordered tree data structure that is used to store a dynamic set or associative array where the keys are (possibly infinite) strings whose components belong to an alphabet $\mathcal{A}$ with $m$ elements. Therefore it is an $m-$ary tree with the property that nodes on level $l$ represent the set of all keys that begin with a certain sequence of $l$ characters called its \emph{prefix}. The root is associated with the empty string. The access path from the root to a leaf is minimal prefix of the key contained in the leaf. The height of a \emph{digital tries} is therefore the minimum number of digits required to distinguish the keys. Many authors studied the statistical behaviour of a digital tries, e.g.~\cite{szpankowski1986analysis} which depends on the way the keys are generated. The Bernoulli model is as follow:
 \begin{enumerate}
-\item A key $X_k=(x_{k1},x_{k2}, \cdots)$ is a sequence of elements (digits) from the alphabet $\mathcal{A}$ which form an independent sequences of Bernoulli trials with $P(x_{kj}=\alpha_i)=p_i$ for $k=1,\cdots, n$ and $i=1, \cdots, m$
+\item A key $X_k=(x_{k1},x_{k2}, \cdots)$ is a sequence of elements (digits) from the alphabet $\mathcal{A}$ which form an independent sequences of Bernoulli trials with 
+$\Pr(x_{kj}=\alpha_i)=p_i$ for $k=1,\cdots, n$ and $i=1, \cdots, m$
 \item The keys $X_1, \cdots, X_{\dd} $ are independent where $\dd$ is a fixed value.
 \end{enumerate}
 One of the main quantity of interest is the height $H_{\dd}$ of the a digital trie under the Bernoulli model. As proved in Szpankowski~\cite{szpankowski1986analysis}, if we define  $u^{-1}=\sum_{i} p_i^2$ we have:
 \begin{enumerate}
-\item $\Exp(H_{\dd}) \le 2 \log_m \dd +1 +\frac{1-ln~2}{ln~u} + \bigO(\dd^{-1})$,
-\item $\lim\limits_{\dd \to \infty} P(H_\dd < x + 2 \cdot \log_u \dd)=exp(-exp(-x \cdot ln~u))$.
+\item $\Exp(H_{\dd}) \le 2 \log_m \dd +1 +\frac{1-\ln 2}{\ln u} + \bigO(\dd^{-1})$,
+\item $\lim\limits_{\dd \to \infty} \Pr(H_\dd < x + 2 \cdot \log_u \dd)=\exp(-\exp(-x \cdot \ln u))$.
 \end{enumerate}
 From the second statement, Szpankowski~\cite{szpankowski1986analysis} derived that: 
 \begin{enumerate}
-\item $\Pr(H_\dd <x) \approx exp(-exp(-ln~u \cdot (x-2 \cdot \log_u \dd)))$
-\item $\Var H_\dd \approx \frac{\pi^2}{6 \cdot (ln~u)^2}$
+\item $\Pr(H_\dd <x) \approx \exp(-\exp(-\ln u \cdot (x-2 \cdot \log_u \dd)))$
+\item $\Var H_\dd \approx \frac{\pi^2}{6 \cdot (\ln u)^2}$
 \end{enumerate}
 
-\noindent {\bf Link between digital tries and our context:} The main difference between the two contexts is that the height of our tree is bounded by the degree of the field extension, denoted by $H'_\dd$, while the height of digital tries $H_\dd$ are only bounded by the number of keys they contain. If the roots of the root of the tree $f_{n,0}$ are uniformly chosen in $\extf$ and independently and assumed to be $\dd$, in this case the key are the roots of $f_{n,0}$ and it is not hard to see that $H'_\dd \le min(H_\dd,\nn)$. 
+\noindent {\bf Link between digital tries and our context:} The main difference between the two contexts is that the height of our tree is bounded by the degree of the field extension, denoted by $H'_\dd$, while the height of digital tries $H_\dd$ are only bounded by the number of keys they contain. If the roots of the root of the tree $f_{n,0}$ are uniformly chosen in $\extf$ and independently and assumed to be $\dd$, in this case the key are the roots of $f_{n,0}$ and it is not hard to see that $H'_\dd \le \min(H_\dd,\nn)$. 
  Note that in practice, the roots of $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$ are not chosen independently because the $\gcd$ guarantees that all the roots are different.
 
 Analysing the statistical behavior of $H_\dd$ with the parameters $m=\qq$ and $p_i=\frac{1}{\qq}$ will allows to give bounds on indicators on  $H'_\dd$. We have that $u^{-1}=\sum_i (1/\qq)^2=1/\qq$. Therefore, $u=\qq$.
-Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
-$$\Exp(H' _\dd) \le  min(2 \log_\qq \dd +1 +\frac{1-ln~2}{ln~\qq} + \bigO(\dd^{-1}), \nn)\,.$$
+Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
+$$\Exp(H' _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
 The two next results requires that we may approximate $H'_\dd$ by $H_\dd$ and in particular that independency holds. Therefore that $\dd \le \qq^{\frac{\nn}{2}}$
-$$\Pr(H'_\dd <x) \approx exp(-exp(-ln~\qq \cdot (x-2 \cdot \log_\qq \dd)))\,.$$
+$$\Pr(H'_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))\,.$$
 and 
-$$\Var H'_\dd \approx \frac{\pi^2}{6 \cdot (ln~\qq)^2}\,.$$
+$$\Var H'_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2}\,.$$
 Those two results express the fact that generally, the algorithm won't escape very much from his average.
 
 
