@@ -28,6 +28,8 @@
 \newcommand{\extf}{\ff{\qn}}
 \newcommand{\extfactf}{\ff{\extfactfsize}}
 
+\newcommand{\AG}{\mathrm{AG}(\qq,\nn)}
+
 \DeclareMathOperator{\Tr}{Tr}
 \DeclareMathOperator{\Ker}{Ker}
 \DeclareMathOperator{\Ima}{Im} 
@@ -394,36 +396,6 @@ g(Y)=\Res_{Y_1}(L_2(Y_1)-Y,g^{(1)}(Y_1))
  the algebraic multiplicity of a root of $g$ is the number of roots of $f$ projected to this root.
 \comf
 
-\comd
-A mon avis ce paragraphe doit \^etre merg\'e avec la suite car ici on est dans background and notation.
-\comf
-\paragraph{Application to root finding} From the objects we have
-defined so far, we derive two algorithms for computing the roots of a
-polynomial $f$ with coefficients in $\extf$. Both algorithms are
-iterative in nature and work by ascending/de\-scend\-ing along the
-flag $V_0,\dots,V_n$. In an abstract way, they can be seen as
-\emph{dual} to each other.
-
-SRA transforms $f$ by \emph{projecting} its roots onto the spaces
-$V_i^\ast$.  Starting from the polynomial $f_0=f$ with roots in
-$V_0^\ast=\extf$, we iteratively compute polynomials $f_1,\dots,f_n$
-such that the roots of $f_i$ are the projections onto $V_i^\ast$ of
-the roots of $f_{i-1}$.  The successive projections are computed by
-means of resultants.  Ultimately, $f_n$ will have $0$ as only root,
-and the original roots will be found by ascending the chain back to
-$f_0$.  Said otherwise, for any root $\rho$ of $f$, SRA computes
-successive approximations $L_n(\rho),L_{n-1}(\rho),\dots,L_0(\rho)$,
-ultimately yielding the original root because $L_0(\rho)=\rho$.
-
-On the other hand, ARM isolates the roots of $f$ by
-\emph{intersecting} them with the subspaces $V_{i,\rho}$, starting
-from the largest space $V_{n,0}$, and iteratively going down to the
-smallest ones $V_{0,\rho}$.  The successive intersections are computed
-by means of GCDs.  Said otherwise, for any root $\rho=\sum_j
-r_j\upsilon_j$ of $f$, ARM computes successive approximations
-$\rho_k=\sum_{j>k}r_j\upsilon_j$, from $\rho_n=0$ down to
-$\rho_0=\rho$.
-
 
 \section{Preliminaries}
 
@@ -508,12 +480,13 @@ going to be based the algorithms of the next sections.
     \STATE Let $\alpha=\beta^{\qq-1}$,
     \STATE\label{alg:resultant:select} Select points $\delta_0,\dots,\delta_d$ s.t. all $\delta_i^\qq-\alpha\delta_i$ are distinct;
     \STATE\label{alg:resultant:multi-ev} Compute $\varepsilon_{i,c}=f(\delta_i+c\beta)$ for $0\le i\le\dd$ and $c\in\basef$;
-    \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^{\dd}  \prod_c\varepsilon_{i,c}$.
+    \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^{\qq\dd}  \prod_c\varepsilon_{i,c}$.
   \end{algorithmic}
 \end{algorithm}
 
 
 \begin{Lem}
+  \label{lem:alg-resultant}
   Algorithm~\ref{alg:resultant} is correct. On input a polynomial of
   degree $d\ll\qq^{\nn-1}$, it computes its output using $O(\Mul(\dd)
   \log\dd + \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$ operations over
@@ -544,8 +517,8 @@ going to be based the algorithms of the next sections.
     \label{eq:lin-resultant}
     \Res_X\bigl(X^\qq-\beta^{\qq-1}X-\Delta,f(X)\bigr) =\\
     \Res_X\Bigl(  \prod_{c\in\extf}(X-\delta - c\beta),f(X) \Bigr) =\\
-    (-1)^{\dd} \prod_{c\in\extf} \Res_X\bigl(f(X), X-\delta - c\beta\bigr) =\\
-     (-1)^{\dd} \prod_{c\in\extf} f(\delta+c\beta),
+    \prod_{c\in\extf} \Res_X\bigl(X-\delta - c\beta, f(X)\bigr) =\\
+    (-1)^{\qq\dd} \prod_{c\in\extf} f(\delta+c\beta),
   \end{multline}
   where the second and third equalities comes from the
   multiplicativity of the resultant. The correctness of the algorithm
@@ -574,42 +547,64 @@ algorithms we present next.
 
 
 
-\section{Link between ARM and SRA}
+\section{The algorithms ARM and SRA}
 \label{sec:arm-sra}
 
-In this section we show that ARM and SRA methods can be seen as
-\emph{dual} to each other if we remember that
-$$\gcd(f(X),g(X)) \ne 1 \mbox{  if and only if }\Res_X(f(X),g(X))=0\,.$$
+In this section we present two root finding algorithms based on the
+structure of the affine space $\AG$. We start with the Affine
+Refinement Method (ARM) of Menezes, van Oorschot and
+Vanstone~\cite{Menvanovans92}, then go to the Successive Resultants
+Algorithm (SRA) of Petit~\cite{cgUCL-P14}. For both, we present
+variants which are more efficient than the original ones. Our
+presentation highlights a link between the two algorithms that had
+previously gone unnoticed: in both an abstract and a computational
+sense, ARM and SRA can be seen as \emph{dual} to each other.
 
-\medskip
+ARM works by \emph{intersecting} the roots of the input polynomial
+with the subspaces $V_{i,\rho}$. The successive intersections are
+computed by means of GCDs.  SRA works by \emph{projecting} the roots
+onto the spaces $V_i^\ast$.  The successive projections are computed
+by means of resultants.
 
-\noindent {\bf Pre-computation}: Both methods, ARM and SRA, start by computing the decomposition of the field equation following the procedure described in relation~(\ref{Li_generation}), i.e.
- $$X^{\qn}-X=(X^\qq - \alpha_\nn) \circ (X^\qq - \alpha_{\nn-1}) \circ \cdots \circ (X^\qq - \alpha_1) \,.$$
-where $\alpha_i \in \extf$. This determine in particular the different linearized polynomials $L_i$ and the spaces $V_i=\Ker~L_i$ and $V_i^\ast=\Ima~L_i$. Note that this phase depends only on the field and may be re-used for the root-finding of several polynomials $f \in \extf[X]$ defined on the same field.
+At an algorithmic level, the duality is embodied in the well known
+property
+\begin{equation}
+  \gcd\bigl(f(X),g(X)\bigr) \ne 1 \;\Leftrightarrow\; \Res_X\bigl(f(X),g(X)\bigr)=0\,,
+\end{equation}
+which implies that ARM isolates a root of $f$ whenever SRA does.
 
-\medskip
+\paragraph{Pre-computation} Both methods take as input a basis
+$\upsilon_1\dots,\upsilon_\nn$, and use it to define the affine space
+$\AG$ as in Section~\ref{sec:nsd}. To this end, they compute the
+matrix $\Gamma$ of Eq.~\eqref{eq:Gamma} at a cost of $O(n^2\log q)$
+operations. Note that this phase depends only on the field and may be
+re-used for the root-finding of several polynomials defined on the
+same field.
 
-\noindent {\bf ARM}: The method consists in \emph{intersecting} the roots of $f$ with the corresponding fibers of $L_i$ identified by $\ell_i \in V_i^\ast$.
+\paragraph{ARM} The method consists in \emph{intersecting} the roots of $f$ with the corresponding fibers of $L_i$ identified by $\ell_i \in V_i^\ast$.
 %The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
  It is achieved by computing the non-constant gcd's among the set
 % the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
  \label{base_ARM}
-\gcd(L_i(X)-\ell_i,f(X))     \mbox{ with }  \ell_i  \in V_i^\ast\,,
+\gcd(L_i(X)-\ell_{i,\rho},f(X))     \mbox{ with }  \ell_{i,\rho}  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
-It will anyway leads to the root of $f$ because 
-$$\gcd(L_0(X)-\ell_0,f(X))=\gcd(X-\ell_0,f(X)) \ne 1\,,$$ 
+It ultimately leads to the root of $f$ because 
+$$\gcd(L_0(X)-\ell_{0,\rho},f(X))=\gcd(X-\ell_{0,\rho},f(X)) \ne 1\,,$$ 
 provide the linear factors of $f$. 
 Note that 
-$$\gcd(L_i(X)-l_i,f(X)) \ne 1$$
-means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
-Practically, these gcd's are computed in a dichotomic way. Let us first define
- $$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$
+\begin{equation}
+  \label{eq:duality-gcd}
+  \gcd(L_i(X)-\ell_{i,\rho},f(X)) \ne 1
+\end{equation}
+means that there is a root of $f$ in the fiber $\{\rho' \mid L_i(\rho')=\ell_{i,\rho} \}$.
+In practice, these gcd's are computed in a recursive way. Let us first define
+ $$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,$$
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
-According to~(\ref{base_ARM}) and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.
+Using Eq.~\eqref{base_ARM} and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.,
  $$f_{n,0}(X)=\gcd(L_n(X),f(X))=\gcd(X^{q^\nn}-X,f(X))\,.$$
-The recursive step is based on~(\ref{node_product}) and works as follow: for any $L_i(\rho) \in V_i^\ast$ such that $f_{i,\rho}(X)$ is neither a constant polynomial nor a linear factors,
+The recursive step is based on Eq.~\eqref{node_product} and works as follows: for any $L_i(\rho) \in V_i^\ast$ such that $f_{i,\rho}(X)$ is neither a constant polynomial nor a linear factor,
   $$
   \begin{array}{lll}
   f_{i,\rho}(X)&=&\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i,\rho}(X)) \\
@@ -617,10 +612,8 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
                &=&\prod_{c \in \basef} f_{i-1,\rho+c \cdot  \upsilon_i}(X)\\
   \end{array}              
   $$ 
- Note that according to the linearity of $L_i$, the value $L_{i-1}(\rho)$ is common to the $\qq$ polynomials $f_{i-1,\rho+c \cdot  \upsilon_i}(X)$ to be determined and must be computed only once. 
  
- This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity). Note that all the other gcd's of~(\ref{base_ARM}) can be easily deduced without any computation from the leafs of the tree but they won't bring any new information to our problem.
- 
+ This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity). ARM is summarized in Algorithm~\ref{alg:arm}.
 
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
   
@@ -637,12 +630,12 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
    \STATE\label{alg:arm:Li} Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
    \ENDFOR
    \STATE Initialize tree with root $f_{\nn,0} = f \mod L_\nn$;
-   \FOR {$\nn \ge i \ge 1$}
+   \FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
    \FOR {any node $f_{k,\rho}$ of degree $>1$ in the tree}
-   \STATE Compute $\ell_{i-1,\rho} = L_{i-1}(\rho) = \sum_j r_j\gamma_{i-1,j}$;
+   \STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho) = \sum_j r_j\gamma_{i-1,j}$;
    \ENDFOR
    \FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
-   \STATE Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
+   \STATE\label{alg:arm:mod} Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
    \FOR {any $c\in\basef$}
    \STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
    \ENDFOR
@@ -661,53 +654,85 @@ The recursive step is based on~(\ref{node_product}) and works as follow: for any
    h\qq\Mul(\dd)\log\dd)$ operations over $\extf$.
  \end{Lem}
  \begin{proof}
-   \todo{Breakup:
-     \begin{itemize}
-     \item Step 3: $\nn\Mul(\dd)\log\qq$,
-     \item Step 7: $h^2\dd$ (even $h\dd$ on average),
-     \item Step 9: $h\Mul(\dd)\log\dd$ by a subproduct tree,
-     \item Step 11: $h\qq\Mul(\dd)\log\dd$.
-     \end{itemize}
-   }
+   Correctness has been discussed above. Concerning complexity, the
+   computation of the polynomials $L_i$ in step~\ref{alg:arm:Li} is
+   done in $O(\Mul(\dd)\log\qq)$ for each polynomial, contributing
+   $O(\nn\Mul(\dd)\log\qq)$ to the total.
+
+   Now we treat the steps inside loop~\ref{alg:arm:for}.  Each of the
+   complexities below is multiplied by $h$ in the total count.
+
+   In step~\ref{alg:arm:combili}, we need to compute $L_{i-1}(\rho)$
+   for each root approximation $\rho$ in the tree. If $\rho$ is the
+   approximation associated to a node, and $\rho'$ is the
+   approximation associated to its parent, then
+   $\rho-\rho'=c\upsilon_j$ for some $c\in\basef$ and some basis
+   vector $\upsilon_j$. Hence, knowing the elements $\gamma_{i-1,j}$,
+   the value $L_{i-1}(\rho)$ can be computed from $L_{i-1}(\rho')$
+   using only one field operation. At any iteration, there are at most
+   $hd$ nodes in the tree, hence a cost of $O(hd)$.
+
+   Step~\ref{alg:arm:mod} can be computed putting all $f_{i,\rho}$
+   together in a subproduct tree, as in the classical multi-point
+   evaluation algorithm. Reducing modulo the subproduct tree costs
+   then $O(\Mul(\dd)\log\dd)$.
+
+   Finally, in step~\ref{alg:arm:gcd} the degrees of the polynomials
+   $f_{i,\rho}$ sum up to $\dd$. For each of these, we compute $\qq$
+   gcd's with polynomials of similar degree. Each of these polynomials
+   can be computed in $O(\Mul(\dd_\rho)\log\dd_\rho)$, where
+   $\dd_\rho$ is the degree of $f_{i,\rho}$. Summing over all
+   polynomials, and using the super-linearity of the function $\Mul$,
+   we bound this by $O(\qq\Mul(d)\log d)$.
  \end{proof}
 
-\medskip
-
-\noindent {\bf SRA}: The method consists in only \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ for $i$ starting from $n$ and going down to 0.
-It is achieved by the computation of the values $l_i \in V_i^\ast$ annealing 
+\paragraph{SRA} The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ for $i$ starting from $n$ and going down to 0.
+It is achieved by the computation of the values $\ell_{i,\rho} \in V_i^\ast$ annihilating
  \begin{equation}
  \label{base_SRA}
-\Res_X(L_i(X)-l_i,f(X)) \,,
+\Res_X(L_i(X)-\ell_{i,\rho},f(X)) \,.
 \end{equation}
-for $i$ starting from $n$ and going down to 0. It will anyway leads to the root of $f$ because 
-$$\Res_X(L_0(X)-\ell_0,f(X))=\Res_X(X-\ell_0,f(X))=0\,,$$
-means that $\ell_0$ is a root of $f$. Note that 
-$$\Res_X(L_i(X)-l_i,f(X)) =0$$
-means that there is a root of $f$ in the fiber $\{x \mid L_i(X)=l_i \}$.
-Observe the complete correspondence between ARM and SRA if you remember that 
-$\gcd(L_i(X)-l_i,f(X)) \ne 1$ if and only if $\Res_X(L_i(X)-l_i,f(X)) =0$.
-Pratically, those resultants are computed using the power of polynomials. It has two steps:
-\begin{enumerate}
-\item The computation of polynomials $g^{(i)}$ having as roots the $L_i$-projection onto $V_i^\ast$ of the roots of $f$,  i.e.
-  $$g^{(i)}(Y_i)=\Res_{X}(L_i(X)-Y_i,f(X))  \mbox{ for }i=0 \cdots n \,.$$
-  The polynomials $g^{(0)}, \cdots g^{(n)}$ are iteratively computed such that the roots of $g^{(i)}$ are the projection onto 
-  $V_i^\ast$ of the roots of $g^{(i-1)}$. According to the definition of $L_i$ and relation~(\ref{resultant_compose}), we have
-  $$g^{(i)}(Y_i)=\Res_{X_{i-1}}(X^q_{i-1} - \alpha_i X_{i-1} -Y_i,g^{(i-1)}(X_{i-1})) \,.$$
- and $g ^{(0)}=f$.
-\item The computation of the roots of the resultants, i.e.
-$$g^{(i)}(Y_i)=0  \mbox{ where }  Y_i \in   V_i^\ast$$
-for $i$ starting from $n$ and going down to 0, leading ultimately to the root of $f$ because $g^{(0)}=f$. Practically, these roots 
-are determined in a dichotomic way. Noting that $L_n$ project all the roots to $0$,
- we deduce that $0$ is always root of $g^{(n)}$. Moreover, this root is unique because $V_n^\ast=\{0\}$.
-The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generation})) and the fact that the roots of $g^{(i)}$ are the projection onto 
-  $V_i^\ast$ of the roots of $g^{(i-1)}$. It works as follow: for any root $\ell_i$ of $g^{(i)}$ belonging to $V_i^\ast$, check whether $g^{(i-1)}(\ell_{i-1})=0$
-   for any $\ell_{i-1} \in V_i^\ast$ such that $\ell_{i-1}^q-\alpha_i \cdot \ell_{i-1}=\ell_i$. This procedure builds a tree where at level $i$ the nodes are the roots of $g^{(i)}$. 
-   The leafs of the tree at level $n$ are the roots of $f$.
-\end{enumerate}
+It ultimately leads to the roots of $f$ because
+$$\Res_X(L_0(X)-\ell_{0,\rho},f(X))=\Res_X(X-\ell_{0,\rho},f(X))=0\,$$
+means that $\ell_{0,\rho}$ is a root of $f$. Note that 
+\begin{equation}
+  \label{eq:duality-res}
+  \Res_X(L_i(X)-\ell_{i,\rho},f(X)) =0
+\end{equation}
+means that there is a root of $f$ in the fiber $\{\rho' \mid
+L_i(\rho')=\ell_{i,\rho} \}$.  Comparing this with
+Eq.~(\ref{eq:duality-gcd}), the duality between ARM and SRA becomes
+apparent. Indeed, $\gcd(L_i(X)-\ell_{i,\rho},f(X)) \ne 1$ if and only
+if $\Res_X(L_i(X)-\ell_{i,\rho},f(X)) =0$.
 
+Like ARM, SRA is a two-swipes algorithm.  We first compute the
+polynomials $f^{(i)}$ having as roots the projections onto $V_i^\ast$
+of the roots of $f$, i.e.,
+$$f^{(i)}(Y_i)=\Res_{X}(L_i(X)-Y_i,f(X))  \mbox{ for }i=0 \cdots n \,.$$
+The polynomial $f^{(i)}$ is computed from $f^{(i-1)}$ by projecting
+its roots onto $V_i^\ast$. By the definition of $L_i$, we have  $f ^{(0)}=f$ and
+$$f^{(i)}(Y_i)=\Res_{X_{i-1}}(X^q_{i-1} - \alpha_i X_{i-1} -Y_i,f^{(i-1)}(X_{i-1})) \,.$$
 
+At each iteration, some roots of $f^{(i-1)}$ may be projected to the
+same root of $f^{(i)}$. We apply a square-free factorization algorithm
+to only keep one representative of those roots. Doing this allows us
+to stop the descent before $f^{(n)}$ is computed. Indeed, we can
+verify that $f^{(i)}=L_i^\ast$ simply by checking the degree of
+$f^{(i)}$, then we know that the roots of $f^{(i)}$ are all the
+elements of $V_i^\ast$. In the worst case, this will happen at the
+last step, when $f^{(n)}(X)=X=L_n^\ast(X)$, and the only root is $0$.
+In practice, the square-free factorization is unlikely to
+significantly reduce the degree of $f$ before the last $\log\dd$
+iterations, it is thus advisable to skip it in the first ones.
 
-
+After the $f^{(i)}$'s are computed, SRA iteratively computes their
+roots starting from the last. The roots of $f^{(i-1)}$ are deduced
+from those of $f^{(i)}$ using Eq.~\eqref{Li_generation}. For any root
+$\ell_i$ of $g^{(i)}$ belonging to $V_i^\ast$, we check whether
+$g^{(i-1)}(\ell_{i-1})=0$ for any $\ell_{i-1} \in V_{i-1}^\ast$ such that
+$\ell_{i-1}^\qq-\alpha_i \cdot \ell_{i-1}=\ell_i$. This procedure builds
+a tree where at level $i$ the nodes are the roots of $g^{(i)}$.  The
+leafs of the tree at level $0$ are the roots of $f$.
 
   
  \begin{algorithm}
@@ -719,18 +744,18 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
      The matrix $\Gamma=(\gamma_{i,j})$ defined in~\eqref{eq:Gamma}.}
    \ENSURE {The roots of $f$ in $\extf$.}
    \STATE Let $f^{(0)}=f$;
-   \FOR {$1\le i \le \nn$}
+   \FOR {$1\le i \le \nn$}\label{alg:sra:for1}
    \STATE\label{alg:sra:resultant} $\hat{f}^{(i)}(Y) = \Res_X(X^\qq - \gamma_{i-1,i}^{\qq-1}X-Y,f^{(i-1)}(X))$;
-   \STATE Compute $f^{(i)}$, the square-free part of $\hat{f}^{(i)}$;
+   \STATE\label{alg:sra:sqfree} Compute $f^{(i)}$, the square-free part of $\hat{f}^{(i)}$;
    \IF {$\deg f^{(i)} = \qq^{\nn-i}$}
    \STATE Set $h=i$;
    \STATE {\bf break} out of the {\bf for} loop;
    \ENDIF
    \ENDFOR
    \STATE Let $A_h = (\rho_0,\dots,\rho_{\qq^{\nn-h}})$ such that $V^\ast_h=\bigl(L_h(\rho_j)\bigr)_j$;
-   \FOR {$h> i\ge 0$}
+   \FOR {$h> i\ge 0$}\label{alg:sra:for2}
    \FOR {any $\rho\in A_i$}
-   \STATE Compute $\ell_{i,\rho}=L_i(\rho)=\sum_jr_j\gamma_{i,j}$;
+   \STATE\label{alg:sra:combili} Compute $\ell_{i,\rho}=L_i(\rho)=\sum_jr_j\gamma_{i,j}$;
    \ENDFOR
    \STATE\label{alg:sra:eval} $E_i = \left(f^{(i)}(\ell_{i,\rho} + c\gamma_{i,i+1}) \text{ for any $\rho\in A_{i+1}$ and $c\in\basef$}\right)$;
    \FOR {any $\rho\in A_i$}
@@ -749,24 +774,43 @@ The recursive is based on the definition of $L_i$ (see relation~(\ref{Li_generat
    over $\extf$, or more compactly $O(h\qq\Mul(\dd)\log\dd + h^2\dd)$.
  \end{Lem}
  \begin{proof}
-   \todo{Breakup:
-     \begin{itemize}
-     \item Step 3: $h\Mul(\dd)\log \dd + h\qq^2\Mul(\dd/\qq)\log\dd + h\qq^2\dd$,
-     \item Step 4: $h\Mul(\dd)\log\dd$,
-     \item Step 11: $h^2\dd$, like in SRA Step 7, 
-     \item Step 12: $h$ multievaluations as in Sec 2, dominated by Step 3,
-     \end{itemize}
-   }
+   Correctness has been discussed above. Concerning complexity, we
+   remark that any step in loop~\ref{alg:sra:for1} and
+   loop~\ref{alg:sra:for2} is repeated exactly $h$ times, thus the
+   overall complexity is multiplied by $h$.
+
+   Step~\ref{alg:sra:resultant} can be computed using
+   Algorithm~\ref{alg:resultant}. According to
+   Lemma~\ref{lem:alg-resultant}, this costs $O(\Mul(\dd) \log\dd +
+   \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$.
+
+   Step~\ref{alg:sra:sqfree} is computed in $O(\Mul(\dd)\log\dd$ using
+   a classical algorithm.
+
+   The elements $L_i(\rho)$ in step~\ref{alg:sra:combili} are computed
+   using the tree structure of the roots, like in ARM, thus requiring
+   only one field operation per value. There are at most $hd$
+   approximations at each iteration, thus this step contributes
+   $O(hd)$ operations.
+   
+   Finally, step~\ref{alg:sra:eval} can be computed using the
+   multi-point evaluation algorithm~\ref{alg:multi-ev}, at the same
+   cost of step~\ref{alg:sra:resultant}.
  \end{proof}
 
- Taking $h=n$, we immediately have the following theorem on the
- complexities of ARM and SRA.
+ Using the two previous lemmas, we can now easily state the worst case
+ complexity of both ARM and SRA, indeed for both algorithms the height
+ $h$ equals $\nn$ in this case. Unsurprisingly, the two algorithms
+ have very similar complexities.
 
  \begin{Theo}
    In the worst case, both ARM and SRA compute their output using
    $O(nq\Mul(d)\log d + n^2d)$.
  \end{Theo}
-
+ 
+ On average, however, both algorithms will stop before reaching the
+ bottom of the tree. The goal of the next section is to analyze the
+ behavior of ARM and SRA on average.
 
 
 \subsection{Expected number of iterations of ARM}
@@ -818,16 +862,6 @@ Those two results express the fact that generally, the algorithm won't escape ve
 
 
 Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\ref{Menvanovans92} on the the bound on the number of iterations which is stated as $ 2\log_q \nn + \bigO(1)$  instead of $2\log_q \dd + \bigO(1)$. This leads to typos in their complexity evaluation of the Affine method, ARM and BTA.
-
-
-\comd
-J'ai un probleme je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
-\comf 
-
-
-
-
-
 
 
 
