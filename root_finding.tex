@@ -376,6 +376,7 @@ subspaces we associate its minimal polynomial, that we denote by
 $L_i$. Then we have the well know relation (see
 \cite[Lemma~1]{cgUCL-P14})
 \begin{equation}
+\label{eq:Li}
   L_0(X) = X, \quad L_i(X) = (X^\qq - L_{i-1}(\upsilon_i)^{\qq-1}X)\circ L_{i-1}(X),
 \end{equation}
 where we remark that the $L_i$'s are linearized polynomials (see
@@ -436,6 +437,7 @@ The eigenvalues of $\Gamma$ play a special role in our algorithms,
 thus we define $\beta_i=\gamma_{i-1,i}$ and $\alpha_i=\beta_i^{\qq-1}$
 for any $1\le i \le \nn$. We deduce a decomposition
 \begin{equation}
+\label{decomposition_field_eq_gen}
   X^\qn - X = (X^\qq - \alpha_\nn X) \circ \cdots \circ (X^\qq - \alpha_1 X).
 \end{equation}
 
@@ -753,6 +755,7 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
  \end{algorithm}
 
  \begin{Lem}
+ \label{complexity_arm}
    Algorithm~\ref{alg:arm} (ARM) is correct. If the root tree for the
    input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has depth $h$, it
    computes its output using $O(\nn\Mul(\dd)\log\qq + h^2\dd +
@@ -872,6 +875,7 @@ leafs of the tree at level $0$ are the roots of $f$.
  \end{algorithm}
 
  \begin{Lem}
+ \label{complexity_sra}
    Algorithm~\ref{alg:sra} (SRA) is correct. If the root tree for the
    input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has depth $h$, it computes its
    output using $O\left(h(\Mul(\dd)\log \dd +
@@ -1172,55 +1176,69 @@ Noting that the above $\Delta$'s all belong to $\mathbb{F}_{\qq^{m_t \cdot n_t}}
 
 
 
+\section{Tuning of ARM and its link to BTA}
+ 
+\subsection{Improving the worst-case complexity \label{sec:ext:variant}}
+
+ARM algorithm may perform poorly in the worst case. When the number of iterations $h$ is maximal, 
+the term corresponds to the computation of the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili} becomes $\bigO(\nn^2 \dd)$ which may become the bottleneck of the algorithm. 
+
+In this section, we present a variant of this algorithm with worst case running time comparable to the average running time, provided that a normal basis with fast arithmetic is available for $\extf/\basef$. 
+Normal basis with fast arithmetic exist for all fields and can be computed efficiently~\cite{Couveignes-Lercier}.\todo{Luca: help me define efficiently}
+\comd
+Je ne pense pas qu'il y ait des bases normales rapides pour tous les corps de toute fa\c{c}on il y a une grande constante. 
+\comf
 
 
-\subsection{Improving the worst-case complexity\label{sec:ext:variant}}
+%The bottleneck of the algorithm of Section~\ref{sec:alg:alg} in the worst case is the computation of all $\ell_{i,r}$ from precomputed values $L_i(\upsilon_j)$.
 
-The algorithm of Section~\ref{sec:alg:alg} may perform poorly in the worst case. In this section, we present a variant of this algorithm with worst case running time comparable to the average running time.
+At every iteration, for each node $f_{i+1,\rho}$, that needs to be branched, the values $\ell_{i,\rho}$ corresponding to its $\qq$ childs may be computed from $\ell_{i+1,\rho}=L_{i+1}(\rho)$ by solving the equation  
+$$\ell_{i,\rho}^q-\beta_i^{\qq-1} \ell_{i,\rho}=\ell_{i+1,\rho}\,,$$
+which follows from the definition of the $L_i$'s. Rewriting the above equation as 
+$$(\beta_i^{-1}\ell_{i,\rho})^q-(\beta_i^{-1}\ell_{i,\rho})=\beta_i^{-q}\ell_{i+1,\rho}\,,$$
+it follows that the set of $\ell_{i,\rho}$'s corresponding to the $\qq$ childs of the node $f_{i+1,\rho}$ is given by 
+$$\{ \beta_i \cdot l \mid l^q-l=\beta_i^{-q}\ell_{i+1,\rho} \} \,.$$
+In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solutions the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottelneck.
+
+
+
+
+
+
+%Using this method to compute the $\ell_{i,\rho}$ values ensures that the second step of our algorithm requires at most $O(qnd\log \dd)$ multiplications in the worst case, comparable to the complexity of the first step.
 %
-The bottleneck of the algorithm of Section~\ref{sec:alg:alg} in the worst case is the computation of all $\ell_{i,r}$ from precomputed values $L_i(\upsilon_j)$.
+%In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to implement and achieves the same asymptotic average case complexity up to constant factors. 
 
-As $\ell_{i,r}=L_i(r)$, these values can also be computed recursively by solving the equations
-$$\ell_{i+1,r}=\ell_{i,r}^q-\alpha_i\ell_{i,r}.$$
-%
-In the average case, there will be $O(d\log d)$ such equations to solve in the course of Step~2, but in the worst case there may be up to $O(dn)$ such equations to solve.
+%Similar equations are solved in the second step of SRA. It is suggested in~\cite{cgUCL-P14} to solve them with a standard root-finding algorithm at a cost equivalent to $O(n)$ operations over $\fqn$.
 
-Similar equations are solved in the second step of SRA. It is suggested in~\cite{cgUCL-P14} to solve them with a standard root-finding algorithm at a cost equivalent to $O(n)$ operations over $\fqn$.
-Here, we observe that we can reduce the asymptotic cost to $O(q)$ operations. As $\alpha_i=\beta_i^{p-1}$, we can re-write the above equation as 
-$$\beta_i^{-q}\ell_{i+1,r}=(\beta_i^{-1}\ell_{i,r})^q-(\beta_i^{-1}\ell_{i,r}).$$ 
-Note that the values $\beta_i$ are already computed in the precomputation step of our algorithm. We can solve the first equation by first computing $\beta_i^{-q}\ell_{i+1,r}$, then solving the equation 
-$$\beta_i^{-q}\ell_{i+1,r}=\ell^q-\ell$$
-and finally computing $\ell_{i,r}=\beta_i\ell$ for all solutions.
 
-If the field extension $\fqn/\fq$ is represented by a normal basis, the equation $\beta_i^{-q}\ell_{i+1,r}=\ell^q-\ell$ amounts to a bidiagonal system that can be solved in $O(n)$ operations over $\fq$, that is about $O(1)$ operations over $\fqn$.
-%
-Normal bases with fast arithmetic exist for all fields and can be computed efficiently~\cite{Couveignes-Lercier}.\todo{Luca: help me define efficiently}
-
-Using this method to compute the $\ell_{i,r}$ values ensures that the second step of our algorithm requires at most $O(qnd\log d)$ multiplications in the worst case, comparable to the complexity of the first step.
-%
-In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to implement and achieves the same asymptotic average case complexity up to constant factors. 
+%Here, we observe that we can reduce the asymptotic cost to $O(q)$ operations. As $\alpha_i=\beta_i^{p-1}$, we can re-write the above equation as 
+%$$\beta_i^{-q}\ell_{i+1,r}=(\beta_i^{-1}\ell_{i,r})^q-(\beta_i^{-1}\ell_{i,r}).$$ 
+%Note that the values $\beta_i$ are already computed in the precomputation step of our algorithm. We can solve the first equation by first computing $\beta_i^{-q}\ell_{i+1,r}$, then solving the equation 
+%$$\beta_i^{-q}\ell_{i+1,r}=\ell^q-\ell$$
+%and finally computing $\ell_{i,r}=\beta_i\ell$ for all solutions.
 
 
 
-\section{ARM variant without precomputation, and link to BTA}
 
 
-\subsection{ARM variant without precomputation\label{sec:BTA:ARMvariant}}
+
+\subsection{Variant with partial precomputation\label{sec:BTA:ARMvariant}}
 
 Both ARM and SRA require a precomputation cost of $O(n^2)$, essentially to compute all the $\alpha_i$ values. However, the second step of ARM only uses the $h=O(\log d)$ last $\alpha_i$ values  to split $f$ completely in the average case. We now present a variant of ARM that avoids any expensive precomputation.
 
-By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $L_i^*\circ L_i=L_i\circ L_i^*=x^{q^n}-x$. Consequently, any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ leads to $n-1$ other sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\ldots,)$ for all $i$.
+By Berlekamp~\cite[Theorem..]{}, for all $i$ there exists a linearized polynomial $L_i^*$ such that $(L_i^\ast\circ L_i)(X)=(L_i\circ L_i^\ast)(X)=X^{\qq^\nn}-X$. Consequently, any set of SRA values $(\alpha_{1},\alpha_2\ldots,\alpha_{n})$ leads to the sets of valid values $(\alpha_{i},\alpha_{i+1}\ldots,\alpha_{n},\alpha_{1}, \ldots, \alpha_{i-1})$ for all $i$.
 %
 Let then $\{\upsilon_1,\ldots,\upsilon_h\}$ be a basis of a vector space of dimension $h$ of $\fqn/\fq$. Proceeding as in SRA, we can compute the corresponding $\alpha_i$ values with $O(h^2\log\qq)$ multiplications. By the above property on valid sets, we can then take these values as the last ones of a valid $\alpha_i$ sequence.
 
-Given the $h$ last $\alpha_i$ values, we now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(x)=x^{q^n}-x$. Moreover,
-$$L_{i+1}(x)=L_i(x)^q-\alpha_iL_i(x).$$
-Given $\alpha_i$ and $L_{i+1}(x)=\sum_{j=0}^{i+1}a_jx^{q^j}$, we compute $L_i(x)=\sum_{j=0}^{i}b_jx^{q^j}$ in $O(n\log q)$ operations as follows: first we compute $\alpha_i^{-1}$, then we set $b_0=a_0\alpha_i^{-1}$, and we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
+Given the $h$ last $\alpha_i$ values, we now show how to compute $L_i\bmod f$ and $L_i(r)$ at no $O(n^2)$ precomputation cost. We know that $L_n(X)=X^{q^n}-X$. Moreover,
+$$L_{i+1}(X)=L_i(X)^q-\alpha_iL_i(X).$$
+Given $\alpha_i$ and $L_{i+1}(X)=\sum_{j=0}^{i+1}a_jX^{q^j}$, we compute $L_i(X)=\sum_{j=0}^{i}b_jX^{q^j}$ in $O(\nn \log q)$ operations as follows: first we compute $\alpha_i^{-1}$, then we set $b_0=a_0\alpha_i^{-1}$, and we recursively set $b_j=(b_{j-1}^q-a_j)\alpha_i^{-1}$.
 %
-The values $x^{q^j}\bmod f$ are computed using $O(dn\log q)$ operations, after which each polynomial
+The values $X^{q^j}\bmod f$ are computed using $O(dn\log q)$ operations, after which each polynomial
 $L_i\bmod f$ can be computed in $O(dn)$ operations.
 %
-Finally given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(n\log q)$ operations by simple evaluation. 
+Finally given a candidate root approximation $r$ and a polynomial $L_i$, the value $L_i(r)$ is computed in $O(\nn \log \qq)$ operations by simple evaluation. 
 %
 Besides these modifications, the general structure of SRA algorithm does not change.
 
@@ -1237,7 +1255,7 @@ Pour moi les deux sous-sections sur BTA doivent \^etre merg\'ee. Attention, il y
 
 Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
 \begin{equation}\label{BTA_eq1}
-f(x)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha x)-r_n,f(x)\right)
+f(X)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha X)-r_n,f(X)\right)
 \end{equation}
 for randomly chosen $\alpha\in\fqn$.
 
@@ -1250,7 +1268,7 @@ for randomly chosen $\alpha\in\fqn$.
 %\begin{proof}
 For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
 % 
-On average, $\bigO(\log(n))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
+On average, $\bigO(\log(\nn))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(\nn \cdot \log(\qq) \cdot M(\dd))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
 splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
 %\end{proof}
 
@@ -1259,12 +1277,12 @@ splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdo
 \subsection{Comparison between ARM and BTA}
 
 Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
-$$X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha x)$$
+$$X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha X)$$
 or
 $$(X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\Tr(\alpha X)$$
-If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(x)=\alpha^{-q^{n-1}}\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\alpha^{-q^{n-1}}\Tr(\alpha (x-r_\nn\alpha^{-1}))=\alpha^{-q^{n-1}}\left(\Tr(\alpha x)-r_\nn\right)$. Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used in BTA and in the last level of ARM are therefore identical.
+If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(X)=\alpha^{-q^{n-1}}\Tr(\alpha X)$ and $M_{\nn-1,r}(X)=\alpha^{-q^{n-1}}\Tr(\alpha (X-r_\nn\alpha^{-1}))=\alpha^{-q^{n-1}}\left(\Tr(\alpha X)-r_\nn\right)$. Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used in BTA and in the last level of ARM are therefore identical.
 
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
 %
 In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
 
