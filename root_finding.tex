@@ -196,6 +196,69 @@
 
 \section{Introduction}
 
+
+\begin{itemize}
+\item \cite{Chien64a} Cyclic decoding procedures for Bose- Chaudhuri-Hocquenghem codes  -- R. T. Chien (exhaustive search for coding theory: a shortcut)
+Brute force approach which consist in replacing all the multiplication between to random elements to multiplication by a constant.
+
+\item \cite{berl67} Factoring Polynomials over Finite Fields -- E. R. Berlekamp
+Linear alfgebra: Berlekamp Algebra.
+
+
+\item \cite{berl70} Factoring Polynomials over Large Finite Fields -- E. R. Berlekamp
+
+\item \cite{Moenck77} On the efficiency of algorithms for polynomial factoring -- Robert T. Moenck
+
+
+\item \cite{Rabin79} Probabilistic Algorithms In Finite Fields -- Michael O. Rabin
+
+
+\item \cite{cantor1981} A New Algorithm for Factoring Polynomials over Finite Fields -- D. Cantor and H. Zassenhaus
+
+\item \cite{Ben-Or81}  Probabilistic Algorithms in Finite Fields -- M. Ben-Or
+
+\item \cite{mBER84a} Least Affine Multiple -- E. R. Berlekamp (efficace si le degr\'e est petit)
+
+
+%\item \cite{OorschotV90}   On splitting sets in block designs and finding roots of polynomials --  P. van Oorschot and S.A. Vanstone
+
+
+
+\item \cite{MenezesOV88} On some computational aspects of root finding in $\extf$
+
+\item \cite{OorschotV89}: A Geometric Approch to Root Finding in GF$(\qq^\nn)$ 
+
+\item \cite{Shoup91b}  A Fast Deterministic Algorithm for Factoring Polynomials over Finite Fields of Small Characteristic: V. Shoup  (generalization de BTA mais deterministe+ idee de Legendre je crois a la fin)
+
+
+\item \cite{Menvanovans92} Subgroup Refinement Algorithms for Root Finding in $GF(q)$ -- A.J. Menezes, P. van Oorschot and  S.A. Vanstone 
+
+
+\item \cite{nied94} Factoring Polynomials over Finite Fields Using Differential Equations and Normal Bases -- H. Niederreiter
+
+\item \cite{Fleis96} Comparative Implementations of Berlekamp's and Niederreiter's Polynomial Factorization Algorithms -- P. Fleischmann and P. Roelse
+
+
+%\item \cite{Biswas09efficientroot}   Efficient root finding of polynomials over fields of characteristic 2 -- B. Biswas and V. Herbert
+
+
+
+\item \cite{BKS13} Character Sums and Deterministic Polynomial Root Finding in Finite Fields -- J. Bourgain  and S. Konyagin and I. Shparlinski 
+
+
+\item \cite{cgUCL-P14} Finding {R}oots in GF$(p^n)$ with the Successive Resultant Algorithm -- C. Petit
+
+
+\end{itemize}
+
+General:
+\begin{itemize}
+\item \cite{Gathen06} Who {W}as {W}ho in {P}olynomial {F}actorization -- J. von zur Gathen
+
+\item \cite{Gathen2003} Modern Computer Algebra -- J. von zur Gathen
+\end{itemize}
+
+
 This paper presents and compares two related algorithms for finding
 roots of polynomials with coefficients in a finite field $\extf$,
 where $\qq$ is small. The first algorithm, called the Successive
@@ -221,7 +284,48 @@ Section~\ref{sec:factorization} that a partial application of this
 idea yields a practical improvement to the classical Cantor-Zassenhaus
 algorithm~\cite{cantor1981}.
 
-\paragraph{Previous work} 
+
+
+\comd 
+
+\paragraph{Previous work:} We review here the different strategies that were proposed over the years for finding roots of polynomials defined on finite fields. Note that some of the methods are actually able to solve the harder problem which is the factorization of polynomials into its irreducible components. As mentioned by J. von zur Gathen~\cite{Gathen06}, the first method for finding the roots of $f \in \mathbb{F}_p[X]$, with $p$ an odd prime, is due to A. M. Legendre (1752-1833) who starts by considering the factorization of the field equation
+$$X^{p}-X=X \cdot (X^{(p-1)/2}-1) \cdot (X^{(p-1)/2}+1)\,.$$
+He then observes that computing the GCD of $f$ with each of the two later factors splits the (nonzero) roots of $f$ into two sets, the squares and the non-squares. He then observes that replacing $X$ by $X+a$ for $a$ random offers other ways for splitting the roots into two sets which may successively applied to the partial factorizations. This is a probabilistic method and many modern methods are based on.
+
+In the context of coding theory, R. T. Chien~\cite{Chien64a} introduced in 1964 the so-called \emph{Chien Search} which is basically an exhaustive search on the roots with some optimizations for the implementation.
+
+The factoring method of E.R. Berlekamp~\cite{berl67} of a polynomial $f \in  \mathbb{F}_\qq[X]$, with $\qq$ a prime power, is based on the so-called \emph{Petr-Berlekamp algebra} of $f$ which consists on the set of polynomials $h$ satisfying  
+$$h(X)^q=h(X) \bmod{f(X)}$$
+Using the factorization of the 
+$$X^{\qq}-X=\prod_{\alpha \in \basef}(X-\alpha)\,,$$
+he deduces $f(X)=\prod_{\alpha \in \mathbb{F}_{\qq}} \gcd(f(X),h(X)-\alpha)$. This method is deterministic and requires to compute $\qq$ GCD's limiting the size of the finite field for which the method may be used. The root-finding method called \emph{Berlekamp Trace Algorithm} (BTA)~\cite{berl70} takes advantage of the factorization 
+$$X^{\qq^n}-X=\beta^{-1} \cdot \prod_{a \in \basef}(\tr{\qq^n}{\qq}(\beta \cdot X)-a)\,.$$
+The roots of $f$ are separated by computing GCD's with the different factors for some random $\beta$. This method is recursive, probabilistic and may be applied to large finite fields with small characteristic. This is one the most efficient today's method.
+
+Moenck~\cite{Moenck77} proposes to use the computation of resultant to determine the $\alpha$'s and $a$'s leading to non-trivial GCD's in the above methods. Also, he proposes the \emph{Subgroup Refinement Algorithm} to pursue further the factorization of the field equation considered by Legendre for some special primes $p$ by considering successive subgroups of $\mathbb{F}_{p}^\ast$. 
+Rabin~\cite{Rabin79} proposes a method close to the one of Legendre. 
+
+D. Cantor and H. Zassenhaus~\cite{cantor1981} suggests to consider random polynomial $h(X)$ instead of $X+a$ in the decomposition of Legendre in order to factorize a polynomial $f$ with factors of equal degree by means of GCD's. The method is probabilistic and this is one the most efficient today's method. This method is referred as \emph{C-Z}.
+
+E. R. Berlekamp~\cite{mBER84a} proposes the \emph{Least Affine Multiple method} (LAM) which consists to compute the least affine multiple of a polynomial in order to find its roots among the set of the roots of the affine polynomial. 
+
+A.J. Menezes, P.C. van Oorschot and S.A. Vanstone~\cite{MenezesOV88,OorschotV89} generalizes the BTA by replacing trace map by more general affines polynomials and by combining it with the LAM method. Also, they~\cite{Menvanovans92} generalizes the Subgroup Refinement Algorithm of Moenck~\cite{Moenck77} and 
+introduces the \emph{Affine Refinement Method} (ARM) by mirroring the successive refinement of a subgroup of $\mathbb{F}_{\qq}^\ast$ in Moenck's algorithm 
+by refinement of linear subspaces of AG(\nn,\qq), the $\nn$-dimensional affine geometry of $\mathbb{F}_{\qq}$. This method may be view as a generalization of BTA. The ARM makes use of the LAM method.
+
+Shoup\cite{Shoup91b} proposes a deterministic generalization of BTA for the factorization and root-finding problem. Its worst running time is similar to the average running time of the best currently known probabilistic methods such as BTA and C-Z method.
+
+H. Niederreiter\cite{nied94} proposed an algorithm based on the resolution of differential equation on finite fields.  As mentioned by several authors~\cite{Fleis96} this algorithm is highly related to similar to factoring algorithm Berlekamp.
+
+J. Bourgain  and S. Konyagin and I. Shparlinski~\cite{BKS13} proposes a deterministic version of the Legendre approach for the root-finding problem of polynomials over $\mathbb{F}_p$. 
+
+Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successive Resultants Algorithm} (SRA). 
+
+\comf
+
+
+
+
 
 \paragraph{Our contribution}
 
