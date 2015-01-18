@@ -394,8 +394,9 @@ g(Y)=\Res_{Y_1}(g^{(1)}(Y_1),Y-L_2(Y_1))
  the algebraic multiplicity of a root of $g$ is the number of roots of $f$ projected to this root.
 \comf
 
-
-
+\comd
+A mon avis ce paragraphe doit \^etre merg\'e avec la suite car ici on est dans background and notation.
+\comf
 \paragraph{Application to root finding} From the objects we have
 defined so far, we derive two algorithms for computing the roots of a
 polynomial $f$ with coefficients in $\extf$. Both algorithms are
@@ -423,9 +424,6 @@ r_j\upsilon_j$ of $f$, ARM computes successive approximations
 $\rho_k=\sum_{j>k}r_j\upsilon_j$, from $\rho_n=0$ down to
 $\rho_0=\rho$.
 
-
-\comd
-{\bf }La vision n'est pas la m\^eme que ci-dessus ("application to root finding") mais ce n'est pas en contradiction. J'ai essay\'e de faire un mais mais ce n'est pas complet. De mon point de vue la notion d'approximation ne vient que lorsque l'on instantie les espaces $V_i$ et $V_i^\ast$. A partir des coefficients $r_i$, on peut calculer les $\sum_{i<j} r_i \upsilon_i$.
 
 \section{Preliminaries}
 
@@ -833,169 +831,6 @@ J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(f(X
 
 
 
-\section{Improvements and Complexity analysis of ARM and SRA}
-
-%The roots of the resultants are recursively determined, i.e.
-%  $$g^{(n)}(Y_n)=0   with Y_n  \in \{X \mid X^q-\alpha_n X = 0 \}    $$
-%$$g^{(i-1)}(Y_{i-1})  with Y_{i-1} \in \{X \mid X^q-\alpha_i X = 0 \}  where  S_i is the set of the root of g^{(i)} $$
-
-
-
-
-
-
-\comf
-
-
-
-
-
-
-\section{Reminder on SRA}
-
-\section{A New Deterministic Root-Finding Algorithm on $\extf$}
-
-\subsection{Preliminary definitions and notations}
-
-\subsection{Informal description}
-
-Our algorithm will factor $f$ into linear terms by progressively separating its roots into smaller and smaller affine subspaces. 
-%
-Precisely, the algorithm successively identifies all the subspaces $V_{i,r}=V_{i}+\sum_{j=i+1}^nr_j\upsilon_j$ which contain some root $r$ of $f$, from $i=n-1$ down to 0. Note that $V_{i-1,r}\subset V_{i,r}$, and that each of the subspaces $V_{0,r}$ contains a single root $r$.
-
-Simultaneously, the algorithm will compute monic polynomials $f_{i,r}|f$ whose roots are exactly all the roots of $f$ that are contained in $V_{i,r}$. 
-%
-These polynomials $f_{i,r}$ are computed recursively as
-%$M_{i,r}(x)=L_{i,r}(x)-\ell_{i,r}$
-$$f_{i,r}(x)=\gcd(M_{i,r}(x),f(x))
-=\gcd(M_{i,r}(x),f_{i+1,r}(x))$$
-for each of the $q$ polynomials $M_{i,r}=L_{i,r}-\ell_{i,r}$ that divide $M_{i+1,r}$. The polynomials $f_{i,r}(x)$ that are not equal to 1 correspond to the subspaces $M_{i,r}$ which contain some roots of $f$, and are therefore kept for the next step.
-%
-Note that $f_{0,r}(x)=x-r$ for any root $r$.
-
-The computation of $\gcd(M_{i,r}(x),f_{i+1,r}(x))$ is performed simultaneously for all roots using previously computed $f_{j,r}$ for $j>i$, in a way similar to multipoint evaluation algorithms.
-
-It remains to explain how the values $\ell_{i,r}$ are computed.
-The algorithm of this section stores precomputed values $L_i(\upsilon_{j})$ and maintains approximations $\sum_{j=i+1}^nr_j$ of all roots $r$, starting from the unique approximation $r=0$ when $i=n$. 
-This allows to compute $\ell_{i,r}$ as the linear combinations $\sum_{j=i+1}^nr_jL_i(\upsilon_{j})$. 
-An alternative approach is presented in Section~\ref{sec:ext:variant}, where the $\ell_{i,r}$ values are computed from the $\ell_{i+1,r}$ values by solving linearized degree $q$ equations similar to the ones appearing in the second step of SRA.
-
-
-\subsection{Algorithm\label{sec:alg:alg}}
-Like SRA, our algorithm has three main steps:
-\begin{enumerate}
-\setcounter{enumi}{-1}
-\item In a precomputing step (dependent on the field but not on $f$), we compute and store all the $\alpha_i$ values, as well as all $L_i(\upsilon_{j})$ values for $j>i$. This is done with the formulae  
-$$L_i(\upsilon_j)=L_{i-1}(\upsilon_j)^q-\alpha_{i-1}L_{i-1}(\upsilon_j), \qquad \alpha_i=(L_{i-1}(\upsilon_i))^{q-1}.$$
-\item Starting from $i=1$ up to $n$, we then compute and store the polynomials
-$$L_{i,0}(x):=L_i(x)\bmod f(x).$$
-This can be done recursively as
-$$L_{i,0}(x)=(x^q-\alpha_ix)\circ L_{i-1,0}(x)\bmod f(x)$$
-\item 	Let $r=0$ and $f_{n+1,r}=f$. \\
-Starting from $i=n$ down to 1, \todo{Check indices $i$ vs $i+1$ below} for each current approximation of a root $r=\sum_{i+1}^nr_j\upsilon_j$ (defining $V_{i,r}$), we recursively identify better approximations $r=\sum_{i}^nr_j\upsilon_j$ (defining $V_{i-1,r}$) as follows:
-	\begin{enumerate}
-	\item For all current approximations of $r$, we compute 
-	$$L_{i,r}(x):=L_{i+1,r}(x)\bmod f_{i+1,r}(x).$$
-	This is done by successively computing $L_{i,r}(x)\bmod f_{j,r}(x)$, from $j=n$ down to $i+1$, and re-using all intermediary computations that are common to several roots $r$.
-
-	\item For all current approximations of $r$ and for all $r_i\in\mathbb{F}_p$, we compute 
-	%$$\ell_{i,r}=L_{i,r}\left(\sum_{j=i+1}^nr_j\upsilon_j\right)$$
-	%as
-	$$\ell_{i,r}=\sum_{j=i+1}^nr_jL_i(\upsilon_j)$$
-
-	\item For all current approximations of $r$ and for all $r_i\in\mathbb{F}_p$, we compute 
-	$$f_{i,r}(x)=\gcd(L_{i,r}(x)-\ell_{i,r},f_{i+1,r}(x))$$
-	
-	\item If $f_{i,r}=1$, we deduce that $V_{i,r}$ contains no root of $f$. If $\deg f_{i,r}=1$ then $f_{i,r}=x-r$ and we deduce one root $r$. The polynomials $f_{i,r}$ with degree larger than 1 are kept for the next step. We accordingly update all current approximations of $r$ to new values $r+r_i\upsilon_i$.
-
-	\end{enumerate}
-
-\end{enumerate}
-
-
-
-\subsection{Comparison with BTA}
-
-Given a polynomial $f$, Berlekamp's trace algorithm attempts to decompose $f$ into smaller degree factors using the product equality
-$$f(x)=\prod_{r_n\in\fq}\gcd\left(f(x),\Tr(\alpha x)-r_n\right)$$
-for randomly chosen $\alpha\in\fqn$.
-%
-Let $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ be a basis such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$. We then have $L_{\nn-1}(x)=\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\Tr(\alpha (x-r))=\Tr(\alpha x)-r_\nn$.
-
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets become singletons, each singleton containing one root of $f$. 
-%
-In comparison, our algorithm separates the roots of $f$ into afine spaces $V_{i,r}$ of smaller and smaller dimensions, such that $V_{i,r}\subset V_{i+1,r}$. This has computation advantages, and makes the algorithm completely deterministic.
-%
-\todo{We should probably elaborate more on the advantages of Michael's algorithm, but I don't see them so clearly at the moment. BTA can also be made deterministic. I think the features are similar to ours: it looses a factor $n$ in the worst case, but this factor will just be $\log d$ usually.}
-
-
-\subsection{Another comparison with BTA}
-
-
-Berlekamp Trace Algorithm (BTA)~\cite{berl70} is based on the observation that
-
-$$X^{\qn}-X=\prod_{c \in \basef}   (\trextbase(X)-c)$$ 
-or equivalently 
-\begin{equation}
-\label{BTA_eq0}
-\alpha\cdot (X^{\qn}-X)=\prod_{c \in \basef}   (\trextbase(\alpha \cdot X)-c)
-\end{equation}
-where $\alpha \in \extf^\ast$. Therefore, if $f(X)$ is any split polynomial of $\extf[X]$, we have
-\begin{equation}
-\label{BTA_eq1}
-f(X)=\prod_{c \in \basef} \gcd(f(X),\trextbase(\alpha \cdot X)-c)  
-\end{equation}
-Relation~(\ref{BTA_eq1}) leads to a non-trivial factorization of $f$ for at least one value of $\alpha$ 
-belonging to the set of any basis of $\extf$ over $\basef$~\cite{berl70}  and $\bigO(\log(n))$ attempts are required on average to find one of them \cite{Menvanovans92}. The computation of each $\gcd$ in relation~(\ref{BTA_eq1}) costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
- to split $f$ in at least two distinct factors costs on average $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ (see~\cite{Gathen2003}, Th 14.11). While this algorithm is very efficient on average, its time complexity is actually unbounded because of its probabilistic nature.
- 
-
-\begin{mycomment}
-\com {\bf La complexit\'e 
-$$\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$$
-me para\^it pessimiste. A mon avis, il y a un facteur $q$ en trop car \`a chaque \'etape on a des chances de trouver plus de deux facteurs. Je suis cependant incapable de prouver cela pour le moment. On fait on peut aussi faire de 
-la multi-evaluation \`a chaque \'etage comme dans l'algorithme de cet article. Le calcul ne tient pas compte de cette observation.
-}
-\end{mycomment}
-
-
-
-
-\subsection{Complexity analysis}
-
-In this analysis, we measure the complexity by the number of multiplications over $\fqn$. 
-%
-The precomputation step of our algorithm requires $O(qn^2)$ multiplications and Step~1 requires $O(qnd\log d)$ multiplications. The iteration $n-i$ of Step~2 has a cost bounded by $O(id)$ multiplications for Step~a, $O(iqd)$ additions for Step~b and $O(qd\log d)$ multiplications for Step~c. 
-
-The total number of multiplications for all iterations of Step~2a is however bounded by $O(d\min(d,n))\leq O(dn)$.
-% worst case: lorsque l'arbre est tres desequilibre, avec 1 seule racine d'un cote et d-1 racines de l'autre, et ainsi de suite pour les sous-branches du plus gros cote. Dans ce cas, la multi-evaluation coutera O(d^2), sauf si d>n
-
-Step~2 will involve between $\log_qd$ and $n$ steps, depending on how the roots of $f$ are distributed in the afine spaces $V_{i,r}$. There will be only s$\log_qd$ steps if all the roots are contained in distinct subspaces $V_{n-\log_qd,r}$, but there will be exactly $n$ steps if $x(x+\upsilon_1)$ divides $f$ for some $x\in\fqn$. 
-%
-If $f$ is uniformly randomly chosen among all polynomials with exactly $d$ roots, then the algorithm requires $O(\log_qd)$ steps on average.
-
-
-\begin{Lem}
-Let $f$ be uniformly randomly chosen among all polynomials with exactly $d$ roots. For any $S>\log_qd$, the probability that the algorithm of Section~\ref{sec:alg:alg} requires less than $S$ steps is $\frac{q^S!}{(q^S-d)!q^{Sd}}$. 
-\end{Lem}
-\begin{proof}
-The algorithm needs less than $S$ steps if and only if the $d$ distinct roots belong to distinct subspaces $V_{n-S,r}=V_{n-S}+r=V_{n-S}+\sum_{j=n-S+1}^nr_j\upsilon_j$. Since there are $q^S$ distinct such subspaces and the roots are uniformly randomly distributed, this occurs with a probability $\frac{q^S!}{(q^S-d)!q^{Sd}}$.
-\end{proof}
-%
-\noindent By the birthday paradox, there is a close to 1/2 probability to factor $f$ completely after roughly $2\log_qd$ steps. More precisely, the expected number of steps needed by the algorithm is given by the formula
-$$E=\sum_{S=\lceil\log_qd\rceil}^nS\left(\frac{q^S!}{(q^S-d)!q^{Sd}}-\frac{q^{S-1}!}{(q^{S-1}-d)!q^{(S-1)d}}\right).$$
-
-Our algorithm performs much better on average than in the worst case. On average, the second step will have a negligible time complexity $O(qd\log^2d)$ multiplications compared to the $O(qn^2)$ and $O(qnd\log d)$ multiplications required for the precomputation and first steps.
-%
-In the worst case, the second step will require $O(qdn^2)$ multiplications and will become the bottleneck of the algorithm unless $\log d>n$.
-
-The algorithm requires to store $O(n^2)$ field elements as such, but this memory can be reduced to the $O(\log d^2)$ elements required to perform Step~2 on average, at the cost of recomputing additional $L_i(\upsilon_j)$ values if needed, or restarting the algorithm with a different basis. 
-
-
-%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%
-
 
 \section{Variant and Extensions}
 
@@ -1228,28 +1063,6 @@ In practice, the version presented in Section~\ref{sec:alg:alg} is simpler to im
 
 \section{ARM variant without precomputation, and link to BTA}
 
-\subsection{Berlekamp's trace algorithm}
-
-Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
-\begin{equation}\label{BTA_eq1}
-f(x)=\prod_{r_n\in\fq}\gcd\left(f(x),\Tr(\alpha x)-r_n\right)
-\end{equation}
-for randomly chosen $\alpha\in\fqn$.
-
-
-
-%
-% \begin{Lem}
-% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
-% \end{Lem}
-%\begin{proof}
-For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
-% 
-On average, $\bigO(\log(n))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
-splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
-%\end{proof}
-
-
 
 \subsection{ARM variant without precomputation\label{sec:BTA:ARMvariant}}
 
@@ -1274,6 +1087,31 @@ Depending on where the roots of $f$ are located, the a priori bound $h$ may in f
 
 
 
+
+\comd
+Pour moi les deux sous-sections sur BTA doivent \^etre merg\'ee. Attention, il y a une erreur \`a mon sens 
+"we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization". deci nest pas correct et d'ailleurs je ne comprends pas l'article de MOV sur le sujet. 
+\comd
+\subsection{Berlekamp's trace algorithm}
+
+Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
+\begin{equation}\label{BTA_eq1}
+f(x)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha x)-r_n,f(x)\right)
+\end{equation}
+for randomly chosen $\alpha\in\fqn$.
+
+
+
+%
+% \begin{Lem}
+% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
+% \end{Lem}
+%\begin{proof}
+For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
+% 
+On average, $\bigO(\log(n))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(n \cdot \log(q) \cdot M(d))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
+splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
+%\end{proof}
 
 
 
