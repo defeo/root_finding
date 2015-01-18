@@ -800,7 +800,7 @@ One of the main quantity of interest is the height $H_{\dd}$ of the a digital tr
 \end{enumerate}
 From the second statement, Szpankowski~\cite{szpankowski1986analysis} derived that: 
 \begin{enumerate}
-\item $\Pr(H_\dd <x) \approx exp(-exp(-ln~ u \cdot (x-2 \cdot \log_u \dd)))$
+\item $\Pr(H_\dd <x) \approx exp(-exp(-ln~Â u \cdot (x-2 \cdot \log_u \dd)))$
 \item $\Var H_\dd \approx \frac{\pi^2}{6 \cdot (ln~u)^2}$
 \end{enumerate}
 
@@ -821,7 +821,7 @@ Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\ref{Me
 
 
 \comd
-J'ai un problème je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
+J'ai un problÃ¨me je ne sais pas si je dois parler de $f$ ou $f_{n,0}(X)=\gcd(X^{\qq^\nn} -X,f(X))$. Ce qui importe pour le comportement de l'arbre c'est $f_{n,0}(X)$.
 \comf 
 
 
@@ -1118,15 +1118,16 @@ splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdo
 \subsection{Comparison between ARM and BTA}
 
 Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
-$$X^{\qq^\nn}-X=(X^\qq-\alpha X)\circ\Tr(\alpha x).$$
-If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(x)=\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\Tr(\alpha (x-r))=\Tr(\alpha x)-r_\nn$.
+$$X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha x)$$
+or
+$$(X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\Tr(\alpha X)$$
+If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(x)=\alpha^{-q^{n-1}}\Tr(\alpha x)$ and $M_{\nn-1,r}(x)=\alpha^{-q^{n-1}}\Tr(\alpha (x-r_\nn\alpha^{-1}))=\alpha^{-q^{n-1}}\left(\Tr(\alpha x)-r_\nn\right)$. Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used in BTA and in the last level of ARM are therefore identical.
 
 From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha x)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
 %
 In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
 
-We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces exactly to BTA when $h=1$.
-
+We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces to BTA when $h=1$, up to the constant factors identified above.
 
 
 
