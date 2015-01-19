@@ -269,8 +269,17 @@ Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successiv
 
 
 
-
 \paragraph{Our contribution}
+
+We revisit the affine refinement method (ARM), the successive resultant algorithm (SRA), Berlekamp's trace algorithm (BTA), and the link between these algorithms.
+
+The affine refinement method was designed at a time where fast arithmetic was mostly a theoretical curiosity. As pointed out in~\cite{cgUCL-P14}, the method is at best as good as BTA with fast arithmetic, and it is indeed no longer used in practice. We provide a variant of ARM that does not require the computation of the linearized polynomial of $f$, and is therefore more efficient with fast arithmetic. Up to constant factors and some precomputation (which is also present in the original algorithm), our variant has the same asymptotic complexity as BTA. It also has the same complexity as SRA.
+
+With respect to the original paper~\cite{cgUCL-P14}, our variant of the successive resultant algorithm adds a squarefree reduction step in the last loops of the first step to reduce the degrees of the polynomials involved. We also introduce an ad hoc algorithm to perform the special resultant computations required in this algorithm, and we compute the roots in the second step with multi-evaluation rather than by solving small degree equations.
+
+We also provide methods to decrease the precomputation costs of both methods significantly when the field extension degree is composite, and a method to reduce it down to the cost of the other steps in the case of ARM.
+
+Finally, we show that SRA and ARM are in a sense dual of each other, and that our precomputation-free variant of ARM is in fact a generalized version of BTA.
 
 \paragraph{Outline}
 
