@@ -272,6 +272,13 @@ Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successiv
 
 \paragraph{Outline}
 
+The paper is organized as follows. In Sec 2 we review basic facts
+about the finite affine geometry $\AG$. In Sec 3 we present two (three?)
+root finding algorithms based on the structure of $\AG$. In Sec 4 we
+present some refinements on the implementation of those algorithms. In Sec 5
+we present experimental results. Finally we list some open problems
+and future directions in Sec 6 (do we?).
+
 
 \section{The affine geometry AG(\qq,\nn)}
 \label{sec:nsd}
@@ -295,11 +302,11 @@ subspaces $V_0\subset V_1\subset \cdots \subset V_\nn$ defined by
 \end{equation}
 so that $\dim V_i = i$ and $\card V_i = \qq^i$. To each of the
 subspaces we associate its minimal polynomial, that we denote by
-$L_i$. Then we have the well know relation (see
-\cite[Lemma~1]{cgUCL-P14})
-\begin{equation*}
-  L_0(X) = X, \quad L_i(X) = (X^\qq - L_{i-1}(\upsilon_i)^{\qq-1}X)\circ L_{i-1}(X),
-\end{equation*}
+$L_i$. Then we have the well know relation (see~\cite[Ch. 11]{mBER84a})
+\begin{equation}
+\label{Li_generation}
+  L_0(X) = X, \; \;  L_i(X) = (X^\qq - L_{i-1}(\upsilon_i)^{\qq-1}X)\circ L_{i-1}(X),
+\end{equation}
 and in particular $L_\nn=X^\qn-X$.
 
 Notice that, by definition, each $L_i$ defines a linear map
@@ -369,7 +376,6 @@ isomorphic to $\AG$, and we call it the \emph{affine geometry of
   $\extf$}. We also define the polynomial $M_{i,\rho}$ as the minimal
 polynomial of $V_{i,\rho}$, hence
 \begin{equation}
-\label{node_product}
   M_{i,\rho}(X) = L_i(X - \rho) = L_i(X) - \sum_{j>i}r_j\gamma_{i,j}.
 \end{equation}
 Observe that $M_{i,\rho}=M_{i,\rho'}$, and thus
@@ -384,6 +390,7 @@ By definition we have
 \end{equation}
 hence
 \begin{equation}
+\label{node_product}
   M_{i,\rho}(X) = \prod_{c\in\basef} M_{i-1,\rho+c\upsilon_i}(X).
 \end{equation}
 This defines a decomposition of $X^{\qn}-X$ into a product tree, where
@@ -629,8 +636,8 @@ same field.
 \gcd(L_i(X)-\ell_{i,\rho},f(X))     \mbox{ with }  \ell_{i,\rho}  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
-It ultimately leads to the root of $f$ because 
-$$\gcd(L_0(X)-\ell_{0,\rho},f(X))=\gcd(X-\ell_{0,\rho},f(X)) \ne 1\,,$$ 
+It ultimately leads to the root of $f$ because the GCD's satisfying
+$$\gcd(L_0(X)-\ell_{0,\rho},f(X))=\gcd(X-\ell_{0,\rho},f(X)) \ne 1$$ 
 provide the linear factors of $f$. 
 Note that 
 \begin{equation}
@@ -689,7 +696,7 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
  \begin{Lem}
  \label{complexity_arm}
    Algorithm~\ref{alg:arm} (ARM) is correct. If the root tree for the
-   input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has depth $h$, it
+   input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has height $h$, it
    computes its output using $O(\nn\Mul(\dd)\log\qq + h^2\dd +
    h\qq\Mul(\dd)\log\dd)$ operations over $\extf$.
  \end{Lem}
@@ -727,16 +734,16 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
  \end{proof}
 
 \noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
-the statistical behavior of the depth $D_{\dd}$ of the tree build by ARM on split polynomials with distinct roots $\dd$ chosen at random is highly 
-related to the depth of data structures called \emph{digital tries} in the Bernoulli model. This observation allows them to upper bound the expected value $\Exp(D_{\dd})$ by $2\log_q \dd + \bigO(1)$
+the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
+related to the height of data structures called \emph{digital tries} in the Bernoulli model. This observation allows them to upper bound the expected value $\Exp(H_{\dd})$ by $2\log_q \dd + \bigO(1)$
 \footnote{Actually, there is a typo in their manuscript and $ 2\log_q \nn + \bigO(1)$ should be read $2\log_q \dd + \bigO(1)$. Their evaluation of the complexity of the Affine method, ARM and BTA should be corrected according to.}.
  Using the results of Szpankowski~\cite{szpankowski1986analysis} it is straightforward to show that 
-   $$\Exp(D _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
-and that if $\dd < \qq^{n/2}$
- $$\Pr(D_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))$$ 
+   $$\Exp(H _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
+and assuming further that $\dd < \qq^{n/2}$ we have
+ $$\Pr(H_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))$$ 
  and 
- $$\Var D'_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2} \,.$$
-Those two results express the fact that generally the algorithm won't escape very much from its average.
+ $$\Var H_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2} \,.$$
+Those two results express the fact that the number of iteration of the algorithm won't diverge very much from its average most of the time.
 
 
 
@@ -762,7 +769,10 @@ if $\Res_X(L_i(X)-\ell_{i,\rho},f(X)) =0$.
 Like ARM, SRA is a two-swipes algorithm.  We first compute the
 polynomials $f^{(i)}$ having as roots the projections onto $V_i^\ast$
 of the roots of $f$, i.e.,
-$$f^{(i)}(Y_i)=\Res_{X}(L_i(X)-Y_i,f(X))  \mbox{ for }i=0 \cdots n \,.$$
+\begin{equation}
+\label{original_resultant}
+f^{(i)}(Y_i)=\Res_{X}(L_i(X)-Y_i,f(X))  \mbox{ for }i=0 \cdots n \,.
+\end{equation}
 The polynomial $f^{(i)}$ is computed from $f^{(i-1)}$ by projecting
 its roots onto $V_i^\ast$. By the definition of $L_i$, we have  $f ^{(0)}=f$ and
 $$f^{(i)}(Y_i)=\Res_{X_{i-1}}(X^q_{i-1} - \alpha_i X_{i-1} -Y_i,f^{(i-1)}(X_{i-1})) \,.$$
@@ -823,7 +833,7 @@ leafs of the tree at level $0$ are the roots of $f$.
  \begin{Lem}
  \label{complexity_sra}
    Algorithm~\ref{alg:sra} (SRA) is correct. If the root tree for the
-   input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has depth $h$, it computes its
+   input $f$ and $\upsilon_1,\dots,\upsilon_\nn$ has height $h$, it computes its
    output using $O\left(h(\Mul(\dd)\log \dd +
      \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd + h\dd)\right)$ operations
    over $\extf$, or more compactly $O(h\qq\Mul(\dd)\log\dd + h^2\dd)$.
@@ -855,11 +865,13 @@ leafs of the tree at level $0$ are the roots of $f$.
 
 
 
-\noindent {\bf Average case running time of SRA:}  Noting that the degree of the resultants $\deg f^{(i)}$ are always smaller 
-than $\deg f$, the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is $\dd=\qq^{n-i}$ or equivalenty
+\noindent {\bf Average case running time of SRA:} As mentioned in section~\ref{sec:arm-sra}, 
+resultants defined in relation~\eqref{original_resultant} have the same degree as $f$. 
+As the polynomials $f^{(i)}$ computed in step \ref{alg:sra:sqfree} are only the 
+square-free part of these resultants, we deduce that $\deg f^{(i)} \le  \deg f$. It follows that, 
+the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is $\dd=\qq^{n-i}$ or equivalenty
   $i=\nn -\log_\qq \dd$. Therefore, the variable $h$ specified at step~\ref{alg:sra:condition:res} satisfies $h \ge \nn -\log_\qq \dd$.
   Heuristical evidence shows that this lower bound is close to be achieved on average.
- 
  
  
 
