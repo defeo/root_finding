@@ -744,20 +744,6 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
    we bound this by $O(\qq\Mul(d)\log d)$.
  \end{proof}
 
-\noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
-the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
-related to the height of data structures called \emph{digital tries} in the Bernoulli model. This observation allows them to upper bound the expected value $\Exp(H_{\dd})$ by $2\log_q \dd + \bigO(1)$
-\footnote{Actually, there is a typo in their manuscript and $ 2\log_q \nn + \bigO(1)$ should be read $2\log_q \dd + \bigO(1)$. Their evaluation of the complexity of the Affine method, ARM and BTA should be corrected according to.}.
- Using the results of Szpankowski~\cite{szpankowski1986analysis} it is straightforward to show that 
-   $$\Exp(H _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
-and assuming further that $\dd < \qq^{n/2}$ we have
- $$\Pr(H_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))$$ 
- and 
- $$\Var H_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2} \,.$$
-Those two results express the fact that the number of iteration of the algorithm won't diverge very much from its average most of the time.
-
-
-
 \paragraph{SRA} The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ for $i$ starting from $n$ and going down to 0.
 It is achieved by the computation of the values $\ell_{i,\rho} \in V_i^\ast$ annihilating
  \begin{equation}
@@ -873,24 +859,17 @@ leafs of the tree at level $0$ are the roots of $f$.
    multi-point evaluation algorithm~\ref{alg:multi-ev}, at the same
    cost of step~\ref{alg:sra:resultant}.
  \end{proof}
-
-
-
-\noindent {\bf Average case running time of SRA:} As mentioned in section~\ref{sec:arm-sra}, 
-resultants defined in relation~\eqref{original_resultant} have the same degree as $f$. 
-As the polynomials $f^{(i)}$ computed in step \ref{alg:sra:sqfree} are only the 
+   
+As mentioned in section~\ref{sec:arm-sra}, the resultants defined in relation~\eqref{original_resultant} have the same degree as $f$. 
+The polynomials $f^{(i)}$ computed in step \ref{alg:sra:sqfree} being only the 
 square-free part of these resultants, we deduce that $\deg f^{(i)} \le  \deg f$. It follows that, 
 the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is $\dd=\qq^{n-i}$ or equivalenty
-  $i=\nn -\log_\qq \dd$. Therefore, the variable $h$ specified at step~\ref{alg:sra:condition:res} satisfies $h \ge \nn -\log_\qq \dd$.
-  Heuristical evidence shows that this lower bound is close to be achieved on average.
+  $i=\nn -\log_\qq \dd$. Therefore, the variable $h$ specified at step~\ref{alg:sra:condition:res} satisfies $h \ge \nn -\log_\qq \dd$. 
  
- 
-
-
-
-\comd
-Je ne mettrais pas ceci cela n'apporte pas grand chose je trouve
-\comf
+ \medskip 
+  
+  
+%  \underset{n \to +\infty}{\overset{w^*}{\longrightarrow}}0
  Using the two previous lemmas, we can now easily state the worst case
  complexity of both ARM and SRA, indeed for both algorithms the height
  $h$ equals $\nn$ in this case. Unsurprisingly, the two algorithms
@@ -904,6 +883,28 @@ Je ne mettrais pas ceci cela n'apporte pas grand chose je trouve
  On average, however, both algorithms will stop before reaching the
  bottom of the tree. The goal of the next section is to analyze the
  behavior of ARM and SRA on average.
+
+\section{Average running time}
+
+\noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
+the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
+related to the height of data structures called \emph{digital tries} in the Bernoulli model. This observation allows them to upper bound the expected value $\Exp(H_{\dd})$ by $2\log_q \dd + \bigO(1)$
+\footnote{Actually, there is a typo in their manuscript and $ 2\log_q \nn + \bigO(1)$ should be read $2\log_q \dd + \bigO(1)$. Their evaluation of the complexity of the Affine method, ARM and BTA should be corrected according to.}.
+ Using the results of Szpankowski~\cite{szpankowski1986analysis} it is straightforward to show that 
+   $$\Exp(H _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
+and assuming further that $\dd < \qq^{n/2}$ we have
+ $$\Pr(H_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))$$ 
+ and 
+ $$\Var H_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2} \,.$$
+Those two results express the fact that the number of iteration of the algorithm won't diverge very much from its average most of the time.
+
+\medskip
+
+\noindent {\bf Average case running time of SRA:} The number of iterations of the SRA is highly related to the length of the shortest path $h'_d$ (starting from the root)
+   in a digital tree, in the Bernoulli model. B.Pittel~\cite{Pittel86} proved that $h_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. Therefore, $h_d \approx \log_{q} d$.
+  As $h=n-h_d$, we deduce that $h \approx n-\log_{q} d$.
+
+
 
 
 \section{Variant and Extensions}
