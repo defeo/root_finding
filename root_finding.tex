@@ -233,7 +233,7 @@ algorithm~\cite{cantor1981}.
 $$X^{p}-X=X \cdot (X^{(p-1)/2}-1) \cdot (X^{(p-1)/2}+1)\,.$$
 He then observes that computing the GCD of $f$ with each of the two later factors splits the (nonzero) roots of $f$ into two sets, the squares and the non-squares. He then observes that replacing $X$ by $X+a$ for $a$ random offers other ways for splitting the roots into two sets which may successively applied to the partial factorizations. This is a probabilistic method and many modern methods are based on.
 
-In the context of coding theory, R. T. Chien~\cite{Chien64a} introduced in 1964 the so-called \emph{Chien Search} which is basically an exhaustive search on the roots with some optimizations for the implementation.
+%In the context of coding theory, R. T. Chien~\cite{Chien64a} introduced in 1964 the so-called \emph{Chien Search} which is basically an exhaustive search on the roots with some optimizations for the implementation.
 
 The factoring method of E.R. Berlekamp~\cite{berl67} of a polynomial $f \in  \mathbb{F}_\qq[X]$, with $\qq$ a prime power, is based on the so-called \emph{Petr-Berlekamp algebra} of $f$ which consists on the set of polynomials $h$ satisfying  
 $$h(X)^q=h(X) \bmod{f(X)}$$
@@ -273,8 +273,10 @@ Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successiv
 \paragraph{Outline}
 
 
-\section{The affine geometry $\AG$}
+\section{The affine geometry AG(\qq,\nn)}
 \label{sec:nsd}
+
+% $\AG$
 
 The main ingredient of the algorithms we present is the \emph{finite
   affine geometry} $\AG$, i.e., the set of all vector subspaces of
@@ -324,7 +326,10 @@ $\dim V_i^\ast=n-i$ and that $\{\gamma_{i,i+1},\dots,\gamma_{i,\nn}\}$
 is a basis. Then define $L_i^\ast$ as the minimal polynomial of
 $V_i^\ast$. It is shown in~\cite[Ch. 11]{mBER84a} that
 $L_i^\ast$ is the unique linearized polynomial such that
-$$(L_i^\ast \circ L_i)(X)=(L_i \circ L_i^\ast)(X)=X^\qn-X\,,$$
+\begin{equation}
+\label{dual_polynomial}
+(L_i^\ast \circ L_i)(X)=(L_i \circ L_i^\ast)(X)=X^\qn-X\,,
+\end{equation}
 where $L_i^\ast$ is called the \emph{dual} of $L_i$.
 
 \begin{Lem}
@@ -390,8 +395,10 @@ $\rho\in\extf$.
 
 
 
-\section{Root finding using $\AG$}
+\section{Root finding using  AG(\qq,\nn)}
 \label{sec:arm-sra}
+
+%$\AG$
 
 We are interested in algorithms for the following problem: given a
 degree $\dd$ polynomial $f(X)$ with coefficients in a finite field
@@ -425,9 +432,14 @@ We recall now the complexities of the basic subroutines we shall need next.
 %
 The greatest common divisor of two polynomials of degree $\dd$ can be computed using $\bigO(\Mul(\dd)\log \dd)$ operations in $\extf$ using a Sch\"on\-hage-type algorithm~\cite{Schoenhage1971,Thull1990}.
 %
-Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done using $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[\todo{}]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[\todo{}]{Gathen2003}.
+Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done using $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[Ch. 10]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[Ch. 10]{Gathen2003}.
 
-In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(x)$ with $\gcd(x^\qn-x,f(x))$. The main cost of this gcd is the computation of $x^\qn\bmod f(x)$. This can be achieved with a standard square-and-multiply algorithm, or with a more involved iterated Frobenius algorithm~\cite{Gathen1992}. In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
+In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(x)$ with $\gcd(x^\qn-x,f(x))$. The main cost of this gcd is the computation of $x^\qn\bmod f(x)$. This can be achieved with a standard square-and-multiply algorithm or more involved (asymptotic) methods such as modular composition (see~Kedlaya and Umans\cite{Kedlaya11}). 
+
+
+%In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
+
+%, or with a more involved iterated Frobenius algorithm~\cite{Gathen1992}.
 
 Recall that, given polynomials $f$ and $g$, the resultant
 $$\Res_X(g(X)-Y,f(X))$$
@@ -714,25 +726,17 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
    we bound this by $O(\qq\Mul(d)\log d)$.
  \end{proof}
 
-
 \noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
-the statistical behavior of the depth of the tree build by ARM on split polynomials with distinct roots chosen at random is highly 
-related to the height of data structure called \emph{digital tries} in the Bernoulli model, which were heavily studied 
-by many authors, e.g.~\cite{szpankowski1986analysis}.   
- 
- Assume that  the number of the roots is smaller than $\qq^{\frac{\nn}{2}}$, then the approximation on the independency is valid according to the birthday paradox and the we have $\Exp(H_\dd) \le 2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1})$. Therefore, for any $\dd \le \qq^\nn$
-$$\Exp(H' _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
-The two next results requires that we may approximate $H'_\dd$ by $H_\dd$ and in particular that independency holds. Therefore that $\dd \le \qq^{\frac{\nn}{2}}$
-$$\Pr(H'_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))\,.$$
-and 
-$$\Var H'_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2}\,.$$
-Those two results express the fact that generally, the algorithm won't escape very much from his average.
- 
-
-
-\footnote{Finally, note that there is a typo in Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92} on the the bound on the number of iterations which is stated as $ 2\log_q \nn + \bigO(1)$  instead of $2\log_q \dd + \bigO(1)$. This leads to typos in their complexity evaluation of the Affine method, ARM and BTA.}
-
-
+the statistical behavior of the depth $D_{\dd}$ of the tree build by ARM on split polynomials with distinct roots $\dd$ chosen at random is highly 
+related to the depth of data structures called \emph{digital tries} in the Bernoulli model. This observation allows them to upper bound the expected value $\Exp(D_{\dd})$ by $2\log_q \dd + \bigO(1)$
+\footnote{Actually, there is a typo in their manuscript and $ 2\log_q \nn + \bigO(1)$ should be read $2\log_q \dd + \bigO(1)$. Their evaluation of the complexity of the Affine method, ARM and BTA should be corrected according to.}.
+ Using the results of Szpankowski~\cite{szpankowski1986analysis} it is straightforward to show that 
+   $$\Exp(D _\dd) \le  \min(2 \log_\qq \dd +1 +\frac{1-\ln 2}{\ln \qq} + \bigO(\dd^{-1}), \nn)\,.$$
+and that if $\dd < \qq^{n/2}$
+ $$\Pr(D_\dd <x) \approx \exp(-\exp(-\ln \qq \cdot (x-2 \cdot \log_\qq \dd)))$$ 
+ and 
+ $$\Var D'_\dd \approx \frac{\pi^2}{6 \cdot (\ln \qq)^2} \,.$$
+Those two results express the fact that generally the algorithm won't escape very much from its average.
 
 
 
@@ -797,8 +801,8 @@ leafs of the tree at level $0$ are the roots of $f$.
    \FOR {$1\le i \le \nn$}\label{alg:sra:for1}
    \STATE\label{alg:sra:resultant} $\hat{f}^{(i)}(Y) = \Res_X(X^\qq - \gamma_{i-1,i}^{\qq-1}X-Y,f^{(i-1)}(X))$;
    \STATE\label{alg:sra:sqfree} Compute $f^{(i)}$, the square-free part of $\hat{f}^{(i)}$;
-   \IF {$\deg f^{(i)} = \qq^{\nn-i}$}
-   \STATE Set $h=i$;
+   \IF{$\deg f^{(i)} = \qq^{\nn-i}$}
+   \STATE  \label{alg:sra:condition:res}  Set $h=i$;
    \STATE {\bf break} out of the {\bf for} loop;
    \ENDIF
    \ENDFOR
@@ -849,6 +853,21 @@ leafs of the tree at level $0$ are the roots of $f$.
    cost of step~\ref{alg:sra:resultant}.
  \end{proof}
 
+
+
+\noindent {\bf Average case running time of SRA:}  Noting that the degree of the resultants $\deg f^{(i)}$ are always smaller 
+than $\deg f$, the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is $\dd=\qq^{n-i}$ or equivalenty
+  $i=\nn -\log_\qq \dd$. Therefore, the variable $h$ specified at step~\ref{alg:sra:condition:res} satisfies $h \ge \nn -\log_\qq \dd$.
+  Heuristical evidence shows that this lower bound is close to be achieved on average.
+ 
+ 
+ 
+
+
+
+\comd
+Je ne mettrais pas ceci cela n'apporte pas grand chose je trouve
+\comf
  Using the two previous lemmas, we can now easily state the worst case
  complexity of both ARM and SRA, indeed for both algorithms the height
  $h$ equals $\nn$ in this case. Unsurprisingly, the two algorithms
@@ -862,8 +881,6 @@ leafs of the tree at level $0$ are the roots of $f$.
  On average, however, both algorithms will stop before reaching the
  bottom of the tree. The goal of the next section is to analyze the
  behavior of ARM and SRA on average.
-
-
 
 
 \section{Variant and Extensions}
@@ -888,7 +905,7 @@ which follows from the definition of the $L_i$'s. Rewriting the above equation a
 $$(\beta_i^{-1}\ell_{i,\rho})^q-(\beta_i^{-1}\ell_{i,\rho})=\beta_i^{-q}\ell_{i+1,\rho}\,,$$
 it follows that the set of $\ell_{i,\rho}$'s corresponding to the $\qq$ childs of the node $f_{i+1,\rho}$ is given by 
 $$\{ \beta_i \cdot l \mid l^q-l=\beta_i^{-q}\ell_{i+1,\rho} \} \,.$$
-In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solutions the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottelneck.
+In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solutions the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottleneck.
 
 
 \medskip
@@ -985,7 +1002,7 @@ where $\circ^{k} P(X)$ means that $P(X)$ is composed $k$ times with itself.
 
 \medskip
 
-According to theorem 3.68 of~\cite{LildNiderreiter}, any $\qq^m$-linearized polynomial $L(X)$ over $\mathbb{F}^{\qq^{m \cdot s}}$ $L(X)$ may be decomposed into $\qq^m$-linearized polynomials as $L(X)=L_P(X) \circ L_S(X)$ where $L_P(X)$ is a permutation  polynomial and $L_S(X)$ is the minimal polynomial of the kernel of $L$. The next Lemma show how to decompose the $L_S(X)$ part.
+According to theorem 3.68 of~\cite{lidl1997finite}, any $\qq^m$-linearized polynomial $L(X)$ over $\mathbb{F}^{\qq^{m \cdot s}}$ $L(X)$ may be decomposed into $\qq^m$-linearized polynomials as $L(X)=L_P(X) \circ L_S(X)$ where $L_P(X)$ is a permutation  polynomial and $L_S(X)$ is the minimal polynomial of the kernel of $L$. The next Lemma show how to decompose the $L_S(X)$ part.
 
 \begin{Lem}
 \label{linearized_decomposition}
