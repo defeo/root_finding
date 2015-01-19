@@ -862,12 +862,10 @@ leafs of the tree at level $0$ are the roots of $f$.
    cost of step~\ref{alg:sra:resultant}.
  \end{proof}
    
-As mentioned in section~\ref{sec:arm-sra}, the resultants defined in relation~\eqref{original_resultant} have the same degree as $f$. 
-The polynomials $f^{(i)}$ computed in step \ref{alg:sra:sqfree} being only the 
-square-free part of these resultants, we deduce that $\deg f^{(i)} \le  \deg f$. It follows that, 
-the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is $\dd=\qq^{n-i}$ or equivalenty
-  $i=\nn -\log_\qq \dd$. Therefore, the variable $h$ specified at step~\ref{alg:sra:condition:res} satisfies $h \ge \nn -\log_\qq \dd$. 
- 
+
+Note that $\deg f^{(i)} \le  d$, thus in order to have $\deg f^{(h)} = q^{n-i}$
+we necessarily need $h \ge  \nn - \log_\qq \dd$.
+
  \medskip 
   
   
@@ -886,7 +884,7 @@ the smallest possible $i$ of which the $\deg f^{(i)}=\qq^{n-i}$ is satisfied is 
  bottom of the tree. The goal of the next section is to analyze the
  behavior of ARM and SRA on average.
 
-\section{Average running time}
+\subsection{Average running time}
 
 \noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
 the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
@@ -902,11 +900,14 @@ Those two results express the fact that the number of iteration of the algorithm
 
 \medskip
 
-\noindent {\bf Average case running time of SRA:} The number of iterations of the SRA is highly related to the length of the shortest path $h'_d$ (starting from the root)
-   in a digital tree, in the Bernoulli model. B.Pittel~\cite{Pittel86} proved that $h_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. Therefore, $h_d \approx \log_{q} d$.
-  As $h=n-h_d$, we deduce that $h \approx n-\log_{q} d$.
 
 
+\noindent {\bf Average case running time of SRA:} According to ARM algorithm, the number of iterations $h$ is the smallest value for which $\deg f^{(h)}=\qq^{n-h}$. Its means that $h$ is the 
+  smallest value for which the projections through $L_i$ of all the roots of $f$ covers $V_h^\ast$. Therefore, $n-h$ is exactly the shortest
+   path of the nodes of the associated digital tries. B.Pittel~\cite{Pittel86} proved that the random variable $h'_d$ representing the shortest path of the digital trie with $d$ records generated according to the Bernoulli model satisfies
+ $h'_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. It follows that $h \approx n-\log_{q} d$.
+
+  
 
 
 \section{Variant and Extensions}
