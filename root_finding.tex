@@ -448,16 +448,17 @@ g(Y)=\Res_{Y_1}(L_2(Y_1)-Y,g^{(1)}(Y_1))
 In this section we review the fundamental subroutines upon which are
 going to be based the algorithms of the next sections.
 
-\todo{Do we need to remind the costs of:
-  \begin{itemize}
-  \item gcd?
-  \item square-free factorization?
-  \item ddf?
-  \item modular composition?
-  \item iterated frobenius and similar tricks?
-  \item multipoint evaluation / interpolation?
-  \end{itemize}
-}
+\paragraph{Finite Field Arithmetic}
+%
+\todo{I (CP) would move this section as subsection 2.1. The current subsection 2.1 will then become section 2.2, or maybe section 3.}
+%
+We review some standard complexity results for finite field arithmetic. An inversion over $\extf$ costs $O(n\log\qq)$ as it can be done by exponentiation by $q^n-2$ using the square-and-multiply algorithm.
+%
+Computing the greatest common divisor of two polynomials of degree $\dd$ has cost $\bigO(\Mul(\dd)\log \dd)$ using a Sch\"onhage-type algorithm~\cite{Schoenhage1971,Thull1990}.
+%
+Evaluating a polynomial of degree $d$ requires $O(d)$ operations in general. However, multi-point evaluation algorithms only require $\bigO(\Mul(\dd)\log \dd)$ operations to evaluate a single degree $d$ polynomial at $d$ points.
+
+In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(x)$ with $\gcd(x^{p^n}-x,f(x))$. The main cost of this gcd is the computation of $x^{p^n}\bmod f(x)$. This can be achieved with a standard square-and-multiply algorithm, or with a more involved iterated Frobenius algorithm~\cite{Gathen1992}. In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
 
 \begin{algorithm}
   \caption{Polynomial evaluation at special points}
