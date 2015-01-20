@@ -173,7 +173,7 @@
   of polynomials over $\fqn$ where $\qq$ is a small number. 
   
   We revisit three algorithms to solve this problem and we describe their relationships in terms of the affine geometry of $\fqn$.
-Berlekamp's trace algorithm (BTA) is probably the best-known algorithm for root-finding. It separates the roots of $f$ according to some trace and gcd computation. The affine refinement method (ARM) separates the roots according to nested affine spaces. Although elegant, it is never used in practice since its complexity is worse than BTA with fast arithmetic. Finally, the successive resultant algorithm separates the roots according their projections on certain subspaces.
+Berlekamp's trace algorithm (BTA) is probably the best-known algorithm for root-finding. It separates the roots of $f$ according to some trace and GCD computation. The affine refinement method (ARM) separates the roots according to nested affine spaces. Although elegant, it is never used in practice since its complexity is worse than BTA with fast arithmetic. Finally, the successive resultant algorithm separates the roots according their projections on certain subspaces.
 
 Our contributions are four-fold. First, we provide improved variants of ARM and SRA, and prove that they both match the asymptotic complexity of BTA up to the precomputation of some finite field constants.
  Second, we show that SRA and ARM are dual of each other in a precise sense.
@@ -456,7 +456,7 @@ The greatest common divisor of two polynomials of degree $\dd$ can be computed i
 %
 Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done in $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[Ch. 10]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[Ch. 10]{Gathen2003}.
 
-In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(X)$ with $\gcd(X^\qn-X,f(X))$. The main cost of this gcd is the computation of $X^\qn\bmod f(X)$. This can be achieved with a standard square-and-multiply algorithm in $O(\nn\Mul(\dd)\log q)$, or (when $\nn$ is large) via modular composition (see~\cite{GathenS92,Kedlaya11}). 
+In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(X)$ with $\gcd(X^\qn-X,f(X))$. The main cost of this GCD is the computation of $X^\qn\bmod f(X)$. This can be achieved with a standard square-and-multiply algorithm in $O(\nn\Mul(\dd)\log q)$, or (when $\nn$ is large) via modular composition (see~\cite{GathenS92,Kedlaya11}). 
 
 
 %In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
@@ -644,7 +644,7 @@ same field.
 
 \paragraph{ARM} The method consists in \emph{intersecting} the roots of $f$ with the $i$-flats  $V_{i,\rho}$, i.e, with the fibers by $L_i$ of each element $\ell_{i,\rho} \in V_i^\ast$.
 %The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
- This is achieved by computing the non-constant gcd's among the set
+ This is achieved by computing the non-constant GCDs among the set
 % the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
  \label{base_ARM}
@@ -660,7 +660,7 @@ Note that
   \gcd(L_i(X)-\ell_{i,\rho},f(X)) \ne 1
 \end{equation}
 implies that there is a root of $f$ in $V_{i,\rho}$.
-In practice, these gcd's are computed in a recursive way. Let us first define
+In practice, these GCDs are computed in a recursive way. Let us first define
  $$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,$$
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
 Using Eq.~\eqref{base_ARM} and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.,
@@ -741,7 +741,7 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
 
    Finally, in step~\ref{alg:arm:gcd} the degrees of the polynomials
    $f_{i,\rho}$ sum up to $\dd$. For each of these, we compute $\qq$
-   gcd's with polynomials of similar degree. Each of these polynomials
+   GCDs with polynomials of similar degree. Each of these polynomials
    can be computed in $O(\Mul(\dd_\rho)\log\dd_\rho)$, where
    $\dd_\rho$ is the degree of $f_{i,\rho}$. Summing over all
    polynomials, and using the super-linearity of the function $\Mul$,
@@ -907,7 +907,7 @@ For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a 
 %On average, $\bigO(\log_\qq(d))$ attempts are required to find one such element \cite{Menvanovans92}. 
 The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
 $O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
-the $\qq$ gcds are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
+the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
 algorithm must be restarted with a different $\alpha$. 
 The process is then recursively applied on the factors. 
  If the $\alpha$ are carefully managed, it can be show that the worst case complexity is 
@@ -1155,7 +1155,7 @@ implementation of normal basis arithmetic to implement the variant
 described in Section~\ref{sec:ext:variant}.
 
 As expected, the dominant costs for ARM were the computation of the
-polynomials in Step~\ref{alg:arm:Li} and the gcd calculations in
+polynomials in Step~\ref{alg:arm:Li} and the GCD calculations in
 Step~\ref{alg:arm:gcd}. The dominant costs for SRA were the resultant
 computations in Step~\ref{alg:sra:resultant} and the evaluations in
 Step~\ref{alg:sra:eval}. Unsurprisingly, ARM and BTA showed remarkably
