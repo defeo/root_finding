@@ -942,9 +942,9 @@ $L_{\nn-1}(X)=\alpha^{-q^{n-1}}\trextbase(\alpha X)$ and
 Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used
 in BTA and in the last level of ARM are therefore identical.
 
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different affine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process on the factors for $O(\log_\qq\dd)$ randomly chosen $\alpha$ which are linearly independent values, the intersections of these affine sets are likely to contain one root of $f$, leading to its linear factors.
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different affine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process on the factors for $O(\log_\qq\dd)$ randomly chosen $\alpha$ which are linearly independent, the intersections of these affine sets are likely to contain one root of $f$, leading to its linear factors.
 
-Note the similarity with ARM and SRA separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. While ARM and SRA represent the affine subspaces with minimal polynomials, BTA represents them by means of intersections of affine polynomials of the form $\Tr(\alpha X)-r$.
+Note the similarity with ARM and SRA. All algorithms separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. While ARM and SRA represent the affine subspaces with minimal polynomials, BTA represents them by means of intersections of affine polynomials of the form $\Tr(\alpha X)-r$.
 
 
 
@@ -1202,10 +1202,8 @@ to the algorithms themselves.
 We conclude that the algorithms reviewed in this paper are of
 practical interest for finding polynomial roots in small
 characteristic finite fields. In some cases, this in contrast with
-what was previously thought, e.g., for ARM. Although general purpose
-libraries will probably find no interest in implementing these
-algorithms alongside the classical Cantor-Zassenhaus method, they may
-turn out to have useful applications in particular finite field
+what was previously thought, e.g., for ARM. Thus we think that these
+algorithms may find useful applications in particular finite field
 problems.
 
 
