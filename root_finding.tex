@@ -912,8 +912,6 @@ Those two results express the fact that the number of iteration of the algorithm
  
 \subsection{Improving the worst-case complexity \label{sec:ext:variant}:} 
 
-
-
 \label{alg:sra}
 
 \label{alg:sra:combili} 
@@ -935,6 +933,10 @@ In order to determine those elements, we first compute the right side of the equ
 
 
 \medskip
+
+
+
+
 
 
 
@@ -964,6 +966,25 @@ The first is to launch the algorithm on the the remaining factors of $f$ at leve
  
 Finally, note that it is obvious that SRA may take advantage of the same procedure but in this case the trick consists simply in stopping computing the $\alpha_i$'s when the last resultant is computed.
  
+\medskip
+
+\noindent {\bf Link between ARM and BTA:} Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
+\begin{equation}\label{BTA_eq1}
+f(X)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha X)-r_n,f(X)\right)
+\end{equation}
+for randomly chosen $\alpha\in\fqn$.
+
+
+
+
+
+
+
+
+
+
+
+
 \medskip
 
 \noindent {\bf Link between ARM and BTA:} Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
