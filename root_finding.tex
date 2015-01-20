@@ -169,22 +169,17 @@
   from the work of Berlekamp in the eighties, many efficient
   algorithms have been proposed to solve this problem faster, either
   asymptotically or in practice.  In this paper, we consider the case
-  of polynomials over $\fqn$ where $\qq$ is a small number. We propose a
-  new algorithm to solve this problem, merging features of Berlekamp's
-  classical trace algorithm (BTA) and the recent successive resultant
-  algorithm (SRA).  Similarly to BTA, our algorithm separates the
-  roots of the polynomial into distinct subspaces using gcd
-  computations. Similarly to SRA, it uses particular subspaces that
-  are embedded in one another.
+  of polynomials over $\fqn$ where $\qq$ is a small number. 
+  
+  We revisit three algorithms to solve this problem and we describe their relationships in terms of the affine geometry of $\fqn$.
+Berlekamp's trace algorithm (BTA) is probably the best-known algorithm for root-finding. It separates the roots of $f$ according to some trace and gcd computation. The affine refinement method (ARM) separates the roots according to nested affine spaces. Although elegant, it is never used in practice since its complexity is worse than BTA with fast arithmetic. Finally, the successive resultant algorithm separates the roots according their projections on certain subspaces.
 
-  Our algorithm has an asymptotic complexity similar to BTA and SRA on
-  this type of polynomials ... It has this and this great advantages
-  over these algorithms. Our Sage implementations show that it is
-  great, easy to implement, very efficient, and beat previous
-  algorithms on a large range of parameters...
-
-  We also provide optimizations and a factorization version of our
-  algorithm that are of further interest for SRA.
+Our contributions are four-fold. First, we provide improved variants of ARM and SRA, and prove that they both match the asymptotic complexity of BTA up to the precomputation of some finite field constants.
+ Second, we show that SRA and ARM are dual of each other in a precise sense.
+ Third, we provide several additional variants of our algorithms aiming to optimize the case of composite extension degrees, to remove the precomputation costs and to improve the worst-case complexity of our algorithms.
+ Finally, we provide a fair experimental comparison of all algorithms, confirming that their complexity is equivalent in practice up to  a small constant.
+ 
+ Our paper unifies the description of these algorithms and proves that their complexity is approximately equivalent.
 \end{abstract}
 
 \category{F.2.1}{Theory of computation}{Analysis of algorithms and problem complexity}[Computations in finite fields]
