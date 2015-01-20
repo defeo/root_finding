@@ -885,10 +885,78 @@ we necessarily need $h \ge  \nn - \log_\qq \dd$.
  \end{Theo}
  
  On average, however, both algorithms will stop before reaching the
- bottom of the tree. The goal of the next section is to analyze the
- behavior of ARM and SRA on average.
+ bottom of the tree. The goal of Section~\ref{sec:avg} is to analyze
+ the behavior of ARM and SRA on average.
+
+
+\subsection{BTA}
+\label{sec:bta}
+
+For completeness, we review here Berlekamp's trace algorithm (BTA),
+and recall how it is related to ARM. BTA attempts to decompose $f$
+into smaller degree factors using the product equality
+\begin{equation}\label{BTA_eq1}
+f(X)=\prod_{r\in\fq}\gcd\bigl(\Tr(\alpha X)-r,f(X)\bigr)
+\end{equation}
+for randomly chosen $\alpha\in\fqn$.
+
+
+
+%
+% \begin{Lem}
+% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
+% \end{Lem}
+%\begin{proof}
+For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
+% 
+On average, $\bigO(\log(\nn))$ attempts are required to find one such element \cite{Menvanovans92}. 
+
+The polynomial $\Tr(\alpha X) \mod f$ is computed iteratively using
+$O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
+the $\qq$ gcds are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
+algorithm must be restarted with a different $\alpha$.  Therefore,
+splitting $f$ in at least two distinct factors costs
+$\bigO(\nn\log\nn\Mul(\dd)\log\qq + \qq\Mul(\dd)\log\dd)$ on average,
+or $O(\nn^2\Mul(\dd)\log\qq+\qq\Mul(\dd)\log\dd)$ in the worts case.
+
+The process is then recursively applied on the factors. It is possible
+to prove that the full decomposition of $f$ into its linear factors is
+attained after $O(\log\dd)$ iterations on average
+(see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require
+$\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
+operations.
+%\end{proof}
+
+
+Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
+\begin{equation*}
+X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha X),  
+\end{equation*}
+or
+\begin{equation*}
+  (X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\Tr(\alpha X).  
+\end{equation*}
+If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$
+such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and
+$\upsilon_\nn=\alpha^{-1}$, then we exactly have
+$L_{\nn-1}(X)=\alpha^{-q^{n-1}}\Tr(\alpha X)$ and
+\begin{equation*}
+  M_{\nn-1,r}(X)=
+  \alpha^{-\qq^{\nn-1}}\Tr(\alpha(X-r/\alpha))=
+  \alpha^{-\qq^{\nn-1}}\left(\Tr(\alpha X)-r\right).
+\end{equation*}
+Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used
+in BTA and in the last level of ARM are therefore identical.
+
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
+%
+In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
+
+We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces to BTA when $h=1$, up to the constant factors identified above.
+
 
 \subsection{Average running time}
+\label{sec:avg}
 
 \noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
 the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
@@ -974,58 +1042,6 @@ The first is to launch the algorithm on the the remaining factors of $f$ at leve
  
 Finally, note that it is obvious that SRA may take advantage of the same procedure but in this case the trick consists simply in stopping computing the $\alpha_i$'s when the last resultant is computed.
  
-\medskip
-
-\noindent {\bf Link between ARM and BTA:} Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
-\begin{equation}\label{BTA_eq1}
-f(X)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha X)-r_n,f(X)\right)
-\end{equation}
-for randomly chosen $\alpha\in\fqn$.
-
-
-
-
-
-
-
-
-
-
-
-
-\medskip
-
-\noindent {\bf Link between ARM and BTA:} Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
-\begin{equation}\label{BTA_eq1}
-f(X)=\prod_{r_n\in\fq}\gcd\left(\Tr(\alpha X)-r_n,f(X)\right)
-\end{equation}
-for randomly chosen $\alpha\in\fqn$.
-
-
-
-%
-% \begin{Lem}
-% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
-% \end{Lem}
-%\begin{proof}
-For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
-% 
-On average, $\bigO(\log(\nn))$ attempts are required to find one such element \cite{Menvanovans92}. The computation of each $\gcd$ in relation~\eqref{BTA_eq1} costs $\bigO(\nn \cdot \log(\qq) \cdot M(\dd))$ operations in $\extf$ and we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization. Therefore, 
-splitting $f$ in at least two distinct factors costs $\bigO(n \cdot \log(n) \cdot  q \cdot \log(q) \cdot M(d))$ on average. The process is then recursively applied on the factors. It is possible to prove that the whole decomposition of $f$ into its linear factors costs $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ on average (see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ operations.
-%\end{proof}
-
-
-Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
-$$X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha X)$$
-or
-$$(X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\Tr(\alpha X)$$
-If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$ such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $\upsilon_\nn=\alpha^{-1}$, then we exactly have $L_{\nn-1}(X)=\alpha^{-q^{n-1}}\Tr(\alpha X)$ and $M_{\nn-1,r}(X)=\alpha^{-q^{n-1}}\Tr(\alpha (X-r_\nn\alpha^{-1}))=\alpha^{-q^{n-1}}\left(\Tr(\alpha X)-r_\nn\right)$. Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used in BTA and in the last level of ARM are therefore identical.
-
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r_\nn$ for all $r_\nn\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
-%
-In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
-
-We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces to BTA when $h=1$, up to the constant factors identified above.
 
 
 
