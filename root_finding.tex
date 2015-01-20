@@ -882,19 +882,17 @@ we necessarily need $h \ge  \nn - \log_\qq \dd$.
    $O(nq\Mul(d)\log d + n^2d)$.
  \end{Theo}
  
- On average, however, both algorithms will stop before reaching the
- bottom of the tree. The goal of Section~\ref{sec:avg} is to analyze
- the behavior of ARM and SRA on average.
-
-
-\subsection{BTA}
+ 
+ 
+ 
+ \subsection{BTA}
 \label{sec:bta}
 
 For completeness, we review here Berlekamp's trace algorithm (BTA),
 and recall how it is related to ARM. BTA attempts to decompose $f$
 into smaller degree factors using the product equality
 \begin{equation}\label{BTA_eq1}
-f(X)=\prod_{r\in\fq}\gcd\bigl(\Tr(\alpha X)-r,f(X)\bigr)
+f(X)=\prod_{r\in\fq}\gcd\bigl(\trextbase(\alpha X)-r,f(X)\bigr)
 \end{equation}
 for randomly chosen $\alpha\in\fqn$.
 
@@ -906,55 +904,56 @@ for randomly chosen $\alpha\in\fqn$.
 % \end{Lem}
 %\begin{proof}
 For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
-% 
-On average, $\bigO(\log(\nn))$ attempts are required to find one such element \cite{Menvanovans92}. 
-
-The polynomial $\Tr(\alpha X) \mod f$ is computed iteratively using
+%On average, $\bigO(\log_\qq(d))$ attempts are required to find one such element \cite{Menvanovans92}. 
+The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
 $O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
 the $\qq$ gcds are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
-algorithm must be restarted with a different $\alpha$.  Therefore,
-splitting $f$ in at least two distinct factors costs
-$\bigO(\nn\log\nn\Mul(\dd)\log\qq + \qq\Mul(\dd)\log\dd)$ on average,
-or $O(\nn^2\Mul(\dd)\log\qq+\qq\Mul(\dd)\log\dd)$ in the worts case.
+algorithm must be restarted with a different $\alpha$. 
+The process is then recursively applied on the factors. 
+ If the $\alpha$ are carefully managed, it can be show that the worst case complexity is 
+%$\bigO((\nn^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
+$\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ 
+operations (see~\cite{Menvanovans92}).
 
-The process is then recursively applied on the factors. It is possible
-to prove that the full decomposition of $f$ into its linear factors is
-attained after $O(\log\dd)$ iterations on average
-(see~\cite{Gathen2003}, Th 14.11). In the worst case, it will require
-$\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
-operations.
+
+
+% Therefore, splitting $f$ in at least two distinct factors costs
+%$\bigO(\nn\log \dd \nn \Mul(\dd)\log\qq + \qq\Mul(\dd)\log\dd)$ on average,
+%or $O(\nn^2\Mul(\dd)\log\qq+\qq\Mul(\dd)\log\dd)$ in the worts case.
+
 %\end{proof}
 
 
 Compared to ARM, BTA does not decompose the polynomial $X^{\qq^\nn}-X$ completely but instead uses the partial decomposition
 \begin{equation*}
-X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\Tr(\alpha X),  
+X^{\qq^\nn}-X=\alpha^{-1}(X^\qq- X)\circ\trextbase(\alpha X),  
 \end{equation*}
 or
 \begin{equation*}
-  (X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\Tr(\alpha X).  
+  (X^{q^n}-X) = (X^q- \alpha^{q^{n-1}-1} X)  \circ \alpha^{-q^{n-1}}\trextbase(\alpha X).  
 \end{equation*}
 If in ARM we choose a basis $\{\upsilon_1,\ldots,\upsilon_{\nn}\}$
-such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and
-$\upsilon_\nn=\alpha^{-1}$, then we exactly have
-$L_{\nn-1}(X)=\alpha^{-q^{n-1}}\Tr(\alpha X)$ and
-\begin{equation*}
-  M_{\nn-1,r}(X)=
-  \alpha^{-\qq^{\nn-1}}\Tr(\alpha(X-r/\alpha))=
-  \alpha^{-\qq^{\nn-1}}\left(\Tr(\alpha X)-r\right).
-\end{equation*}
+such that $\upsilon_i/\alpha$ has trace 0 for all $i<\nn$ and $v_n$ is such that $\trextbase(\alpha \upsilon_n)=1$, then we exactly have
+$L_{\nn-1}(X)=\alpha^{-q^{n-1}}\trextbase(\alpha X)$ and
+\begin{multline*}
+  M_{\nn-1,r}(X)=  \alpha^{-\qq^{\nn-1}}\left(\trextbase(\alpha X)-r\right). \\
+\end{multline*}
 Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used
 in BTA and in the last level of ARM are therefore identical.
 
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different afine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these afine sets are likely to become singletons, each singleton containing one root of $f$. 
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different affine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these affine sets are likely to become singletons, each singleton containing one root of $f$. 
 %
-In comparison, ARM and SRA separate the roots of $f$ into afine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
+In comparison, ARM and SRA separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
 
 We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces to BTA when $h=1$, up to the constant factors identified above.
 
 
 \subsection{Average running time}
 \label{sec:avg}
+
+On average, ARM and BTA will stop before reaching the bottom of the tree and while SRA won't begin from its root.
+
+\medskip
 
 \noindent {\bf Average case running time of ARM:} As already observed by Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92}, 
 the statistical behavior of the height $H_{\dd}$ of the tree built by ARM on split polynomials with $\dd$ distinct chosen at random is highly 
@@ -972,14 +971,32 @@ Those two results express the fact that the number of iteration of the algorithm
 
 
 
-\noindent {\bf Average case running time of SRA:} According to ARM algorithm, the number of iterations $h_d$ is the smallest value for which $\deg f^{(h)}=\qq^{n-h}$. Its means that $h_d$ is the 
+\noindent {\bf Average case running time of SRA:} According to ARM algorithm, for a fixed polynomial of degree $\dd$ the number of iterations $h_d$ is the smallest value for which $\deg f^{(h)}=\qq^{n-h}$. Its means that $h_d$ is the 
   smallest value for which the projections through $L_i$ of all the roots of $f$ covers $V_h^\ast$. Therefore, $n-h_d$ is exactly the shortest
    path of the nodes of the associated digital tries. B.Pittel~\cite{Pittel86} proved that the random variable $H'_d$ representing the shortest path of the digital trie with $d$ records generated according to the Bernoulli model satisfies
- $H'_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. It follows that $h_d \approx n-\log_{q} d$.
+ $H'_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. It follows that the random variable $H_d$ representing the number of iterations is $H_d \approx n-\log_{q} d$.
 
-  
+\medskip
 
+\noindent {\bf Average case running time of BTA:} This analysis follows from Menezes, Van Oorschot and Vanstone~\cite{Menvanovans92} and is also related to the statistical properties of digital tries. It can be show that the average complexity is $\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \log\dd)$.
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 \section{Variant and Extensions}
 
 
