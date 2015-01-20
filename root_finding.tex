@@ -1053,7 +1053,7 @@ Note that step~\ref{alg:arm:Li} of algorithm~\ref{alg:arm} which consists in com
 
 Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, we have two solutions.
 The first is to launch the algorithm on the the remaining factors of $f$ at level $h$ with a newly generated vector basis with $h'$ elements. This value should be chosen 
- as a multiple $\log_{\qq} \max(\deg f_{h,\rho})$ where $f_{h,\rho}$ are the remaining factors of $f$ to factorize at level $h$.
+ as a multiple of $\log_{\qq} \max(\deg f_{h,\rho})$ where $f_{h,\rho}$ are the remaining factors of $f$ to factorize at level $h$.
  
 Finally, note that it is obvious that SRA may take advantage of the same procedure but in this case the trick consists simply in stopping computing the $\alpha_i$'s when the last resultant is computed.
  
