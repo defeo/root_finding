@@ -902,70 +902,72 @@ Those two results express the fact that the number of iteration of the algorithm
 
 
 
-\noindent {\bf Average case running time of SRA:} According to ARM algorithm, the number of iterations $h$ is the smallest value for which $\deg f^{(h)}=\qq^{n-h}$. Its means that $h$ is the 
-  smallest value for which the projections through $L_i$ of all the roots of $f$ covers $V_h^\ast$. Therefore, $n-h$ is exactly the shortest
-   path of the nodes of the associated digital tries. B.Pittel~\cite{Pittel86} proved that the random variable $h'_d$ representing the shortest path of the digital trie with $d$ records generated according to the Bernoulli model satisfies
- $h'_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. It follows that $h \approx n-\log_{q} d$.
+\noindent {\bf Average case running time of SRA:} According to ARM algorithm, the number of iterations $h_d$ is the smallest value for which $\deg f^{(h)}=\qq^{n-h}$. Its means that $h_d$ is the 
+  smallest value for which the projections through $L_i$ of all the roots of $f$ covers $V_h^\ast$. Therefore, $n-h_d$ is exactly the shortest
+   path of the nodes of the associated digital tries. B.Pittel~\cite{Pittel86} proved that the random variable $H'_d$ representing the shortest path of the digital trie with $d$ records generated according to the Bernoulli model satisfies
+ $H'_d/\log_{q} d \underset{d \to +\infty}{\longrightarrow} 1$ a.s. It follows that $h_d \approx n-\log_{q} d$.
 
   
 
 
 \section{Variant and Extensions}
 
-\subsection{Tuning of ARM and its link to BTA}
+
  
- 
- \medskip
- 
-\noindent {\bf Improving the worst-case complexity \label{sec:ext:variant}:} ARM algorithm may perform poorly in the worst case. When the number of iterations $h$ is maximal, 
+\subsection{Improving the worst-case complexity \label{sec:ext:variant}:} 
+
+
+
+\label{alg:sra}
+
+\label{alg:sra:combili} 
+
+
+ARM algorithm may perform poorly in the worst case. When the number of iterations $h$ is maximal, 
 the term corresponds to the computation of the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili} becomes $\bigO(\nn^2 \dd)$ which may become the bottleneck of the algorithm. 
+Note that the same computation is also performed in SRA.
 
-In this section, we present a variant of this algorithm with worst case running time comparable to the average running time, provided that a normal basis with fast arithmetic is available for $\extf/\basef$. 
-Normal basis with fast arithmetic exist for all fields and can be computed efficiently~\cite{Couveignes-Lercier}.\todo{Luca: help me define efficiently}
-\comd
-Je ne pense pas qu'il y ait des bases normales rapides pour tous les corps de toute fa\c{c}on il y a une grande constante. 
-\comf
+If normal basis with fast arithmetic is available for $\extf/\basef$ (see~\cite{Couveignes-Lercier}), the  $\ell_{i,\rho}$'s  may be computed more efficiently.
 
-At every iteration, for each node $f_{i+1,\rho}$, that needs to be branched, the values $\ell_{i,\rho}$ corresponding to its $\qq$ childs may be computed from $\ell_{i+1,\rho}=L_{i+1}(\rho)$ by solving the equation  
+At every iteration, for each node $f_{i+1,\rho}$ that needs to be branched, the values $\ell_{i,\rho}$ corresponding to its $\qq$ childs may be computed from $\ell_{i+1,\rho}=L_{i+1}(\rho)$ by solving the equation  
 $$\ell_{i,\rho}^q-\beta_i^{\qq-1} \ell_{i,\rho}=\ell_{i+1,\rho}\,,$$
 which follows from the definition of the $L_i$'s. Rewriting the above equation as 
 $$(\beta_i^{-1}\ell_{i,\rho})^q-(\beta_i^{-1}\ell_{i,\rho})=\beta_i^{-q}\ell_{i+1,\rho}\,,$$
 it follows that the set of $\ell_{i,\rho}$'s corresponding to the $\qq$ childs of the node $f_{i+1,\rho}$ is given by 
 $$\{ \beta_i \cdot l \mid l^q-l=\beta_i^{-q}\ell_{i+1,\rho} \} \,.$$
-In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solutions the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottleneck.
+In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solution the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottleneck.
 
 
 \medskip
 
 
 
-\noindent {\bf Variant with partial precomputation\label{sec:BTA:ARMvariant}:} Both ARM and SRA require a precomputation cost of $O(\nn^2 \log \qq)$, essentially to compute all the $\alpha_i$ values. However, ARM performs on average at most $2\log_\qq d$ iterations and therefore uses most of the time only the $2\log_\qq d$ last values $\alpha_i$ to split $f$ completely. In what follows, $h$ is the a priori bound on the expected number of iterations of ARM algorithm. We may typically choose $h=c \cdot \log_\qq d$ with $c \ge 2$.
-According to~\eqref{dual_polynomial}, for any linearized polynomial $L_i$ there exists a unique linearized polynomial $L_i^\ast$ such that $(L_i^\ast\circ L_i)(X)=(L_i\circ L_i^\ast)(X)=X^{\qq^\nn}-X$. Any field decomposition leads therefore to several decompositions, i.e. for any $i$
-$$X^{\qq^\nn}-X=(X^{\qq}-\alpha_\nn) \circ \cdots \circ (X^{\qq}-\alpha_1 X)=L_i(X) \circ L_i^\ast(X)$$
-where $L_i^\ast(X)=(X^{\qq} -\alpha_n X) \circ \cdots \circ (X^{\qq}-\alpha_{i-1}X)$.
+\noindent {\bf Variant with partial precomputation\label{sec:BTA:ARMvariant}:} The precomputation step of ARM and SRA costs $O(\nn^2 \log \qq)$ to determine the $\alpha_i$'s involved in the decomposition the field equation.
 
-We will therefore start by computing $L_{n-h}^\ast(X)$ using a basis $\{\upsilon_{n-h+1},\ldots,\upsilon_n\}$ of a vector space dimension $h$ of $\extf/\basef$. This requires $O(h^2\log\qq)$ operations in $\extf$. According to the above observation, we deduce that
+Performing on average at most $2\log_\qq d$ iterations, ARM only the last $2\log_\qq d$ values $\alpha_i$ most of the time to split $f$ completely.
+In what follows, $h$ is the \emph{a priori} bound on the expected number of iterations of ARM algorithm, typically $c \cdot \log_\qq d$ with $c \ge 2$. 
+
+
+According to~\eqref{dual_polynomial}, for any linearized polynomial $L_i$ there exists a unique linearized polynomial $L_i^\ast$ such that $(L_i^\ast\circ L_i)(X)=(L_i\circ L_i^\ast)(X)=X^{\qq^\nn}-X$. 
+%Any field decomposition leads therefore to several decompositions, i.e. for any $i$
+%$$X^{\qq^\nn}-X=(X^{\qq}-\alpha_\nn) \circ \cdots \circ (X^{\qq}-\alpha_1 X)=L_i(X) \circ L_i^\ast(X)$$
+%where $L_i^\ast(X)=(X^{\qq} -\alpha_n X) \circ \cdots \circ (X^{\qq}-\alpha_{i-1}X)$.
+Therefore, starting  by computing $L_{n-h}^\ast(X)$ using a basis $\{\upsilon_{n-h+1},\ldots,\upsilon_n\}$ of a vector space of dimension $h$ of $\extf/\basef$, we deduce that
 $$X^{\qq^\nn}-X=(X^{\qq}-\alpha_n) \circ \cdots \circ (X^{\qq}-\alpha_{n-h+1} X) \circ L_{n-h}(X)\,,$$
-for a unique $L_{n-h}(X)$ which is not yet computed. For i starting from $\nn$ and going down to $n-h$, we compute recursively the $L_i(X)$'s which satisfy
+where $L_{n-h}(X)$ a unique and not yet computed. This requires $O(h^2\log\qq)$ operations in $\extf$. For i starting from $\nn$ and going down to $n-h$,
+ we compute recursively the $L_i(X)$'s which satisfy
 $$X^{\qq^\nn}-X= (X^{\qq}-\alpha_n) \circ \cdots \circ (X^{\qq}-\alpha_{i-1} X) \circ L_{i}(X)\,.  $$
-By definition $L_n(X)=X^{q^n}-X$ and we just need to solve the equations 
-$$L_{i+1}(X)=L_i(X)^q-\alpha_{i+1}L_i(X)$$
-for $i=n-1 \cdots n-h$. Any equation may be solved in $O(\nn \log q)$ operations as follows: Given $\alpha_{i+1}$ and $L_{i+1}(X)=\sum_{j=0}^{i+1}a_jX^{q^j}$, $L_i(X)=\sum_{j=0}^{i}b_jX^{q^j}$ may be computed by setting $b_0=-a_0\alpha_{i+1}^{-1}$ and by
-recursively computing $b_j=(b_{j-1}^q-a_j)\alpha_{i+1}^{-1}$. The computation of $L_i(X)$ for $i$ starting from $n$ and going down to $n-h$ requires therefore $O(h \nn \log q)$ operations instead of $O(\nn^2 \log q)$ for the full precomputation.
-
-Note that step~\ref{alg:arm:Li} of algorithm~\ref{alg:arm} which consists in computing $L_i \bmod f$ need to be slightly modified. The values $X^{q^j}\bmod f$ are first computed in $O(dn\log q)$ operations, then $L_i\bmod f$ can be computed in $O(\dd \nn)$ operations which does not change the complexity of the step. Step \ref{alg:arm:combili} need also to be modified because we don't have matrix $\Gamma$ defined in \eqref{eq:Gamma}. Instead of computing in step \ref{alg:arm:combili}
- the values $\ell_{i-1, \rho}$ for all the nodes of the tree, we simply compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j v_j$ candidate appearing in step~\ref{alg:arm:gcd}. Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such value to compute. The overall complexity for the computation of these values is $O(h \nn \dd  \log \qq )$ which is not a bottleneck in the average case. 
+or equivalently $L_{i+1}(X)=L_i(X)^q-\alpha_{i+1}L_i(X)$. The $L_i(X)'s$ being linearized polynomials, each of these equations reduces to
+a bidiagonal system which may be solve at the cost $O(\nn \log q)$ or $O(h \nn \log q)$ for the $h$ polynomials $L_i$.
+Note that step~\ref{alg:arm:Li} of algorithm~\ref{alg:arm} which consists in computing $L_i \bmod f$ need to be slightly modified. The values $X^{q^j}\bmod f$ are first computed in $O(M(d)n\log q)$ operations, then $L_i\bmod f$ can be computed in $O(\dd \nn)$ operations. This does not change the complexity of the step. Step \ref{alg:arm:combili} need also to be modified because we don't have matrix $\Gamma$ defined in \eqref{eq:Gamma}. Instead of computing in step \ref{alg:arm:combili}
+ the values $\ell_{i-1, \rho}$ for all the nodes of the tree, we compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j v_j$ candidate appearing in step~\ref{alg:arm:gcd}. Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such value to compute. The overall complexity for the computation of these values is $O(h \nn\dd  \log \qq )$ which is not a bottleneck in the average case. 
 
 Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, we have to solutions.
 The first is to launch the algorithm on the the remaining factors of $f$ at level $h$ with a newly generated vector basis with $h'$ elements. This value should be chosen 
- as a multiple $\log_{\qq} \max(\deg f_{h,\rho})$ where $_{h,\rho}$ are the remaining factors of $f$ to factorize at level $h$.
+ as a multiple $\log_{\qq} \max(\deg f_{h,\rho})$ where $f_{h,\rho}$ are the remaining factors of $f$ to factorize at level $h$.
  
-
-\comd
-Pour moi les deux sous-sections sur BTA doivent \^etre merg\'ee. Attention, il y a une erreur \`a mon sens 
-"we need to consider $\bigO(\log(n))$ such relations on average to find a non-trivial factorization". deci nest pas correct et d'ailleurs je ne comprends pas l'article de MOV sur le sujet. 
-\comf
-
+Finally, note that it is obvious that SRA may take advantage of the same procedure but in this case the trick consists simply in stopping computing the $\alpha_i$'s when the last resultant is computed.
+ 
 \medskip
 
 \noindent {\bf Link between ARM and BTA:} Given a polynomial $f$, Berlekamp's trace algorithm (BTA) attempts to decompose $f$ into smaller degree factors using the product equality
@@ -1064,7 +1066,7 @@ $\nn$, and $\nn_{\max}$ is the largest.
 
 \paragraph{Projecting to smaller fields} We can further refine this
 decomposition so that the polynomial $L_{\qq^{(m-1)s}}$ is a
-projection to the field $\ff{\qq^s}$. Indeed, if we we take a basis
+projection to the field $\ff{\qq^s}$. Indeed, if we take a basis
 $\{\upsilon_1,\dots,\upsilon_m\}$ of $\ff{\qq^{ms}}/\ff{\qq^s}$ such
 that $\upsilon_1,\dots,\upsilon_{m-1}$ all have trace $0$, we obtain a
 decomposition
