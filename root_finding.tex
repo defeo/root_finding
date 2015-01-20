@@ -9,6 +9,8 @@
 
 \includecomment{mycomment}
 
+\hyphenation{Berle-kamp}
+
 %%%%%%%%%%%%%%%
 
 \newcommand{\ff}[1]{\mathbb{F}_{#1}}
@@ -194,10 +196,9 @@ Our contributions are four-fold. First, we provide improved variants of ARM and 
 
 Let $\mathbb{F}_{\qq^\nn}$ be the finite field with $\qq^\nn$ elements, and let $f$ be a polynomial of degree $\dd$ over $\mathbb{F}_{\qq^\nn}$.
 %
-The \emph{root-finding problem} is the problem of computing one, several or all elements $x\in\mathbb{F}_{\qq^\nn}$ such that
-$$f(x)=0.$$
+The \emph{root-finding problem} is the problem of computing one, several or all elements $x\in\mathbb{F}_{\qq^\nn}$ such that $f(x)=0$.
 %
-This problem has a lot of applications, in particular in cryptography and in coding theory. It also has a rich history, with many strategies proposed over the years.
+This problem has many applications, in particular in cryptography and in coding theory~\cite{McEliece78}. It also has a rich history, with many strategies proposed over the years. In this paper we review three related algorithms for root finding exploiting the structure of the finite affine geometry of $\extf$.
 
 
 
@@ -231,42 +232,42 @@ This problem has a lot of applications, in particular in cryptography and in cod
 
  
 
-\paragraph{Previous work:} %Many strategies have been proposed over the years for finding roots of polynomials defined on finite fields, and some of these methods actually solve the harder problem consisting in factoring a polynomial into its irreducible components. 
+\paragraph{Previous work} %Many strategies have been proposed over the years for finding roots of polynomials defined on finite fields, and some of these methods actually solve the harder problem consisting in factoring a polynomial into its irreducible components. 
 %
-As mentioned by J. von zur Gathen~\cite{Gathen06}, the first method for finding the roots of $f \in \mathbb{F}_p[X]$, with $p$ an odd prime, is due to A. M. Legendre (1752-1833) who starts by considering the factorization of the field equation
+As mentioned by von zur Gathen~\cite{Gathen06}, the first method for finding the roots of $f \in \mathbb{F}_p[X]$, with $p$ an odd prime, is due to Legendre (1752-1833) who starts by considering the factorization of the field equation
 $$X^{p}-X=X \cdot (X^{(p-1)/2}-1) \cdot (X^{(p-1)/2}+1)\,.$$
-He then observes that computing the GCD of $f$ with each of the two later factors splits the (nonzero) roots of $f$ into two sets, the squares and the non-squares. He then observes that replacing $X$ by $X+a$ for a random $a$  offers other ways of splitting the roots into two sets, which may successively be applied on the factors of $f$. This probabilistic method is the basis of many modern ones.
+He then observes that computing the GCD of $f$ with each of the two latter factors splits the (nonzero) roots of $f$ into two sets, the squares and the non-squares. He then observes that replacing $X$ by $X+r$ for a random $r$  offers other ways of splitting the roots into two sets, which may successively be applied on the factors of $f$. This probabilistic method is the basis of many modern ones.
 
 %In the context of coding theory, R. T. Chien~\cite{Chien64a} introduces the so-called \emph{Chien Search} in 1964. The method is essentially an exhaustive search on the roots with some optimizations for the implementation.
 
-For a polynomial $f \in  \mathbb{F}_\qq[X]$, with $\qq$ a prime power, the factoring method of E.R. Berlekamp~\cite{berl67} is based on the so-called \emph{Petr-Berlekamp algebra} of $f$ which consists of the set of polynomials $h$ satisfying  
+For a polynomial $f \in  \mathbb{F}_\qq[X]$, with $\qq$ a prime power, the factoring method of Berlekamp~\cite{berl67} is based on the so-called \emph{Petr-Berlekamp algebra} of $f$ which consists of the set of polynomials $h$ satisfying  
 $$h(X)^q=h(X) \bmod{f(X)}$$
 Using 
-$X^{\qq}-X=\prod_{\alpha \in \basef}(X-\alpha)$,
-E.R. Berlekamp deduces the factorization $f(X)=\prod_{\alpha \in \mathbb{F}_{\qq}} \gcd(f(X),h(X)-\alpha)$. The method %is deterministic and it 
+$X^{\qq}-X=\prod_{r\in \basef}(X-c)$,
+Berlekamp deduces the factorization $f(X)=\prod_{r \in \mathbb{F}_{\qq}} \gcd(f(X),h(X)-r)$. The method %is deterministic and it 
 requires to compute $\qq$ GCD's, hence it cannot be used for arbitrary finite fields. The root-finding method called \emph{Berlekamp Trace Algorithm} (BTA)~\cite{berl70} takes advantage of the factorization 
-$$X^{\qq^n}-X=\beta^{-1} \cdot \prod_{a \in \basef}(\tr{\qq^n}{\qq}(\beta \cdot X)-a)\,.$$
-The roots of $f$ are separated by computing GCD's with the different factors for some random $\beta$. This method is recursive, probabilistic and may be applied to large finite fields with small characteristic. It is still one of the most efficient methods today.
+$$X^{\qq^n}-X=\alpha^{-1} \cdot \prod_{r \in \basef}(\tr{\qq^n}{\qq}(\alpha \cdot X)-r)\,.$$
+The roots of $f$ are separated by computing GCD's with the different factors for some random $\alpha$. This method is recursive, probabilistic and may be applied to large finite fields with small characteristic. It is still one of the most efficient methods today.
 
-Moenck~\cite{Moenck77} uses resultants to determine the $\alpha$'s and $a$'s leading to non-trivial GCD's in the above methods. He also introduces the \emph{Subgroup Refinement Algorithm} to pursue further the factorization of the field equation considered by Legendre by considering successive subgroups of $\mathbb{F}_{p}^\ast$ for some special primes $p$.
-Rabin~\cite{Rabin79} proposes a method close to the one of Legendre. 
+Moenck~\cite{Moenck77} uses resultants to determine the $\alpha$'s and $r$'s leading to non-trivial GCD's in the above methods. He also introduces the \emph{Subgroup Refinement Algorithm} to pursue further the factorization of the field equation considered by Legendre by considering successive subgroups of $\mathbb{F}_{p}^\ast$ for some special primes $p$.
+Rabin~\cite{Rabin79} proposes a method close to Legendre's. 
 
-D. Cantor and H. Zassenhaus~\cite{cantor1981} suggests to consider random polynomials $h(X)$ instead of $X+a$ in Legendre's decomposition in order to factorize a polynomial $f$ with factors of equal degree by means of GCD's. The method is probabilistic and is one the most efficient methods today. This method is referred as \emph{C-Z} in the remaining of the paper.
+Cantor and Zassenhaus~\cite{cantor1981} suggests to consider random polynomials $h(X)$ instead of $X+r$ in Legendre's decomposition in order to factor a polynomial $f$ with factors of equal degree by means of GCD's. The method is probabilistic and is one the most efficient methods today.
 
-E. R. Berlekamp~\cite{mBER84a} proposes the \emph{Least Affine Multiple method} (LAM) which consists in computing the least affine multiple of $f$, then exhaustively searching the roots of $f$ among the roots this polynomial. 
+Berlekamp~\cite{mBER84a} proposes the \emph{Least Affine Multiple method} (LAM) which consists in computing the least affine multiple of $f$, then exhaustively searching the roots of $f$ among the roots of this polynomial. 
 
-A.J. Menezes, P.C. van Oorschot and S.A. Vanstone~\cite{MenezesOV88,OorschotV89} generalize BTA by replacing the trace map by more general affine polynomials and by combining it with the LAM method. They also~\cite{Menvanovans92} generalize the Subgroup Refinement Algorithm of Moenck~\cite{Moenck77} and 
+Menezes, van Oorschot and Vanstone~\cite{MenezesOV88,OorschotV89} generalize BTA by replacing the trace map by more general affine polynomials and by combining it with the LAM method. They also~\cite{Menvanovans92} generalize Moenck's Subgroup Refinement Algorithm~\cite{Moenck77} and 
 introduce the \emph{Affine Refinement Method} (ARM) by mirroring the successive refinement of a subgroup of $\mathbb{F}_{\qq}^\ast$ in Moenck's algorithm 
-by refinement of linear subspaces of AG(\nn,\qq), the $\nn$-dimensional affine geometry of $\mathbb{F}_{\qq}$. %This method may be viewed as a generalization of BTA. 
+by refinement of linear subspaces of $\AG$, the $\nn$-dimensional affine geometry of $\mathbb{F}_{\qq}$. %This method may be viewed as a generalization of BTA. 
 As described in their papers, the ARM makes use of the LAM method.
 
-Shoup\cite{Shoup91b} proposes a deterministic generalization of BTA for the factorization and root-finding problems. Its worst-case running time complexity is similar to the average running time of the best currently known probabilistic methods such as BTA and C-Z method.
+Shoup\cite{Shoup91b} proposes a deterministic generalization of BTA for the factorization and root-finding problems. Its worst-case running time complexity is similar to the average running time of the best known probabilistic methods such as BTA and Cantor-Zassenhaus.
 
-H. Niederreiter\cite{nied94} proposed an algorithm based on the resolution of differential equations over finite fields.  As mentioned by several authors~\cite{Fleis96} this algorithm is highly related to similar to factoring algorithm Berlekamp.
+Niederreiter\cite{nied94} proposes an algorithm based on the resolution of differential equations over finite fields.  As mentioned by several authors~\cite{Fleis96} this algorithm is highly related Berlekamp's factoring algorithm.
 
-J. Bourgain  and S. Konyagin and I. Shparlinski~\cite{BKS13} propose a deterministic version of Legendre's approach for the root-finding problem of polynomials over $\mathbb{F}_p$. 
+%J. Bourgain  and S. Konyagin and I. Shparlinski~\cite{BKS13} propose a deterministic version of Legendre's approach for the root-finding problem of polynomials over $\mathbb{F}_p$. 
 
-Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successive Resultants Algorithm} (SRA). 
+Finally, Petit\cite{cgUCL-P14} recently introduced a method called the \emph{Successive Resultants Algorithm} (SRA), that is also closely related to ARM, as we shall see.
 
 
 
@@ -274,25 +275,23 @@ Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successiv
 
 
 \paragraph{Our contribution}
+We review the affine refinement method (ARM), the successive resultant algorithm (SRA), Berlekamp's trace algorithm (BTA), and highlight the links between them.
 
-We revisit the affine refinement method (ARM), the successive resultant algorithm (SRA), Berlekamp's trace algorithm (BTA), and the link between these algorithms.
+The affine refinement method was designed at a time when fast arithmetic was mostly a theoretical curiosity. As pointed out in~\cite{cgUCL-P14}, the method is at best as good as BTA with fast arithmetic, and it is indeed no longer used in practice. We provide a variant of ARM that does not require the computation of the least affine multiple of $f$, and is therefore significantly more efficient. Indeed, our variant  has the same asymptotic complexity as BTA, up to constant factors and some precomputation (which is also present in the original algorithm); whereas the original method is only interesting for very small degree polynomials. It also has the same complexity as SRA.
 
-The affine refinement method was designed at a time where fast arithmetic was mostly a theoretical curiosity. As pointed out in~\cite{cgUCL-P14}, the method is at best as good as BTA with fast arithmetic, and it is indeed no longer used in practice. We provide a variant of ARM that does not require the computation of the linearized polynomial of $f$, and is therefore more efficient with fast arithmetic. Up to constant factors and some precomputation (which is also present in the original algorithm), our variant has the same asymptotic complexity as BTA. It also has the same complexity as SRA.
-
-With respect to the original paper~\cite{cgUCL-P14}, our variant of the successive resultant algorithm adds a squarefree reduction step in the last loops of the first step to reduce the degrees of the polynomials involved. We also introduce an ad hoc algorithm to perform the special resultant computations required in this algorithm, and we compute the roots in the second step with multi-evaluation rather than by solving small degree equations.
+With respect to the original paper~\cite{cgUCL-P14}, our variant of the successive resultant algorithm adds a squarefree reduction step in the last loops of the first phase to reduce the degrees of the polynomials involved. This enables early termination of the algorithm, which is especially effective on large degree polynomials. We also introduce an ad hoc algorithm to perform the special resultant computations required by SRA, and we compute the roots in the second step with multi-evaluation rather than by solving small degree equations. Put together, our modifications improve slightly the asymptotic complexity, and give an algorithm efficient and easier to implement.
 
 We also provide methods to decrease the precomputation costs of both methods significantly when the field extension degree is composite, and a method to reduce it down to the cost of the other steps in the case of ARM.
 
 Finally, we show that SRA and ARM are in a sense dual of each other, and that our precomputation-free variant of ARM is in fact a generalized version of BTA.
 
 \paragraph{Outline}
-
 The paper is organized as follows. In Sec 2 we review basic facts
-about the finite affine geometry $\AG$. In Sec 3 we present two (three?)
-root finding algorithms based on the structure of $\AG$. In Sec 4 we
-present some refinements on the implementation of those algorithms. In Sec 5
-we present experimental results. Finally we list some open problems
-and future directions in Sec 6 (do we?).
+about the finite affine geometry $\AG$. In Sec 3 we present the three
+root finding algorithms based on the structure of $\AG$: ARM, SRA and
+BTA. In Sec 4 we present some refinements of those algorithms, that
+apply in special cases. In Sec 5 we present experimental
+results.
 
 
 \section{The affine geometry AG(\qq,\nn)}
@@ -303,7 +302,7 @@ and future directions in Sec 6 (do we?).
 The main ingredient of the algorithms we present is the \emph{finite
   affine geometry} $\AG$, i.e., the set of all vector subspaces of
 $\basef^\nn$ and their translates. Fixing a basis
-$\{\upsilon_1,\dots,\upsilon_\nn\}$ of $\extf$ over $\basef$, we can
+of $\extf$ over $\basef$, we can
 identify the elements of $\extf$ with the points of $\AG$. The
 relationship between $\AG$ and the problem of root finding was
 originally highlighted in~\cite{OorschotV90}.
@@ -453,11 +452,11 @@ take $\Mul(m)\in\bigO(m \log m \loglog m)$.
 %
 We recall now the complexities of the basic subroutines we shall need next.
 %
-The greatest common divisor of two polynomials of degree $\dd$ can be computed using $\bigO(\Mul(\dd)\log \dd)$ operations in $\extf$ using a Sch\"on\-hage-type algorithm~\cite{Schoenhage1971,Thull1990}.
+The greatest common divisor of two polynomials of degree $\dd$ can be computed in $\bigO(\Mul(\dd)\log \dd)$ operations in $\extf$ using a Sch\"on\-hage-type algorithm~\cite{Schoenhage1971,Thull1990}.
 %
-Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done using $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[Ch. 10]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[Ch. 10]{Gathen2003}.
+Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done in $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[Ch. 10]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[Ch. 10]{Gathen2003}.
 
-In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(x)$ with $\gcd(x^\qn-x,f(x))$. The main cost of this gcd is the computation of $x^\qn\bmod f(x)$. This can be achieved with a standard square-and-multiply algorithm or more involved (asymptotic) methods such as modular composition (see~Kedlaya and Umans\cite{Kedlaya11}). 
+In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(X)$ with $\gcd(X^\qn-X,f(X))$. The main cost of this gcd is the computation of $X^\qn\bmod f(X)$. This can be achieved with a standard square-and-multiply algorithm in $O(\nn\Mul(\dd)\log q)$, or (when $\nn$ is large) via modular composition (see~\cite{GathenS92,Kedlaya11}). 
 
 
 %In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
@@ -558,11 +557,11 @@ multi-point evaluation described in Algorithm~\ref{alg:multi-ev}.
 \begin{proof}
   It is well known that the resultant commutes with evaluation, i.e., if
   \begin{equation}
-    g(Y) = \Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y,f(X),\bigr),
+    g(Y) = \Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y,f(X)\bigr),
   \end{equation}
   then
   \begin{equation}
-    g(\Delta) = \Res_X\bigl(X^\qq - \beta^{\qq-1}X -\Delta , f(X)\bigr),
+    g(\Delta) = \Res_X\bigl(X^\qq - \beta^{\qq-1}X -\Delta , f(X)\bigr)
   \end{equation}
   for any $\Delta\in\extf$. Our algorithm is just a specialization of
   the classical evaluation-interpolation approach to compute bivariate
@@ -583,7 +582,7 @@ multi-point evaluation described in Algorithm~\ref{alg:multi-ev}.
     \prod_{c\in\extf} \Res_X\bigl(X-\delta - c\beta, f(X)\bigr) =\\
     (-1)^{\qq\dd} \prod_{c\in\extf} f(\delta+c\beta),
   \end{multline}
-  where the second and third equalities comes from the
+  where the second and third equalities come from the
   multiplicativity of the resultant. The correctness of the algorithm
   now follows immediately.
 
@@ -643,24 +642,24 @@ operations. Note that this phase depends only on the field and may be
 re-used for the root-finding of several polynomials defined on the
 same field.
 
-\paragraph{ARM} The method consists in \emph{intersecting} the roots of $f$ with the corresponding fibers of $L_i$ identified by $\ell_{i,\rho} \in V_i^\ast$, which are $V_{i,\rho}$.
+\paragraph{ARM} The method consists in \emph{intersecting} the roots of $f$ with the $i$-flats  $V_{i,\rho}$, i.e, with the fibers by $L_i$ of each element $\ell_{i,\rho} \in V_i^\ast$.
 %The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
- It is achieved by computing the non-constant gcd's among the set
+ This is achieved by computing the non-constant gcd's among the set
 % the computation of the minimal polynomial of those intersections by means of gcd's, i.e. 
  \begin{equation}
  \label{base_ARM}
-\gcd(L_i(X)-\ell_{i,\rho},f(X))     \mbox{ with }  \ell_{i,\rho}  \in V_i^\ast\,,
+\gcd(L_i(X)-\ell_{i,\rho},f(X))     \mbox{ for any }  \ell_{i,\rho}  \in V_i^\ast\,,
 \end{equation}
 for $i$ starting from $n$ and going down to 0.
-It ultimately leads to the root of $f$ because the GCD's satisfying
+It ultimately leads to the roots of $f$ because the GCD's satisfying
 $$\gcd(L_0(X)-\ell_{0,\rho},f(X))=\gcd(X-\ell_{0,\rho},f(X)) \ne 1$$ 
-provide the linear factors of $f$. 
+yield the linear factors of $f$. 
 Note that 
 \begin{equation}
   \label{eq:duality-gcd}
   \gcd(L_i(X)-\ell_{i,\rho},f(X)) \ne 1
 \end{equation}
-means that there is a root of $f$ in the fiber $\{\rho' \mid L_i(\rho')=\ell_{i,\rho} \}=V_{i,\rho}$.
+implies that there is a root of $f$ in $V_{i,\rho}$.
 In practice, these gcd's are computed in a recursive way. Let us first define
  $$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,$$
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
@@ -675,7 +674,7 @@ The recursive step is based on Eq.~\eqref{node_product} and works as follows: fo
   \end{array}              
   $$ 
  
- This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 are branched. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity). ARM is summarized in Algorithm~\ref{alg:arm}.
+ This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 have children. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity). ARM is summarized in Algorithm~\ref{alg:arm}.
 
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
   
@@ -1033,7 +1032,7 @@ $$X^{\qq^\nn}-X= (X^{\qq}-\alpha_n) \circ \cdots \circ (X^{\qq}-\alpha_{i-1} X) 
 or equivalently $L_{i+1}(X)=L_i(X)^q-\alpha_{i+1}L_i(X)$. The $L_i(X)'s$ being linearized polynomials, each of these equations reduces to
 a bidiagonal system which may be solve at the cost $O(\nn \log q)$ or $O(h \nn \log q)$ for the $h$ polynomials $L_i$.
 Note that step~\ref{alg:arm:Li} of algorithm~\ref{alg:arm} which consists in computing $L_i \bmod f$ need to be slightly modified. The values $X^{q^j}\bmod f$ are first computed in $O(M(d)n\log q)$ operations, then $L_i\bmod f$ can be computed in $O(\dd \nn)$ operations. This does not change the complexity of the step. Step \ref{alg:arm:combili} need also to be modified because we don't have matrix $\Gamma$ defined in \eqref{eq:Gamma}. Instead of computing in step \ref{alg:arm:combili}
- the values $\ell_{i-1, \rho}$ for all the nodes of the tree, we compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j v_j$ candidate appearing in step~\ref{alg:arm:gcd}. Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such value to compute. The overall complexity for the computation of these values is $O(h \nn\dd  \log \qq )$ which is not a bottleneck in the average case. 
+ the values $\ell_{i-1, \rho}$ for all the nodes of the tree, we compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j \upsilon_j$ candidate appearing in step~\ref{alg:arm:gcd}. Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such value to compute. The overall complexity for the computation of these values is $O(h \nn\dd  \log \qq )$ which is not a bottleneck in the average case. 
 
 Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, we have to solutions.
 The first is to launch the algorithm on the the remaining factors of $f$ at level $h$ with a newly generated vector basis with $h'$ elements. This value should be chosen 
@@ -1206,6 +1205,7 @@ of the paper, and for giving him useful insights on the internals of
 Pari/GP. He also thanks Jean-Pierre Flori for his invaluable help
 figuring out the gory details of the Sage/NTL interface.
 
+\scriptsize
 \bibliography{refs}
 \bibliographystyle{plain}
 
