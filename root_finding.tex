@@ -949,9 +949,9 @@ $L_{\nn-1}(X)=\alpha^{-q^{n-1}}\trextbase(\alpha X)$ and
 Up to the constant factors $\alpha^{-q^{n-1}}$, the polynomials used
 in BTA and in the last level of ARM are therefore identical.
 
-From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different affine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ values, the intersections of these affine sets are likely to become singletons, each singleton containing one root of $f$. 
-%
-In comparison, ARM and SRA separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
+From a geometric point of view, each trace computed by BTA separates the roots of $f$ into $q$ different affine sets of size $\qq^{\nn-1}$, corresponding to the roots of $\Tr(\alpha X)-r$ for all $r\in\fq$. After repeating this separation process for $O(\log_\qq\dd)$  randomly chosen $\alpha$ which are linearly independent values, the intersections of these affine sets are likely to contain one root of $f$.
+
+Note the similarity with ARM and SRA separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. 
 
 We finally observe that the variant of ARM presented in Section~\ref{sec:BTA:ARMvariant} reduces to BTA when $h=1$, up to the constant factors identified above.
 
