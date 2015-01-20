@@ -1012,19 +1012,19 @@ Thus, $h_d$ is the
 \label{sec:ext:variant}
 
 
-ARM algorithm may perform poorly in the worst case. When the number of iterations $h$ is maximal, 
-the term corresponds to the computation of the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili} becomes $\bigO(\nn^2 \dd)$ which may become the bottleneck of the algorithm. 
+ARM may perform poorly in the worst case. When the number of iterations $h$ is maximal, 
+the term corresponding to the computation of the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili} becomes $\bigO(\nn^2 \dd)$, which may become the bottleneck of the algorithm. 
 Note that the same computation is also performed in SRA.
 
-If normal basis with fast arithmetic is available for $\extf/\basef$ (see~\cite{Couveignes-Lercier}), the  $\ell_{i,\rho}$'s  may be computed more efficiently.
+If a normal basis with fast arithmetic is available for $\extf/\basef$ (e.g., using the generic construction of~\cite{Couveignes-Lercier}), the  $\ell_{i,\rho}$'s  may be computed more efficiently.
 
-At every iteration, for each node $f_{i+1,\rho}$ that needs to be branched, the values $\ell_{i,\rho}$ corresponding to its $\qq$ childs may be computed from $\ell_{i+1,\rho}=L_{i+1}(\rho)$ by solving the equation  
+At every iteration, for each node $f_{i+1,\rho}$ that needs to be branched, the values $\ell_{i,\rho}$ corresponding to its $\qq$ children may be computed from $\ell_{i+1,\rho}=L_{i+1}(\rho)$ by solving the equation  
 $$\ell_{i,\rho}^q-\beta_i^{\qq-1} \ell_{i,\rho}=\ell_{i+1,\rho}\,,$$
 which follows from the definition of the $L_i$'s. Rewriting the above equation as 
 $$(\beta_i^{-1}\ell_{i,\rho})^q-(\beta_i^{-1}\ell_{i,\rho})=\beta_i^{-q}\ell_{i+1,\rho}\,,$$
-it follows that the set of $\ell_{i,\rho}$'s corresponding to the $\qq$ childs of the node $f_{i+1,\rho}$ is given by 
-$$\{ \beta_i \cdot l \mid l^q-l=\beta_i^{-q}\ell_{i+1,\rho} \} \,.$$
-In order to determine those elements, we first compute the right side of the equation in $O(1)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$ which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$. The $\qq$ solutions are computed by adding to this solution the elements of $\basef$ which is $\bigO(\qq)$.    Finally, the $\qq$ solutions are multiplied by $\beta_i$ which is $\bigO(q)$. It follows that for each node $f_{i+1,\rho}$, the computation of the $\qq$ values $\ell_{i,\rho}$ corresponding to its childs costs $\bigO(q)$ operations in $\extf$. As the number of nodes at every iteration is upper bounded by $\dd$. The overall cost for the computing of all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\qq \dd \log_\qq \dd)$ on average and $O(\qq \dd \nn)$ in the worst case, which is no more a bottleneck.
+it follows that the set of $\ell_{i,\rho}$'s corresponding to the $\qq$ children of the node $f_{i+1,\rho}$ is given by 
+$$\{ \beta_i \cdot \ell \mid \ell^q-\ell=\beta_i^{-q}\ell_{i+1,\rho} \} \,.$$
+In ARM and SRA, we only need to determine one such element. We do this by first computing the right side of the equation in $O(\log\qq)$ operations in $\extf$. If the field extension $\extf/\basef$ is represented by a normal basis, a particular solution of the equation may be derived by solving a bidiagonal system in $n$ variables belonging to $\basef$, which requires $\bigO(\nn)$ operations in $\basef$ or $O(1)$ operations in $\extf$.     Finally, the solution is multiplied by $\beta_i$ again at a cost $\bigO(1)$. It follows that for each node $f_{i+1,\rho}$, the computation of one child $\ell_{i,\rho}$ costs $\bigO(\log\qq)$ operations in $\extf$. As the number of leaves at every iteration is upper bounded by $\dd$, the overall cost for computing  all the $\ell_{i,\rho}$'s in step \ref{alg:arm:combili}  is $O(\dd\log\qq \log_\qq \dd)$ on average and $O(\nn\dd\log\qq)$ in the worst case, which is no more a bottleneck.
 
 
 
