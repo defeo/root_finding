@@ -193,39 +193,47 @@ Our contributions are four-fold. First, we provide improved variants of ARM and 
 
 \section{Introduction}
 
+Let $\mathbb{F}_{\qq^\nn}$ be the finite field with $\qq^\nn$ elements, and let $f$ be a polynomial of degree $\dd$ over $\mathbb{F}_{\qq^\nn}$.
+%
+The \emph{root-finding problem} is the problem of computing one, several or all elements $x\in\mathbb{F}_{\qq^\nn}$ such that
+$$f(x)=0.$$
+%
+This problem has a lot of applications, in particular in cryptography and in coding theory. It also has a rich history, with many strategies proposed over the years.
 
 
 
-This paper presents and compares two related algorithms for finding
-roots of polynomials with coefficients in a finite field $\extf$,
-where $\qq$ is small. The first algorithm, called the Successive
-Resultants Algorithm (SRA), was already introduced by C.~Petit
-in~\cite{cgUCL-P14}. We give here a fresh look at it and show how it
-is related to the second one. The second algorithm, called the Affine
-Refinement Method (ARM), is new, and similar in spirit to Berlekamp's
-Trace Algorithm (BTA)~\cite{berl70}.
+%This paper presents and compares two related algorithms for finding
+%roots of polynomials with coefficients in a finite field $\extf$,
+%where $\qq$ is small. The first algorithm, called the Successive
+%Resultants Algorithm (SRA), was already introduced by C.~Petit
+%in~\cite{cgUCL-P14}. We give here a fresh look at it and show how it
+%is related to the second one. The second algorithm, called the Affine
+%Refinement Method (ARM), is new, and similar in spirit to Berlekamp's
+%Trace Algorithm (BTA)~\cite{berl70}.
+%
+%Both algorithms are deterministic. They find all the roots of a
+%square-free, split polynomial of degree $\dd$ using \todo{} operations
+%over $\basef$ in the worst case, and an expected \todo{} on
+%average. Hence, they improve over previously known deterministic
+%algorithms for root finding~\cite{Shoup91b} \todo{do they?}. For some
+%parameter ranges, they also compare favorably in practice with the
+%best randomized algorithms for root finding~\cite{berl70,cantor1981}.
+%
+%Any algorithm for root finding can be extended to an algorithm for
+%factoring polynomials as mentioned in~\cite{Rabin79}. Doing so with
+%our algorithms does not improve over the previous literature
+%\todo{unless it does?}. However we argue in
+%Section~\ref{sec:factorization} that a partial application of this
+%idea yields a practical improvement to the classical Cantor-Zassenhaus
+%algorithm~\cite{cantor1981}.
 
-Both algorithms are deterministic. They find all the roots of a
-square-free, split polynomial of degree $\dd$ using \todo{} operations
-over $\basef$ in the worst case, and an expected \todo{} on
-average. Hence, they improve over previously known deterministic
-algorithms for root finding~\cite{Shoup91b} \todo{do they?}. For some
-parameter ranges, they also compare favorably in practice with the
-best randomized algorithms for root finding~\cite{berl70,cantor1981}.
-
-Any algorithm for root finding can be extended to an algorithm for
-factoring polynomials as mentioned in~\cite{Rabin79}. Doing so with
-our algorithms does not improve over the previous literature
-\todo{unless it does?}. However we argue in
-Section~\ref{sec:factorization} that a partial application of this
-idea yields a practical improvement to the classical Cantor-Zassenhaus
-algorithm~\cite{cantor1981}.
 
 
-\comd 
 
-\paragraph{Previous work:} Many strategies have been proposed over the years for finding roots of polynomials defined on finite fields, and some of these methods actually solve the harder problem consisting in factoring a polynomial into its irreducible components. 
+ 
 
+\paragraph{Previous work:} %Many strategies have been proposed over the years for finding roots of polynomials defined on finite fields, and some of these methods actually solve the harder problem consisting in factoring a polynomial into its irreducible components. 
+%
 As mentioned by J. von zur Gathen~\cite{Gathen06}, the first method for finding the roots of $f \in \mathbb{F}_p[X]$, with $p$ an odd prime, is due to A. M. Legendre (1752-1833) who starts by considering the factorization of the field equation
 $$X^{p}-X=X \cdot (X^{(p-1)/2}-1) \cdot (X^{(p-1)/2}+1)\,.$$
 He then observes that computing the GCD of $f$ with each of the two later factors splits the (nonzero) roots of $f$ into two sets, the squares and the non-squares. He then observes that replacing $X$ by $X+a$ for a random $a$  offers other ways of splitting the roots into two sets, which may successively be applied on the factors of $f$. This probabilistic method is the basis of many modern ones.
@@ -261,7 +269,7 @@ J. Bourgain  and S. Konyagin and I. Shparlinski~\cite{BKS13} propose a determini
 
 Finally, C. Petit\cite{cgUCL-P14} introduces a method called the \emph{Successive Resultants Algorithm} (SRA). 
 
-\comf
+
 
 
 
