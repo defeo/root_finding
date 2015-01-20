@@ -1051,7 +1051,7 @@ a bidiagonal system which may be solve at the cost $O(\nn \log q)$ or $O(h \nn \
 Note that step~\ref{alg:arm:Li} of algorithm~\ref{alg:arm} which consists in computing $L_i \bmod f$ need to be slightly modified. The values $X^{q^j}\bmod f$ are first computed in $O(M(d)n\log q)$ operations, then $L_i\bmod f$ can be computed in $O(\dd \nn)$ operations. This does not change the complexity of the step. Step \ref{alg:arm:combili} need also to be modified because we don't have matrix $\Gamma$ defined in \eqref{eq:Gamma}. Instead of computing in step \ref{alg:arm:combili}
  the values $\ell_{i-1, \rho}$ for all the nodes of the tree, we compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j \upsilon_j$ candidate appearing in step~\ref{alg:arm:gcd}. Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such value to compute. The overall complexity for the computation of these values is $O(h \nn\dd  \log \qq )$ which is not a bottleneck in the average case. 
 
-Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, we have to solutions.
+Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, we have two solutions.
 The first is to launch the algorithm on the the remaining factors of $f$ at level $h$ with a newly generated vector basis with $h'$ elements. This value should be chosen 
  as a multiple $\log_{\qq} \max(\deg f_{h,\rho})$ where $f_{h,\rho}$ are the remaining factors of $f$ to factorize at level $h$.
  
