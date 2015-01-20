@@ -464,7 +464,7 @@ The greatest common divisor of two polynomials of degree $\dd$ can be computed i
 %
 Interpolating a polynomial of degree $\dd$ from $\dd+1$ points can be done in $O(\Mul(\dd)\log\dd)$ operations using the algorithm described in~\cite[Ch. 10]{Gathen2003}. Similarly, evaluating a polynomial of degree $\dd$ at $\dd+1$ points can also be done in $\bigO(\Mul(\dd)\log \dd)$ operations using the multi-point evaluation algorithm of~\cite[Ch. 10]{Gathen2003}.
 
-In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(X)$ with $\gcd(X^\qn-X,f(X))$. The main cost of this GCD is the computation of $X^\qn\bmod f(X)$. This can be achieved with a standard square-and-multiply algorithm in $O(\nn\Mul(\dd)\log q)$, or (when $\nn$ is large) via modular composition (see~\cite{GathenS92,Kedlaya11}). 
+In root-finding literature, it is common to assume that all the irreducible factors of the polynomial are linear and distinct. This can be enforced by replacing $f(X)$ with $\gcd(X^\qn-X,f(X))$. The main cost of this GCD is the computation of $X^\qn\bmod f(X)$. This can be achieved with a standard square-and-multiply algorithm in $O(\nn\Mul(\dd)\log q)$, or (when $\nn$ is large) via modular composition (see~\cite{GathenS92,Kedlaya11}). Another fundamental operation on polynomials is square-free factorization: given a polynomial $f$ compute the product of all the irreducible factors of $f$, each taken with multiplicity one. This can be done in $O(\Mul(\dd)\log\dd)$ operations using the algorithm of~\cite[Ch.~14.6]{Gathen2003}.
 
 
 %In the last case, the best algorithm asymptotically is due to Kedlaya and Umans~\cite{Kedlaya2011} and requires $\bigO(\dd^{1.5+o(1)}\log^{1+o(1)}\qq^\nn+\dd^{1+o(1)}\log^{2+o(1)}\log \qq^\nn)$ bit operations.
@@ -858,7 +858,7 @@ leafs of the tree at level $0$ are the roots of $f$.
    \qq^2\Mul(\dd/\qq)\log\dd + \qq^2\dd)$.
 
    Step~\ref{alg:sra:sqfree} is computed in $O(\Mul(\dd)\log\dd)$ using
-   a classical algorithm.
+   a square-free factorization algorithm.
 
    The elements $L_i(\rho)$ in step~\ref{alg:sra:combili} are computed
    using the tree structure of the roots, like in ARM, thus requiring
