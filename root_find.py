@@ -9,6 +9,8 @@ from sage.misc.misc_c import prod
 from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
 from itertools import izip_longest
 
+from sage.libs.ntl.extra import ntl_switch_vars, ntl_interpolate, ntl_eval_vec, ntl_eval_prod, ntl_eval_roots
+
 class Tree:
     '''
     This class represents a product tree.
@@ -169,8 +171,40 @@ def arm(f, basis=None):
                     return roots
     return roots
                 
+def _my_dot_prod(v, elt):
+    """
+    same as v.dot_product(elt), just way faster.
+    """
+    return sum((y for x, y in zip(v, elt) for _ in range(x)),
+               elt.base_ring().zero())
 
+def _avoid_b(b, l):
+    '''
+    Returns a list of l elements whose span does not contain b.
+    '''
+    K = b.base_ring()
+    n = K.degree()
+    P = b.parent()
+    p = K.characteristic()
 
+    z = P(K.gen())
+    v = P.one()
+    
+    points = [P.zero()]
+    l -= 1
+    skip = b[0].polynomial().degree()
+    for i in range(n):
+        if i == skip:
+            v *= z
+        for j in range(p-1):
+            for k in range(j * p**i, (j+1) * p**i):
+                points.append(points[k] + v)
+                l -= 1
+                if l <= 0:
+                    return points
+        v *= z
+                    
+    
 def resultant(f, b):
     '''
     Computes the resultant
@@ -179,40 +213,32 @@ def resultant(f, b):
     '''
 
     K = f.base_ring()
+    z = K.gen()
+    n = K.degree()
     Fp = K.prime_subfield()
     P = f.parent()
     X = P.gen()
     p = K.characteristic()
     d = f.degree()
-    assert(b.parent() is K)
+    assert(b.parent() is P)
     assert(d < K.cardinality() // p)
     a = b**(p-1)
-    
-    points = []
-    proj = []
-    s = set()
-    while len(points) < d+1:
-        pt = K.random_element()
-        pg = pt**p - a*pt
-        if pg not in s:
-            s.add(pg)
-            proj.append(pg)
-            points.append(pt)
 
-    evals = [prod(ev) for ev in multieval(f, b, points)]
+    points = _avoid_b(b, d+1)
+    projs = [pt**p - a*pt for pt in points]
     
-    # Sage interpolation sucks
-    return (-1)**(d % 2) * P.lagrange_polynomial(zip(proj, evals))
+    evals = multieval(f, b, points, projs)
 
-def multieval(f, b, points):
+    return (-1)**(d % 2) * ntl_interpolate(projs, evals)
+
+def _multieval(f, a, points):
     '''
-    Multi-point evaluation with a twist :)
+    Private subroutine used by `multieval` and `multiroots`.
 
-    Returns the list of evaluations
+    Returns the list 
 
-        [f(pt + c*b) for pt in points for c in GF(p)]
+       [f mod X^p - aX - D  for D in points]
 
-    where p is the characteristic of the base field.
     '''
     K = f.base_ring()
     Fp = K.prime_subfield()
@@ -222,10 +248,9 @@ def multieval(f, b, points):
     Y = PP.gen()
     p = K.characteristic()
     d = f.degree()
-    assert(b.parent() is K)
-    a = b**(p-1)
+    assert(a.parent() is P)
     
-    # Compute f mod [ Y - (X^p - b^(p-1) X) ]
+    # Compute f mod [ Y - (X^p - a X) ]
     # recursively by divide and conquer
     lins = [X**p - a*X]
     while lins[-1].degree() < d // 2:
@@ -244,21 +269,73 @@ def multieval(f, b, points):
     # copying back and forth between NTL and Pari.
     #
     # This should be improved by forcing NTL everywhere
-    eval = lambda pol, pt: sum(c*pt**i for i, c in enumerate(pol))
+    #eval = lambda pol, pt: sum(c*pt**i for i, c in enumerate(pol))
     
     # express f as a polynomial with coefficients in Y rather than X
-    fY = list(izip_longest(*fY, fillvalue=K.zero()))
+    fY = ntl_switch_vars(fY.list()) #list(izip_longest(*fY, fillvalue=K.zero()))
     
     # evaluate fY at Y=pt^p - a*pt for any point pt
     # (result is a list of polynomials in X)
-    pgs = [pt**p - a*pt for pt in points]
-    evals = [[eval(pol, pt) for pt in pgs] for pol in fY]
+    evals = [ntl_eval_vec(pol, points) for pol in fY] #[[eval(pol, pt) for pt in pgs] for pol in fY]
+    return ntl_switch_vars(evals)
     
-    # evaluate each polynomial at each point and its shifted values
-    return [[eval(pols[1:], pols[0] + c*b) for c in Fp]
-            for pols in zip(points, *evals)]
+def multieval(f, b, points, projs=None):
+    '''
+    Multi-point evaluation with a twist :)
 
-    
+    Returns the list of evaluations
+
+        [f(pt + c*b) for pt in points for c in GF(p)]
+
+    where p is the characteristic of the base field.
+    '''
+    K = f.base_ring()
+    Fp = K.prime_subfield()
+    P = f.parent()
+    p = K.characteristic()
+    assert(b.parent() is P)
+
+    a = b**(p-1)
+    if projs is None:
+        projs = [pt**p - a*pt for pt in points]
+    evals = _multieval(f, a, projs)
+
+    # evaluate each polynomial at each point and its shifted values
+    return [ntl_eval_prod(p, d, b) for p, d in zip(evals, points)]
+
+def multiroots(f, g, nr, roots, approx):
+    '''Find the roots of f of the form 
+
+      f(r + cb) = 0
+
+    with r in roots and c in GF(p). g is the line of the matrix G
+    corresponding to f.
+    '''
+    K = f.base_ring()
+    Fp = K.prime_subfield()
+    P = f.parent()
+    p = K.characteristic()
+    b = _my_dot_prod(nr, g)
+    assert(b.parent() is P)
+
+    a = b**(p-1)
+    evals = _multieval(f, a, roots)
+
+    newroots = []
+    newapprox = []
+    for pol, v in zip(evals, approx):
+        d = _my_dot_prod(v, g)
+        if pol.is_zero():
+            cs = range(p)
+        elif pol.degree() > 0:
+            cs = ntl_eval_roots(pol, d, b)
+        for c in cs:
+            newroots.append(d + sum((b for _ in range(c)), P.zero()))
+            newapprox.append(c*nr + v)
+
+    return newroots, newapprox
+
+
 def sra(f, basis=None):
     '''Computes the roots of f using the Successive Resultant Algorithm.
     
@@ -269,45 +346,35 @@ def sra(f, basis=None):
 
     K = f.base_ring()
     Fp = K.prime_subfield()
-    X = f.parent().gen()
+    P = f.parent()
+    X = P.gen()
     z = K.gen()
     p = K.characteristic()
     n = K.degree()
 
     gs = gammas(basis if basis else [z**i for i in range(n)])
+    #
+    gs = gs.change_ring(P)
 
     # We project the roots via the L_i functions
     Fs = [f]
-    for i, g in enumerate(gs.diagonal()):
-        tmp = resultant(Fs[-1], g)
-        f = prod(t for t, _ in tmp.squarefree_decomposition())
-        # We can stop if the roots fill all the subspace
-        if f.degree() == p**(n-i-1):
-            break
-        else:
-            Fs.append(f)
+    depth = n - f.degree().ndigits(p) + 1
+    for i, g in zip(range(depth-1), gs.diagonal()):
+        Fs.append(resultant(Fs[-1], g))
             
-    # We construct the list of roots of the last polynomial. It
-    # consists of all elements of the last subspace we projected to.
-    depth = len(Fs)
-    roots = [vector(Fp, [0]*depth + list(v))
-             for v in VectorSpace(Fp, n-depth)]
+    # We take all elements of the last subspace as candidate roots
+    approx = [vector([0]*depth + list(v)) for v in VectorSpace(Fp, n-depth)]
+    roots = [_my_dot_prod(v, gs[depth]) for v in approx]
+
     # We refine the roots by inverting the L_i functions
     for i, f in reversed(list(enumerate(Fs))):
         g = gs[i]
-        approx = [g.dot_product(r) for r in roots]
         nr = zero_vector(Fp, n)
         nr[i] = 1
-        newroots = []
-        for evs, r, a in zip(multieval(f, g[i], approx), roots, approx):
-            for (_,c) in filter(lambda (e,_): e.is_zero(), zip(evs, Fp)):
-                if i == 0:
-                    newroots.append(a + c*g[i])
-                else:
-                    newroots.append(r + c*nr)
-        roots = newroots
+        roots, approx = multiroots(f, g, nr, roots, approx)
     
-    return roots
+    #
+    return map(K, roots)
 
 def bta(f):
     '''
