@@ -547,8 +547,7 @@ multi-point evaluation described in Algorithm~\ref{alg:multi-ev}.
     \REQUIRE A polynomial $f\in\extf[X]$ of degree $\dd<\qq^{n-1}$,\\
     an element $\beta\in\extf$.
     \ENSURE The resultant $\Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y,f(X)).$
-    \STATE Let $\alpha=\beta^{\qq-1}$,
-    \STATE\label{alg:resultant:select} Select points $\delta_0,\dots,\delta_d$ s.t. all $\delta_i^\qq-\alpha\delta_i$ are distinct;
+    \STATE\label{alg:resultant:select} Select points $\delta_0,\dots,\delta_\dd$ s.t. $\beta\not\in\Span(\delta_0,\dots,\delta_\dd)$;
     \STATE\label{alg:resultant:multi-ev} Compute $\varepsilon_{i,c}=f(\delta_i+c\beta)$ for $0\le i\le\dd$ and $c\in\basef$;
     \RETURN\label{alg:resultant:interp} $g$ such that $g\left(\prod_c\delta_i+c\beta\right) = (-1)^{\qq\dd}  \prod_c\varepsilon_{i,c}$.
   \end{algorithmic}
@@ -581,39 +580,39 @@ multi-point evaluation described in Algorithm~\ref{alg:multi-ev}.
   %\begin{equation}
   %  h(Y) = \Res_X\bigl(X^\qq-\beta^{\qq-1}X-Y, f(X)\bigr) = (-1)^\dd g(Y).
   %\end{equation}
-  Let now $\delta\in\extf$ be such that
-  $\Delta=\delta^\qq-\beta^{\qq-1}\delta$. By linearity we have
+  Let now $\Delta_i=\delta_i^\qq-\beta^{\qq-1}\delta_i$. By linearity
+  we have
   \begin{multline}
     \label{eq:lin-resultant}
-    \Res_X\bigl(X^\qq-\beta^{\qq-1}X-\Delta,f(X)\bigr) =\\
-    \Res_X\Bigl(  \prod_{c\in\extf}(X-\delta - c\beta),f(X) \Bigr) =\\
-    \prod_{c\in\extf} \Res_X\bigl(X-\delta - c\beta, f(X)\bigr) =\\
-    (-1)^{\qq\dd} \prod_{c\in\extf} f(\delta+c\beta),
+    \Res_X\bigl(X^\qq-\beta^{\qq-1}X-\Delta_i,f(X)\bigr) =\\
+    \Res_X\Bigl(  \prod_{c\in\extf}(X-\delta_i - c\beta),f(X) \Bigr) =\\
+    \prod_{c\in\extf} \Res_X\bigl(X-\delta_i - c\beta, f(X)\bigr) =\\
+    (-1)^{\qq\dd} \prod_{c\in\extf} f(\delta_i+c\beta),
   \end{multline}
-  where the second and third equalities come from the
-  multiplicativity of the resultant. The correctness of the algorithm
-  now follows immediately.
+  where the second and third equalities come from the multiplicativity
+  of the resultant. Observe that $\Delta_0,\dots,\Delta_d$ are all
+  distinct, otherwise one would have
+  $\beta^{\qq-1}=(\delta_i-\delta_j)^{\qq-1}$ for some $i$ and $j$,
+  contraddicting $\beta\not\in\Span(\delta_0,\dots\delta_\dd)$.  The
+  correctness of the algorithm then follows immediately.
 
-  We now go to the complexity. The interpolation points at
-  step~\ref{alg:resultant:select} can be selected at random, keeping
-  track of the values $\Delta_i=\delta_i^\qq-\beta^{\qq-1}\delta_i$,
-  and discarding duplicates. If $\dd\ll\qq^{n+1}$, we are likely to
-  find enough points in $O(d)$
-  tries. Step~\ref{alg:resultant:multi-ev} is computed using
+  We now go to the complexity. To construct the $\delta_i$'s we simply
+  enumerate vectors in a span not containing $\beta$. This is possible
+  as long as $\dd<\qq^{n-1}$, and costs $d$ operations in
+  $\extf$. Step~\ref{alg:resultant:multi-ev} is computed using
   Algorithm~\ref{alg:multi-ev}, at the cost given in
   Lemma~\ref{lem:multi-ev}. Finally, step~\ref{alg:resultant:interp}
   is computed using a classical fast interpolation algorithm, at a
   cost $O(\Mul(d)\log d)$.
 \end{proof}
 
-Observe that the condition in Algorithm~\ref{alg:resultant} of having
-$\dd+1$ points $\delta_i$ such that
-$\Delta_i=\delta_i^\qq-\beta^{\qq-1}\delta_i$ are all distinct can
-only be verified if $\dd+1\le\qq^{\nn-1}$. If more interpolation
-points are needed, Eq.~\eqref{eq:lin-resultant} cannot be applied
-anymore, but the evaluation-interpolation approach is still possible
-at a slightly worse cost. However, this is not a major concern for the
-algorithms we present next.
+If $\dd\ge\qq^{\nn-1}$, we can't find enough $\delta_i$'s for
+step~\ref{alg:resultant:select} of
+Algorithm~\ref{alg:resultant:select}. In this case,
+Eq.~\eqref{eq:lin-resultant} cannot be applied anymore, however the
+evaluation-interpolation approach is still possible at a slightly
+worse cost. Note that this is not a concern for root finding, as
+exhaustive search is more efficient in this case.
 
 
 
