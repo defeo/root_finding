@@ -1,0 +1,316 @@
+% !TEX encoding = UTF-8 Unicode
+\documentclass[12pt]{article}
+
+\usepackage{sigsam, amsmath}
+\usepackage{amssymb,amsfonts,amsmath,amsthm}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{mdwlist}
+
+\newtheorem{Def}{Definition}
+\newtheorem{Theo}{Theorem}
+\newtheorem{Prop}{Proposition}
+\newtheorem{Lem}{Lemma}
+\newtheorem{Coro}{Corollary}
+
+% leave as is
+\issue{TBA}
+\articlehead{TBA}
+\titlehead{Deterministic root finding in finite fields}
+\authorhead{Luca De Feo, Christophe Petit and Micha\"el Quisquater}
+\setcounter{page}{1}
+
+\hyphenation{Berle-kamp}
+
+%%%%%%%%%%%%%%%
+
+\newcommand{\ff}[1]{\mathbb{F}_{#1}}
+\newcommand{\fq}{\ff{q}}
+\newcommand{\fqn}{\ff{q^n}}
+
+\newcommand{\dd}{d}
+\newcommand{\qq}{q}
+\newcommand{\QQ}{Q}
+\newcommand{\nn}{n}
+\newcommand{\qn}{{\qq^\nn}}
+\newcommand{\extfactfdegree}{k}
+\newcommand{\extfactfsize}{\qq^{\nn \cdot \extfactfdegree}}
+
+% if we define everything in terms of base field, extension field and
+% extension field used in factorization
+%
+\newcommand{\basef}{\ff{\qq}}
+\newcommand{\extf}{\ff{\qn}}
+\newcommand{\extfactf}{\ff{\extfactfsize}}
+
+\newcommand{\AG}{\mathrm{AG}(\qq,\nn)}
+
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Ker}{Ker}
+\DeclareMathOperator{\Ima}{Im} 
+\DeclareMathOperator{\Decomp}{Decomp} 
+\DeclareMathOperator{\Var}{Var} 
+\DeclareMathOperator{\Exp}{E} 
+\DeclareMathOperator{\loglog}{loglog}
+
+
+% to specify the number of elements of the finite fields on which the
+% trace is defined
+\newcommand{\tr}[2]{\Tr_{\ff{#1}:\ff{#2}}}
+
+% to specify the number of elements of the finite fields on which the
+% trace is defined: light form
+\newcommand{\trl}[2]{\Tr_{#1:#2}}
+
+% to specify the notation of the finite fields on which the trace is
+% defined
+\newcommand{\trabs}[2]{\Tr_{#1:#2}}
+\newcommand{\trextbase}{\trabs{\extf}{\basef}}
+\newcommand{\trextfactext}{\trabs{\extfactf}{\extf}}
+\newcommand{\trextfactbase}{\trabs{\extfactf}{\basef}}
+
+\newcommand{\bigO}{O}
+\newcommand{\bigOt}{\tilde{O}}
+\newcommand{\smallO}{o}
+\newcommand{\Mul}{\mathsf{M}}
+
+\newcommand{\Span}{\mathbf{span}}
+\newcommand{\card}[1]{\# #1}
+\DeclareMathOperator{\Res}{Res}
+
+\newcommand{\cost}[1]{\color{blue}Cost:  #1\color{black}}
+
+%%%%%%%%%%%% Algorithms
+
+\usepackage{float,algorithm}
+\usepackage[noend]{algorithmic}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcounter{algo}
+
+\newenvironment{algorithm_noendline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+\end{minipage}\end{center}
+}
+
+\newenvironment{algorithm_endline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+      \rule{\textwidth}{0.2pt}
+\end{minipage}\end{center}
+%\vspace{-0.5cm}
+}
+
+\floatstyle{plain}
+\newfloat{algofloat}{thp}{bla}
+\floatname{algofloat}{}
+
+
+\begin{document}
+
+\title{Deterministic root finding in finite fields}
+
+\author{
+  Luca De Feo\footnote{
+    Laboratoire PRiSM,
+    Universit\'e de Versailles,
+    \url{luca.de-feo@uvsq.fr}},
+  Christophe Petit\footnote{
+    Information Security Group,
+    University College London}~ and
+  Micha\"el Quisquater\footnote{
+    Laboratoire PRiSM,
+    Universit\'e de Versailles,
+    \url{mquis@prism.uvsq.fr}}
+}
+
+\maketitle
+\begin{abstract}
+  Finding roots of polynomials with coefficients in a finite field is
+  a special instance of the polynomial factorization problem. The most
+  well known algorithm for factoring and root-finding is the
+  Cantor-Zassenhaus algorithm. It is a Las Vegas algorithm with
+  running time polynomial in both the polynomial degree and the field
+  size. Its running time is quasi-optimal for the special case of
+  root-finding.
+
+  No deterministic polynomial time algorithm for these problems is
+  known in general, however several deterministic algorithms are known
+  for special instances, most notably when the characteristic of the
+  finite field is small.
+
+  The goal of this poster is to review the best deterministic
+  algorithms for root-finding, in a systematic way.  We present, in a
+  unified way, four algorithms :
+  \begin{itemize}
+  \item Berlekamp's Trace Algorithm~\cite{berl70} (BTA),
+  \item Moenk's Subgroup Refinement Method~\cite{Moenck77} (SRM),
+  \item Menezes, van Oorschot and Vanstone's Affine Refinement
+    Method~\cite{MenezesOV88,OorschotV89} (ARM), and
+  \item Petit's Successive Resultants Algorithm~\cite{cgUCL-P14}
+    (SRA).
+  \end{itemize}
+  It is the first time that these algorithms are presented together in
+  a comprehensive way, and that they are rigorously analysed,
+  implemented and compared to each other.
+
+  In doing so, we obtain several new results :
+  \begin{itemize}
+  \item We significantly improve the complexity ARM, matching that of
+    BTA and SRA.
+  \item We highlight a profound duality relationship between ARM and
+    SRA.
+  \item We show how to combine ARM with SRM to obtain a new algorithm,
+    which always performs better, and of which ARM and SRM are special
+    instances. The new algorithm considerably extends the range of
+    finite fields for which deterministic polynomial time root-finding
+    is possible.
+  \item We present several practical and asymptotic improvements to
+    special instances of the algorithms.
+  \end{itemize}
+
+  Part of these results were submitted in response to the call for
+  papers of ISSAC '15, but were rejected. This poster corrects some
+  minor imperfections, improves the asymptotic complexities of some
+  algorithms, and presents a new algorithm not previously known.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+Let $q$ be a prime power, let $\mathbb{F}_{\qq^\nn}$ be the finite
+field with $\qq^\nn$ elements, and let $f$ be a polynomial of degree
+$\dd$ over $\mathbb{F}_{\qq^\nn}$.
+%
+The \emph{root-finding problem} is the problem of computing one,
+several or all elements $x\in\mathbb{F}_{\qq^\nn}$ such that $f(x)=0$.
+%
+This problem has many applications, in particular in cryptography and
+in coding theory~\cite{McEliece78}. It also has a rich history, with
+many strategies proposed over the years. In this poster we review four
+related algorithms for root finding exploiting the geometric structure
+of $\extf$.
+
+ 
+\paragraph{Previous work} The most well known algorithm for
+root-finding is Cantor and Zassenhaus'~\cite{cantor1981} algorithm. It
+is a Las Vegas algorithm with expected running time $\bigOt(nd\log
+q)$. It is one of the most efficient and popular methods for
+root-finding (and factoring) today.
+
+The \emph{Subgroup Refinement Method} (SRM) by Moenck~\cite{Moenck77}
+is a deterministic algorithm, exploiting the multiplicative structure
+of $\extf$. It intersects the root set of $f$ with a partition of
+$(\extf)^\ast$ into subgroups, and recursively refines the
+partition. Its complexity is quasi-linear in $d$ and in the largest
+factor of $q^n-1$, thus solving the root-finding problem in
+deterministic polynomial time for those fields for which $q^n-1$ is
+smooth.
+
+\emph{Berlekamp Trace Algorithm} (BTA)~\cite{berl70} takes advantage
+of the factorization
+$$X^{\qq^n}-X=\alpha^{-1} \cdot \prod_{r \in \basef}(\tr{\qq^n}{\qq}(\alpha \cdot X)-r)\,.$$
+The roots of $f$ are separated by computing GCD's with the different
+factors for some random $\alpha$. This method is recursive,
+probabilistic and runs in $\bigOt(qnd)$. It can be straightforwardly
+de-randomized~\cite{berl70,Shoup91b}, yielding a deterministic
+polynomial time algorithm, exclusively for small-characteristic finite
+fields.
+
+The \emph{Affine Refinement Method} (ARM) by Menezes, van Oorschot and
+Vanstone~\cite{MenezesOV88,OorschotV89,Menvanovans92} is a
+generalization of Moenck's SRM, where the geometry of $(\extf)^\ast$
+is replaced by the affine geometry of $\extf$. It can also be viewed
+as a deterministic variant of BTA, using the \emph{Least Affine
+  Multiple method}~\cite{mBER84a}. Its complexity is polynomial (in
+small characteristic), but significantly worse than BTA. For this
+reason the authors only recommend using it for very narrow parameter
+ranges.
+
+Finally, Petit\cite{cgUCL-P14} recently introduced a method called the
+\emph{Successive Resultants Algorithm} (SRA). The method looks
+significantly different from the previous ones, using bivariate
+resultants to reduce the original root-finding problem to a much
+smaller one. Its complexity is $\bigOt(qnd+n^2d)$, but, as it is
+stated in the original paper, it fails to be deterministic.
+
+
+\paragraph{Our contribution} This poster reviews each of BTA, SRM, ARM
+and SRA.  For ARM, we present a very simple modification to the
+algorithm, which brings it to the same asymptotic complexity as SRA.
+
+We modify SRA to be fully deterministic, without losing on the
+asymptotic complexity. Our presentation of SRA makes it evident that
+it is based on the same geometric structure as ARM, namely the affine
+geometry of $\extf$. It also highlights the fact that ARM and SRA are,
+in a precise sense, \emph{dual} to each other.
+
+We also present a new algorithm, combining ARM and SRM. The new
+algorithm is polynomial in $n$, in $d$, and in the largest prime
+factor of $q-1$. It reduces to ARM when $q-1$ is prime, and to SRM
+when $n=1$. Hence we enlarge the range of finite fields for which a
+deterministic polynomial time root-finding algorithm exists.
+
+We also present various optimizations to ARM and SRA. Namely
+\begin{itemize}
+\item An asymptotic improvement in $n$ when $n$ is composite,
+\item A version of ARM attaining the average case complexity in the
+  worse case,
+\item A version of ARM reducing the cost of precomputations on
+  average.
+\end{itemize}
+
+Finally, we implement each of the algorithms above, and compare them
+to the state of the art, in particular with the implementations of
+Cantor-Zassenaus included in NTL and Pari/GP. Our tests show that all
+the algorithms are competitive, and that their performances are very
+close to one another.
+
+
+\bibliography{../refs}
+\bibliographystyle{plain}
+
+\end{document}
+
+
+
+% Local Variables:
+% ispell-local-dictionary:"american"
+% End:
+
+
+%  LocalWords:  affine subspaces linearized factorizations
+%  LocalWords:  iteratively
