@@ -1,0 +1,56 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage{amsmath,amssymb}
+
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+\renewcommand{\sfdefault}{uop}
+\usepackage[amssymb,amsfonts]{concmath}
+\usefonttheme[onlymath]{serif}
+
+\def\M {\ensuremath{\mathsf{M}}}
+\def\F {\ensuremath{\mathbb{F}}}
+\def\tildO {\ensuremath{\mathrm{\tilde{O}}}}
+
+
+\title{Deterministic root finding in finite fields}
+\author{\textbf{Luca De Feo}, Christophe Petit, Micha\"el Quisquater}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+\begin{frame}
+  Let $\F_{q^n}$ be a field with $q^n$ elements, $f$ a polynomial in
+  $\F_{q^n}[X]$ of degree $d$.
+
+  \smallskip
+  \textbf{Problem:} find roots of $f$ in $\F_{q^n}$.
+
+  \bigskip
+  \textbf{Non-deterministic}
+  \begin{itemize}
+  \item Cantor-Zassenhaus,\hfill{$O(n\M(d)\log d\log(dq))$}
+  \item van der Hoeven-Grenet-Lecerf \hfill{??}
+  \end{itemize}
+
+  \textbf{Deterministic (worst case still polynomial)}
+  \begin{itemize}
+  \item Berlekamp's Trace Algorithm (\textbf{BTA}),\hfill{$O(n\M(d)\log q\log d+q\M(d)\log^2d)$}
+  \item Menzes-van Oorschot-Vanstone (\textbf{ARM}),\hfill{\color{alert}$O(\textcolor{blue}{n^2\log q}+n\M(d)\log q+q\M(d)\log^2d)$}
+  \item {\color{alert}Petit's
+    \textbf{SRA}}.\hfill{$O(\textcolor{blue}{n^2\log q}+(n-\log d)q\M(d)\log d)$}
+  \item van der Hoeven-Grenet-Lecerf \hfill{??}
+  \end{itemize}
+
+  \textbf{Conditionally deterministic}
+  \begin{itemize}
+  \item Moenck / Menzes-van Oorschot-Vanstone 
+    (\textbf{SRM}),\hfill{$O(S(q^n-1)\M(d)\log^2 d)$}
+  \item \color{alert}\textbf{SRM} + \textbf{ARM},\hfill{$O(\textcolor{blue}{n^2\log q}+n\M(d)\log q+S(q-1)\M(d)\log^2d)$}
+  \end{itemize}
+
+  \smallskip Complexities in $\F_{q^n}$-operations. \color{alert}Our
+  contributions in red. \color{blue}Pre-computations in blue.
+\end{frame}
+
+\end{document}
