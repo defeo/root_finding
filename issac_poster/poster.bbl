@@ -5,23 +5,23 @@ E.~R. Berlekamp.
 \newblock Factoring {P}olynomials over {L}arge {F}inite {F}ields.
 \newblock {\em Math. Comp.}, 24:713--735, 1970.
 
-\bibitem{grenet-hoeven-lecerf-roots}
-Joris van der~Hoeven Bruno~Grenet and {\'E}.~Gr{\'e}goire~Lecerf.
-\newblock Deterministic root finding over finite fields using graeffe
-  transforms.
-\newblock In {\em ISSAC'15}. ACM, 2015.
-
 \bibitem{cantor1981}
 David~G Cantor and Hans Zassenhaus.
 \newblock A {N}ew {A}lgorithm for {F}actoring {P}olynomials over {F}inite
   {F}ields.
 \newblock {\em Mathematics of Computation}, pages 587--592, 1981.
 
-\bibitem{MenezesOV88} Alfred Menezes, Paul~C. van Oorschot, and
-  Scott~A. Vanstone.  \newblock Some {C}omputational {A}spects of
-  {R}oot {F}inding in {GF}($q^m$).  \newblock In {\em ISSAC}, volume
-  358 of {\em Lecture Notes in Computer Science}, pages
-  259--270. Springer, 1988.
+\bibitem{grenet-hoeven-lecerf-roots}
+Bruno Grenet, Joris van~der Hoeven, and Gr{\'e}goire Lecerf.
+\newblock Deterministic root finding over finite fields using graeffe
+  transforms.
+\newblock In {\em ISSAC'15}. ACM, 2015.
+
+\bibitem{MenezesOV88}
+Alfred Menezes, Paul~C. van Oorschot, and Scott~A. Vanstone.
+\newblock Some {C}omputational {A}spects of {R}oot {F}inding in {GF}($q^m$).
+\newblock In {\em ISSAC}, volume 358 of {\em
+  Lecture Notes in Computer Science}, pages 259--270. Springer, 1988.
 
 \bibitem{Moenck77}
 Robert~T. Moenck.
