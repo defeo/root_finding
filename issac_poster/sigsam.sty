@@ -1,7 +1,12 @@
 \NeedsTeXFormat{LaTeX2e}[1995/06/01]
 \ProvidesPackage{sigsam}
 
+\def\thepage{} % added by MK. easier to do the pagination after assembling.
+
 % Start Page dimensions ========================
+
+\paperwidth = 597pt % added by MK for compatibility with the graphicx package
+\paperheight = 845pt % added by MK for compatibility with the graphicx package
 
 \setlength{\topmargin}{-0.5in}
 \setlength{\headheight}{0.3in}
@@ -22,7 +27,7 @@
 
 \@twosidetrue  \@mparswitchtrue
 
-% The 3 section commands are copied from the article.cls file and 
+% The 3 section commands are copied from the article.cls file and
 %   modified to reduce the space around them.
 
 \renewcommand\section{\@startsection {section}{1}{\z@}%
@@ -36,11 +41,11 @@
 \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
                                      {-1ex\@plus -1ex \@minus -.2ex}%
                                      {.2ex \@plus .2ex}%
-                                     {\normalfont\normalsize\bfseries}}                                   
+                                     {\normalfont\normalsize\bfseries}}
 
 % The caption package is loaded to narrow the figure caption width to set
 % the caption off from the main text.
-\usepackage{caption}               
+\usepackage{caption}
 \captionsetup{width=6in}
 
 % This section uses the fancyhdr package to define the headers and footers
@@ -51,10 +56,10 @@
 \fancyhf{} % clear all header and footer fields
 \fancyfoot[C]{\thepage}
 \fancyhead[L]{ \textsl{\footnotesize \thisissue} }
-\fancyhead[R]{ \textsl{\footnotesize \@articlehead} }
+\fancyhead[R]{ } %  \textsl{\footnotesize \@articlehead} } Removed by MK. too long.
 }
 % Now define all the other pages
-\pagestyle{fancy} 
+\pagestyle{fancy}
 \fancyhead[LO]{}
 \fancyhead[RO]{\textsl{\footnotesize \runningauthor}}
 \fancyhead[LE]{\textsl{\footnotesize \runningtitle}}
