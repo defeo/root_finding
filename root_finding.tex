@@ -1,0 +1,240 @@
+% !TEX encoding = UTF-8 Unicode
+\documentclass{article}
+
+\usepackage{amsmath,amssymb,amsfonts,amsmath}
+\usepackage{hyperref}
+
+\hyphenation{Berle-kamp}
+
+%%%%%%%%%%%%%%%
+
+\newcommand{\ff}[1]{\mathbb{F}_{#1}}
+\newcommand{\fq}{\ff{q}}
+\newcommand{\fqn}{\ff{q^n}}
+
+\newcommand{\dd}{d}
+\newcommand{\qq}{q}
+\newcommand{\QQ}{Q}
+\newcommand{\nn}{n}
+\newcommand{\qn}{{\qq^\nn}}
+\newcommand{\extfactfdegree}{k}
+\newcommand{\extfactfsize}{\qq^{\nn \cdot \extfactfdegree}}
+
+% if we define everything in terms of base field, extension field and
+% extension field used in factorization
+%
+\newcommand{\basef}{\ff{\qq}}
+\newcommand{\extf}{\ff{\qn}}
+\newcommand{\extfactf}{\ff{\extfactfsize}}
+
+\newcommand{\AG}{\mathrm{AG}(\qq,\nn)}
+
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Ker}{Ker}
+\DeclareMathOperator{\Ima}{Im} 
+\DeclareMathOperator{\Decomp}{Decomp} 
+\DeclareMathOperator{\Var}{Var} 
+\DeclareMathOperator{\Exp}{E} 
+\DeclareMathOperator{\loglog}{loglog}
+
+
+% to specify the number of elements of the finite fields on which the
+% trace is defined
+\newcommand{\tr}[2]{\Tr_{\ff{#1}:\ff{#2}}}
+
+% to specify the number of elements of the finite fields on which the
+% trace is defined: light form
+\newcommand{\trl}[2]{\Tr_{#1:#2}}
+
+% to specify the notation of the finite fields on which the trace is
+% defined
+\newcommand{\trabs}[2]{\Tr_{#1:#2}}
+\newcommand{\trextbase}{\trabs{\extf}{\basef}}
+\newcommand{\trextfactext}{\trabs{\extfactf}{\extf}}
+\newcommand{\trextfactbase}{\trabs{\extfactf}{\basef}}
+
+\newcommand{\bigO}{O}
+\newcommand{\bigOt}{\tilde{O}}
+\newcommand{\smallO}{o}
+\newcommand{\Mul}{\mathsf{M}}
+
+\newcommand{\Span}{\mathbf{span}}
+\newcommand{\card}[1]{\# #1}
+\DeclareMathOperator{\Res}{Res}
+
+\newcommand{\cost}[1]{\color{blue}Cost:  #1\color{black}}
+
+%%%%%%%%%%%% Algorithms
+
+\usepackage{float,algorithm}
+\usepackage[noend]{algorithmic}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcounter{algo}
+
+\newenvironment{algorithm_noendline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+\end{minipage}\end{center}
+}
+
+\newenvironment{algorithm_endline}[4]{\begin{center}\begin{minipage}{0.48\textwidth}
+      \refstepcounter{algo}
+      \label{#4}
+      \sf
+      \rule{\textwidth}{0.2pt}\\
+      \makebox[\textwidth][c]{Algorithm~\arabic{algo}:~\textbf{#1}}\\
+      \rule[0.5\baselineskip]{\textwidth}{0.2pt}\\
+
+      \vspace{-12pt}
+
+      \parbox{\textwidth}{\textbf{Input} #2}
+      \parbox{\textwidth}{\textbf{Output} #3}
+
+\vspace{-7pt}
+
+      \begin{enumerate*}}{\end{enumerate*}
+      \vspace{-11pt}
+      \rule{\textwidth}{0.2pt}
+\end{minipage}\end{center}
+%\vspace{-0.5cm}
+}
+
+\floatstyle{plain}
+\newfloat{algofloat}{thp}{bla}
+\floatname{algofloat}{}
+
+%%%%%%%%%%
+
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\com }{\noindent \textcolor{blue}{Commentaire Micha\"el}:}
+\newcommand{\comd}{\noindent \textcolor{blue}{D\'ebut Micha\"el}:}
+\newcommand{\comf}{\noindent \textcolor{blue}{:Fin Micha\"el}}
+
+
+
+
+\newtheorem{Def}{Definition}
+\newtheorem{Theo}{Theorem}
+\newtheorem{Prop}{Proposition}
+\newtheorem{Lem}{Lemma}
+\newtheorem{Coro}{Corollary}
+
+\author{Luca De Feo, Christophe Petit, Micha\"el Quisquater}
+
+\title{Root finding}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+  We find roots
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+\label{sec:introduction}
+
+\begin{itemize}
+\item Contexte, previous work;
+\item Our contribution;
+\item Technical prerequisites: basic routines, etc.
+\end{itemize}
+
+\section{Root-finding algorithms and their relationships}
+\label{sec:root-find-algor}
+
+\begin{itemize}
+\item Introduction
+\item High level view of main principles and links between the
+  algorihtms:
+  \begin{itemize}
+  \item Affine geometry;
+  \item Multiplicative structure;
+  \item Duality: GCD vs resultant;
+  \item Randomization;
+  \end{itemize}
+\item Comparative chart of algorithms
+\end{itemize}
+
+\subsection{Affine geometric algorithms}
+\label{sec:affine-geom-algor}
+
+\begin{itemize}
+\item Affine geometry
+\item BTA
+\item ARM
+\item SRA
+\item BTRA??
+\end{itemize}
+
+\subsection{Multiplicative algorithms}
+\label{sec:mult-algor}
+
+\begin{itemize}
+\item Moenk + Mignotte-Schnorr
+\item LIX determinization (not real algorithm)
+\end{itemize}
+
+\subsection{Randomized variants}
+\label{sec:randomized-variants}
+
+\begin{itemize}
+\item Legendre
+\item BTA rand
+\item BTRA rand??
+\item LIX (the real ones)
+\item SRA rand
+\end{itemize}
+
+\section{New variants}
+\label{sec:new-variants}
+
+\begin{itemize}
+\item Hybrid algorithms
+  \begin{itemize}
+  \item ARM + Moenk
+  \item SRA + LIX ??
+  \end{itemize}
+\item Other variants
+\end{itemize}
+
+\section{Implementation and experimental results}
+\label{sec:impl-exper-results}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{refs}
+\bibliographystyle{plain}
+
+\end{document}
+
+
+
+% Local Variables:
+% ispell-local-dictionary:"american"
+% End:
+
+
+%  LocalWords:  affine subspaces linearized factorizations
+%  LocalWords:  iteratively
