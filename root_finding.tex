@@ -1,9 +1,10 @@
 % !TEX encoding = UTF-8 Unicode
 \documentclass{article}
 
-\usepackage{amsmath,amssymb,amsfonts,amsmath}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{hyperref}
 \usepackage{color}
+\usepackage{unicode}
 
 
 \hyphenation{Berle-kamp}
@@ -170,11 +171,176 @@ Decisions to be made:
 \section{Introduction}
 \label{sec:introduction}
 
-\begin{itemize}
-\item Context, previous work;
-\item Our contribution;
-\item Technical prerequisites: basic routines, etc.
-\end{itemize}
+Let $\ff{q}$ be a finite field with $q$ elements, and let $f$ be a
+polynomial of degree $d$ over $\ff{q}$.
+%
+The \emph{root-finding problem} is the problem of computing one,
+several or all elements $x∈\ff{q}$ such that $f(x)=0$.
+%
+This problem has many applications, in particular in cryptography and
+in coding theory~\cite{McEliece78} \Notes{either put more references,
+  or less!}. It also has a rich history, with many strategies proposed
+over the years. In this paper we review several algorithms for root
+finding, and present a few new ones.  We highlight the relationships
+between these algorithms by classifying them according to general
+algorithmic principles, and using this classification to discover new
+ones. We also present, when relevant, variants of the algorithms with
+interesting properties. Finally, we implement most of the algorithms,
+and compare their performances.
+
+\subsection{A brief history of root finding}
+\label{sec:brief-history-root}
+
+As mentioned by von zur Gathen~\cite{Gathen06}, the first method for
+finding the roots of $f∈\ff{q}[X]$, with $q$ an odd prime,
+is due to Legendre (1752-1833) who starts by considering the
+factorization of the field equation
+$$X^q-X=X · (X^{(q-1)/2}-1) · (X^{(q-1)/2}+1).$$
+He then observes that computing the GCD of $f$ with each of the two
+latter factors splits the (nonzero) roots of $f$ into two sets, the
+quadratic residues and the non-residues. Then, replacing $X$ by $X+r$
+for a random $r$, yields other ways of splitting the roots into two
+sets, which may recursively be applied on the factors of $f$. This
+probabilistic method is the basis of many modern ones.
+
+For a polynomial $f∈\ff{q}[X]$, with $q$ a prime power, the
+factoring method of Berlekamp~\cite{berl67} is based on the so-called
+\emph{Petr-Berlekamp algebra} of $f$ which consists of the set of
+polynomials $h$ satisfying
+$$h(X)^q=h(X) \mod{f(X)}.$$
+Using $X^{q}-X=\prod_{r∈\ff{q}}(X-r)$, Berlekamp deduces the
+factorization $f(X)=\prod_{r ∈ \ff{q}} \gcd(f(X),h(X)-r)$ \Notes{not
+  clear to me}. The method requires to compute $q$ GCD's, hence it
+cannot be used for arbitrary finite fields. The root-finding method
+called \emph{Berlekamp Trace Algorithm} (BTA)~\cite{berl70} takes
+advantage of the factorization
+$$X^{q^n}-X=α^{-1} · \prod_{r ∈ \ff{q}}(\Tr_{\ff{q^n}/\ff{q}}(α · X)-r).$$
+The roots of $f$ are separated by computing GCD's with the different
+factors for varying $α$. This method is recursive, and it may be
+applied to large finite fields with small characteristic. It is still
+one of the most efficient methods today.
+
+Moenck~\cite{Moenck77} used resultants to determine the $α$'s and
+$r$'s leading to non-trivial GCD's in the above methods. He also
+introduced the \emph{Subgroup Refinement Algorithm} to pursue further
+the factorization of the field equation considered by Legendre by
+considering successive subgroups of $\ff{q}^\ast$ for some
+special primes $q$.  Rabin~\cite{Rabin79} proposed a method close to
+Legendre's. \Notes{talk about Mignotte-Schnorr}
+
+Cantor and Zassenhaus~\cite{cantor1981} suggested to consider random
+polynomials $h(X)$ instead of $X+r$ in Legendre's decomposition in
+order to factor a polynomial $f$ with factors of equal degree by means
+of GCD's. The method is probabilistic and is one the most efficient
+methods today.
+
+Berlekamp~\cite{mBER84a} proposed the \emph{Least Affine Multiple
+  method} (LAM) which consists in computing the least affine multiple
+of $f$, then exhaustively searching the roots of $f$ among the roots
+of this polynomial.
+
+Menezes, van Oorschot and Vanstone~\cite{MenezesOV88,OorschotV89}
+combined BTA with the LAM method. Moreover, they~\cite{Menvanovans92}
+generalized Moenck's Subgroup Refinement Algorithm~\cite{Moenck77} and
+introduced the \emph{Affine Refinement Method} (ARM) by mirroring the
+successive refinement of a subgroup of $\ff{q}^\ast$ in Moenck's
+algorithm by refinement of linear subspaces of $\AG$, the
+$n$-dimensional affine geometry of $\ff{q}$.  As described in their
+papers, the ARM makes use of the LAM method.
+
+Shoup~\cite{Shoup91b} proposed a deterministic generalization of BTA
+for the factorization and root-finding problems. Its worst-case
+running time complexity is similar to the average running time of the
+best known probabilistic methods such as BTA and Cantor-Zassenhaus.
+
+Niederreiter~\cite{nied94} proposed an algorithm based on the
+resolution of differential equations over finite fields.  As mentioned
+by several authors~\cite{Fleis96} this algorithm is highly related
+Berlekamp's factoring algorithm.
+
+Recently, Petit~\cite{cgUCL-P14} introduced a method related to BTA
+called the \emph{Successive Resultants Algorithm} (SRA), suitable for
+fields $\ff{q^n}$ with small $q$. Later, Grenet, van der Hoeven and
+Lecerf~\cite{grenet-hoeven-lecerf-roots,grenet2015deterministic}
+suggested methods based on Graeffe transforms, adapted for \emph{FFT
+  fields}, i.e., fields $\ff{q}$ where $q-1$ has a large $2$-adic
+valuation. We call these methods \emph{Graeffe Transform Algorithms}
+(GTA). SRA and GTA are similar in that they use resultants to reduce
+the root finding problem to one in a smaller space, however are based
+on different mathematical structures, as we shall see in the next
+section.
+
+
+\paragraph{Our contribution}
+We give a unified presentation of several of the algorithms above. We
+categorize them in two main families: \emph{additive algorithms} based
+on the structure of the affine geometry $\AG$, and
+\emph{multiplicative algorithms} based on the structure of the
+multiplicative group $\ff{q}^\ast$.  We also highlight how SRM and GTA
+are the multiplicative counterparts of BTA, ARM and SRA.  Finally, we
+analyze the randomized versions of those algorithms when relevant.
+Although most relationship between these algorithms have been folklore
+for very long, to the best of our knowledge this is the first
+systematic treatment of the kind. As a bonus, our classification
+enabled us to discover a new algorithm derived from SRA.
+
+Next, we present new variants of these algorithms exhibiting
+interesting properties. In particular we provide \emph{hybrid}
+algorithms which mix both the additive and the multiplicative
+paradigms, retaining the benefits of both. \Notes{We also present
+  variants of SOMETHING which improve SOMETHING}
+
+Finally, we discuss non-trivial implementation details, and provide an
+implementation of each of the algorithms analyzed in the paper. As far
+as we know, this is the only comprehensive implementation covering so
+many different root finding algorithms. We use our implementation to
+compare the performances of the algorithms in various settings.
+
+
+\subsection{Complexity model and fundamental algorithms}
+\label{sec:compl-model-fund}
+
+In the rest of the paper, $q$ is a prime or prime power, $n$ is an
+integer $≥1$, we let $Q=q^n$, and we let $\ff{q},\ff{Q}$ be finite
+fields with $q,Q$ elements respectively.  We also let $f$ be a
+separable polynomial in $\ff{Q}[X]$ of degree $d$ which splits
+completely in $\ff{Q}$. We measure all complexities in the algebraic
+complexity model, where the cost of an algorithm is counted in terms
+of the number of operations $(+,\times,\div)$ in $\ff{q}$. We use the
+Landau notation $O(\ )$ to express asymptotic complexities, and the
+notation $\bigOt(\ )$ to neglect logarithmic factors.
+
+We let $\Mul_q(n)$ be the cost of multiplying two polynomials in
+$\ff{q}[Z]$ of degree at most $n$, under the assumptions
+of~\cite[Chapter~8.3]{Gathen2003}. When $q$ is clear from the context,
+we simply write $\Mul(n)$.  Using FFT multiplication, one can take
+$\Mul(n)∈ O(n\log(n)\loglog(n))$.  With this notation, elements of
+$\ff{Q}$ can be multiplied in $O(\Mul_q(n))$ operations, and their
+inverses in $O(\Mul_q(n)\log n)$ operations.
+
+We also let $M_Q(d)$ be the cost of multiplying two polynomials in
+$\ff{Q}[X]$ of degree at most $d$.  Using Kronecker's
+substitution~\cite{moenck76,kaltofen87,Gathen2003,GathenS92,harvey09},
+this can be done in $O(\Mul_q(dn))$ operations. Euclidean divisions of
+degree at most $d$ in $\ff{Q}[X]$ and multiplications in the ring
+$\ff{Q}[X]/f(X)$ also cost $O(\Mul_q(dn))$ operations. Finally
+computing the GCD of two polynomials of degree at most $d$ costs
+$O(\Mul_q(dn)\log(dn))$ operations.
+
+Finally, we let $ω$ be the \emph{exponent of linear algebra}, i.e., a
+constant such that $n\times n$ matrices with coefficients in any field
+$k$ can be multiplied using $O(n^\omega)$ additions and
+multiplications in $n$.
+
+
+\paragraph{Outline}
+The paper is organized as follows. In
+Section~\ref{sec:root-find-algor} we give a systematic presentation of
+the different root finding algorithms. Then, in
+Section~\ref{sec:new-variants} we present variants of the previous
+algorithms with interesting properties. Finally, in
+Section~\ref{sec:impl-exper-results} present our implementation and
+experimental results.
 
 
 
@@ -452,7 +618,7 @@ where $L_i^\ast$ is called the \emph{dual} of $L_i$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliography{refs}
-\bibliographystyle{plain}
+\bibliographystyle{alpha}
 
 \end{document}
 
