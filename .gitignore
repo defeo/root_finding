@@ -5,3 +5,6 @@
 *.blg
 *.log
 *.cut
+*.bak
+*.gz
+*.out

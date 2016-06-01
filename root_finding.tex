@@ -3,6 +3,7 @@
 
 \usepackage{amsmath,amssymb,amsfonts,amsmath}
 \usepackage{hyperref}
+\usepackage{color}
 
 \hyphenation{Berle-kamp}
 
@@ -135,9 +136,12 @@
 \newtheorem{Lem}{Lemma}
 \newtheorem{Coro}{Corollary}
 
+
+\newcommand{\Notes}[1]{\textcolor{red}{Note: #1}}
+
 \author{Luca De Feo, Christophe Petit, Micha\"el Quisquater}
 
-\title{Root finding}
+\title{On root finding algorithms in finite fields}
 
 \begin{document}
 
@@ -146,16 +150,33 @@
   We find roots
 \end{abstract}
 
+
+\Notes{
+Decisions to be made:
+\begin{itemize}
+\item notations $n$, $d$, $q$, $Q=q^n$ then $Q_i$ for subfields
+\item complexity model: bit vs field operations -> we will keep small field operations complexity
+\item worst case vs average case -> both of them for deterministic algorithms
+\item notation O tilde -> precise analysis, then simplified with O tilde
+\item q is not O(1)
+\end{itemize}
+}
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 \label{sec:introduction}
 
 \begin{itemize}
-\item Contexte, previous work;
+\item Context, previous work;
 \item Our contribution;
 \item Technical prerequisites: basic routines, etc.
 \end{itemize}
+
+
+
 
 \section{Root-finding algorithms and their relationships}
 \label{sec:root-find-algor}
@@ -163,7 +184,7 @@
 \begin{itemize}
 \item Introduction
 \item High level view of main principles and links between the
-  algorihtms:
+  algorithms:
   \begin{itemize}
   \item Affine geometry;
   \item Multiplicative structure;
@@ -173,50 +194,113 @@
 \item Comparative chart of algorithms
 \end{itemize}
 
+\Notes{Some bits from beginning of Section 3 in Christophe's document, and beginning of Section 3.2 in ISSAC}
+
+
 \subsection{Affine geometric algorithms}
 \label{sec:affine-geom-algor}
+\Notes{Some bits from beginning of Section 3 in Christophe's document, to be split between here and  intro of Section 2}
 
-\begin{itemize}
-\item Affine geometry
-\item BTA
-\item ARM
-\item SRA
-\item BTRA??
-\end{itemize}
+\subsubsection{The affine geometry AG(\qq,\nn)}
+\label{sec:affine-geom}
+\Notes{Insert Section 2 in Christophe's document}
+
+\subsubsection{Berlekamp's Trace Algorithm}
+\label{sec:BTA}
+\Notes{Start from Section 3.1 in Christophe's document; MQ wants additional links with set intersections}
+
+\subsubsection{Affine Refinement Method}
+\label{sec:ARN}
+\Notes{Start mainly from Section 3.2 in ISSAC, maybe a bit from Section 3.2 in Christophe}
+
+
+\subsubsection{The Successive Resultants Algorithm}
+\label{sec:SRA}
+\Notes{Start from either Section 3.3 in Christophe's document or ISSAC 3.2, but be careful to keep parallelism with ARM}
+
+
+\subsubsection{BTRA}
+\Notes{See whether we have something competitive and worth mentioning; mention link with Moenck}
+
 
 \subsection{Multiplicative algorithms}
 \label{sec:mult-algor}
+\Notes{Discuss parallelisms with Section~\ref{sec:affine-geom-algor}}\\
+\noindent\Notes{Maybe move first two paragraphs of Section 4.1 in Christophe's document}
 
-\begin{itemize}
-\item Moenk + Mignotte-Schnorr
-\item LIX determinization (not real algorithm)
-\end{itemize}
+\subsubsection{Moenck's algorithm}
+\label{sec:Moenck}
+\Notes{Section 4.1 in Christophe's document, maybe move first two paragraphs to intro of Section~\ref{sec:mult-algor}}\\
+\noindent \Notes{Careful: the extension described was already done by MOV}\\
+\noindent\Notes{+ Mignotte-Schnorr ?}
+
+\subsubsection{Successive Resultants approach}
+\label{sec:LIX}
+\Notes{Rewrite Section 4.2 in Christophe's document to enhance links with LIX deterministic (not real algorithm)}
+
+
 
 \subsection{Randomized variants}
 \label{sec:randomized-variants}
 
-\begin{itemize}
-\item Legendre
-\item BTA rand
-\item BTRA rand??
-\item LIX (the real ones)
-\item SRA rand
-\end{itemize}
+\Notes{Some intro}
 
-\section{New variants}
+\subsection{Legendre}
+\label{sec:legendre}
+
+\subsection{Randomized BTA}
+\label{sec:BTArand}
+
+\subsection{Randomized BTRA}
+\label{sec:BTRArand}
+\Notes{??}
+
+\subsection{LIX algorithm}
+\label{sec:LIXrand}
+
+\subsection{Randomized SRA}
+\label{sec:SRArand}
+
+
+
+
+\section{New algorithm variants}
 \label{sec:new-variants}
 
-\begin{itemize}
-\item Hybrid algorithms
-  \begin{itemize}
-  \item ARM + Moenk
-  \item SRA + LIX ??
-  \end{itemize}
-\item Other variants
-\end{itemize}
+\subsection{Hybrid algorithms}
+\label{sec:hybrid-algorithms}
+
+\subsubsection{ARM-Moenck hybrid}
+\subsubsection{SRA-LIX hybrid}
+\Notes{??}
+
+
+
+\subsection{SRA and ARM with improved worst case complexity}
+\label{sec:worst-case}
+
+
+\subsection{ARM variant with low precomputation}
+\label{sec:low-precomputation}
+
+
+\subsection{Composite degree extensions}
+\label{sec:composite-degree}
+
+
+\subsection{Coset intersection variant of Moenck}
+\label{sec:SRAMoenck}
+\Notes{Section 4.3 in Christophe's document. Remove?}
+
+
 
 \section{Implementation and experimental results}
 \label{sec:impl-exper-results}
+
+\begin{itemize}
+\item $\gamma_{ij}$ precomputation
+\item faster resultant
+\end{itemize}
 
 \section{Conclusion}
 \label{sec:conclusion}
