@@ -197,14 +197,156 @@ Decisions to be made:
 
 \Notes{Some bits from beginning of Section 3 in Christophe's document, and beginning of Section 3.2 in ISSAC}
 
-
 \subsection{Affine geometric algorithms}
 \label{sec:affine-geom-algor}
 \Notes{Some bits from beginning of Section 3 in Christophe's document, to be split between here and  intro of Section 2}
+ATTENTION: il faut mentionner que $f$ est squarefree.
 
-\subsubsection{The affine geometry AG(\qq,\nn)}
+\medskip 
+
+We now present three root finding algorithms based on the structure of $\AG$. Our presentation will not necessarily follow the original ones and algorithmic change will be explicitly mentionned. 
+This first method is called Berlekamp's trace algorithm (BTA)~\cite{berl70} and was designed in the seventies. The second one was developped by Menezes, van Oorschot and Vanstone~\cite{Menvanovans92}
+ twenty years later and is called Affine Refinement Method (ARM). The third method was recently 
+ proposed by Petit and is called the Successive Resultants Algorithm (SRA) of Petit~\cite{cgUCL-P14}. In order to present these methods we need to introduce some basic concepts of affine geometry.
+
+\paragraph{Affine geometry of $\AG$.} The \emph{finite affine geometry} $\AG$ is the set of all vector subspaces of $\basef^\nn$ and their translates. Fixing a basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, we can
+identify the elements of $\extf$ with the points of $\AG$. To this basis, we associate the flag of linear
+subspaces $V_0\subset V_1\subset \cdots \subset V_\nn$ defined by
+\begin{equation}
+  V_i = \Span(\upsilon_1,\dots,\upsilon_i),
+\end{equation}
+so that $\dim V_i = i$ and $\card V_i = \qq^i$.
+
+Let now $\rho\in\extf$, such that $\rho=\sum_j r_j\upsilon_j$.  For any
+$V_i$ we define the affine space (also called an $i$-flat)
+\begin{equation}
+  V_{i,\rho} = V_i + \rho.
+\end{equation}
+By construction, the reunion of all $i$-flats for any $i$ is
+isomorphic to $\AG$, and we call it the \emph{affine geometry of
+  $\extf$}.
+Observe that $V_{i,\rho}=V_{i,\rho'}$, if and only if $\rho-\rho'\in V_i$. Hence
+any $V_{i,\rho}$ can be represented canonically by taking $\rho$ of
+the form $\rho=\sum_{j>i}r_j\upsilon_j$. There are exactly
+$\qq^{n-i}$ distinct $i$-flats, each of size $\qq^i$. By definition we have
+\begin{equation}
+  V_{i,\rho} = \bigcup_{r_i \in\basef} V_{i-1,\rho + r_i \upsilon_i},
+\end{equation}
+where $\rho$ may be canonically chosen as $\sum_{j>i}r_j\upsilon_j$.
+
+\medskip
+
+\noindent All the three root finding methods are based on a recursive decomposition of $\extf$ into $i$-flats 
+according the above rule. This decomposition leads to a $\qq$-ary tree where the root 
+is $V_{n}=\extf$ and each leaf is in one-to-one correspondence with an element of $\extf$.
+
+\medskip
+
+\paragraph{Principle of BTA, ARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of $V_{i,\rho}$. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this proceduce the roots of $f$ may be deduced because 
+theses sets will ultimately contain one element whose (monic) minimal polynomials are linear with the element as a constant term. In BTA method minimal polynomials representing the children of $V_{i,\rho}$ 
+are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage.
+
+\medskip
+ 
+SRA method consists in recursively identifying the children of $V_{i,\rho}$ containing roots of $f$. 
+This can be pratically achieved by determining among the minimal polynomials of the children of 
+$V_{i,\rho}$ the ones having a zero resultant with $f$. %This method consists therefore in projecting the roots of $f$ onto the space $V_{i-1}^\ast$.
+From this proceduce the roots of $f$ may be deduced because the method ultimately determines the leafs containing a root of $f$ which are sets containing a single element.
+
+
+
+
+\subsubsection{Algebraic object related to the affine geometry AG(\qq,\nn)}
 \label{sec:affine-geom}
-\Notes{Insert Section 2 in Christophe's document}
+
+
+\Notes{Mic: dans cette section on explique commment on represente en pratique algebriquement les espaces. }
+
+To each of the
+subspaces we associate its minimal polynomial, that we denote by
+$L_i$. The polynomials $L_i$ satisfy a recurrence relation 
+\begin{equation}
+\label{Li_generation}
+  L_0(X) = X, \; \;  L_i(X) = (X^\qq - L_{i-1}(\upsilon_i)^{\qq-1}X)\circ L_{i-1}(X)
+\end{equation}
+(see~\cite[Ch. 11]{mBER84a}). In particular $L_\nn(X)=X^\qn-X$.
+
+Notice that, by definition, each $L_i$ defines a linear map
+$\extf\to\extf$, with kernel $V_i$. It will be convenient to encode
+this information in an $\nn\times\nn$ matrix. We define
+$\gamma_{i,j}:=L_i(\upsilon_j)$, and
+\begin{equation}
+  \label{eq:Gamma}
+  \Gamma :=
+  \begin{pmatrix}
+    \gamma_{0,1} & \cdots & \gamma_{0,\nn}\\
+    \vdots & & \vdots\\
+    \gamma_{\nn-1,1} & \cdots & \gamma_{\nn-1,\nn}
+  \end{pmatrix}.
+\end{equation}
+Observe that by definition $\gamma_{i,j}=0$ whenever $j\le i$, hence
+$\Gamma$ is an upper triangular matrix, associated to a linear map
+$\extf\to\extf^\nn$ sending any $\delta\in\extf$ to the vector
+$\bigl(L_0(\delta),\dots,\allowbreak L_{n-1}(\delta)\bigr)$.  
+
+
+The diagonal elements of $\Gamma$ play a special role in our algorithms.
+We define $\beta_i:=\gamma_{i-1,i}$ and $\alpha_i:=\beta_i^{\qq-1}$
+for any $1\le i \le \nn$. We deduce a decomposition
+\begin{equation}
+\label{decomposition_field_eq_gen}
+  X^\qn - X = (X^\qq - \alpha_\nn X) \circ \cdots \circ (X^\qq - \alpha_1 X).
+\end{equation}
+
+\paragraph{The affine geometry of $\extf$} 
+ We also define the polynomial $M_{i,\rho}$ as the minimal
+polynomial of $V_{i,\rho}$, hence
+\begin{equation}
+  M_{i,\rho}(X) = L_i(X - \rho) = L_i(X) - \sum_{j>i}r_j\gamma_{i,j}.
+\end{equation}
+Observe that $M_{i,\rho}=M_{i,\rho'}$, and thus
+$V_{i,\rho}=V_{i,\rho'}$, if and only if $\rho-\rho'\in V_i$. Hence
+any $V_{i,\rho}$ can be represented canonically by taking $\rho$ of
+the form $\rho=\sum_{j>i}r_j\upsilon_j$. There are exactly
+$\qq^{n-i}$ distinct $i$-flats, each of size $\qq^i$.
+
+By definition we have
+\begin{equation}
+  V_{i,\rho} = \bigcup_{c\in\basef} V_{i-1,\rho + c\upsilon_i},
+\end{equation}
+hence
+\begin{equation}
+\label{node_product}
+  M_{i,\rho}(X) = \prod_{c\in\basef} M_{i-1,\rho+c\upsilon_i}(X).
+\end{equation}
+This defines a decomposition of $X^{\qn}-X$ into a product tree, where
+each node at level $i$ is a $M_{i,\rho}$, defined by a
+$\rho=\sum_{j>n-i}r_j\upsilon_j$, and has $\qq$ children, defined by
+the elements $c\upsilon_{n-i}+\rho$ for $c\in\basef$. In particular,
+the leaves are the linear polynomials $X-\rho$ for all points
+$\rho\in\extf$.
+%
+Note that the product tree depends on the basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$.
+
+
+\paragraph{Dual spaces}
+We define $V_i^\ast$ as the image space of $L_i$, i.e., the subspace
+generated by the elements of the $i$-th row of $\Gamma$.  It is easily verified that
+$\dim V_i^\ast=n-i$ and that $\{\gamma_{i,i+1},\dots,\gamma_{i,\nn}\}$
+is a basis of $V_i^\ast$. Let $L_i^\ast$ be the minimal polynomial of
+$V_i^\ast$. It is shown in~\cite[Ch. 11]{mBER84a} that
+$L_i^\ast$ is the unique linearized polynomial such that
+\begin{equation}
+\label{dual_polynomial}
+(L_i^\ast \circ L_i)(X)=(L_i \circ L_i^\ast)(X)=X^\qn-X\,,
+\end{equation}
+where $L_i^\ast$ is called the \emph{dual} of $L_i$.
+
+
+
+
+
+
 
 \subsubsection{Berlekamp's Trace Algorithm}
 \label{sec:BTA}
