@@ -48,6 +48,9 @@ def PolynomialGCD(deg1,deg2):
     else:
         return BigFieldMul * deg1 * deg2
 
+def MultiEvaluation(deg):
+    return log(deg)*PolynomialMul(deg)
+
 
 
 # resolution Hilbert90 of small degree equations
@@ -79,8 +82,7 @@ def BTA(n,d):
         h = log(d)
     BTA = h *  (TraceModF + q* PolynomialGCD(d,d))
     return expand(BTA)
-print BTA(n,d)
-
+print "BTA costs:  ",  BTA(n,d)
 
 
 
@@ -97,6 +99,18 @@ def SolveSmalldegree(n,d):
 smalldegreeEquations = max(SolveSmalldegree(n,q)*d/q, SolveSmalldegree(n,2)*d/2)     # not totally accurate as considering 2 tradeofs only; in fact we can have any sum of BTA(n,d_i) with \sum_id_i=d
 second_step = n*multievalGCD + smalldegreeEquations
 SRA = expand(precomputation + first_step + second_step)
+print "SRA costs (version in original paper):  ", SRA
+
+
+
+# new algo (question marks corresponding to LIX probabilistic and SRA): SRA computation up to n-log(d), then exhaustive search, then descent
+# reuse first_step from above (n*resultant should be replaced by (n-log(d)) but we suppose that is negligible)
+# reuse multievalGCD
+testRoots = MultiEvaluation(d)
+second_step = n*multievalGCD
+questionMarksAlgo = first_step + testRoots + second_step
+print "New algorithm costs: (note that this algorithm is probabilistic) ", questionMarksAlgo
+
 
 
 
@@ -105,17 +119,22 @@ SRA = expand(precomputation + first_step + second_step)
 # ARM analysis
 # Original MOV version as described in Christophe's document ... not very clear
 precomputation = n^2 * log(q) * BigFieldMul
-leastAffineMultiple = d^2 * log(q) + d^omega
+leastAffineMultiple = d * log(q) * PolynomialMul(d) + d^omega * BigFieldMul
 def AffineGCD(deg1,deg2):
     return PolynomialGCD(deg1,deg2)
-powerModF = (n-d) * log(q) * PolynomialMul(d)     #lines 3-4 in Algorithm 5
+powerModF = n * log(q) * PolynomialMul(d)     #lines 3-4 in Algorithm 5         # assumes n>d here
 if COMPLEXITY_TYPE == "WORST":
     h = n
 else:
-    h = log(d)
+    h = log(d)            # use submultiplicative argument here
 LinearizedPolEvaluation = n*log(q)*BigFieldMul
-Mirho = 2*LinearizedPolEvaluation + PolynomialAdd         # line 9 in Algorithm 5
+Mirho = 2*LinearizedPolEvaluation + PolynomialAdd(d)         # line 9 in Algorithm 5
 Mirhotilde = d*n*BigFieldMul                              # line 10 in Algorithm 5
 Mirhohat = AffineGCD(d,d)                                 # line 11 in Algorithm 5
+firho = d*log(q)*PolynomialMul(d) + PolynomialGCD(d,d)    # had to guess line 12 in Algorithm 5. The guess is a trace-like computation (but only up to d), then a cgd
+steps6to16 = h*q*(Mirho+Mirhotilde+Mirhohat+firho)
+ARM = precomputation + leastAffineMultiple + powerModF + steps6to16
+print "ARM costs (version in Christophe's July 2015 draft):  ",ARM
 
-# will be using a submultiplicative argument here
+
+
