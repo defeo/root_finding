@@ -5,7 +5,7 @@
 \usepackage{hyperref}
 \usepackage{color}
 \usepackage{unicode}
-
+\hypersetup{colorlinks}
 
 \hyphenation{Berle-kamp}
 
@@ -297,7 +297,7 @@ many different root finding algorithms. We use our implementation to
 compare the performances of the algorithms in various settings.
 
 
-\subsection{Complexity model and fundamental algorithms}
+\subsection{Notation and complexity model}
 \label{sec:compl-model-fund}
 
 In the rest of the paper, $q$ is a prime or prime power, $n$ is an
@@ -325,7 +325,15 @@ this can be done in $O(\Mul_q(dn))$ operations. Euclidean divisions of
 degree at most $d$ in $\ff{Q}[X]$ and multiplications in the ring
 $\ff{Q}[X]/f(X)$ also cost $O(\Mul_q(dn))$ operations. Finally
 computing the GCD of two polynomials of degree at most $d$ costs
-$O(\Mul_q(dn)\log(dn))$ operations.
+$O(\Mul_q(dn)\log(dn))$ operations
+(see~\cite[Th.~11.5]{Gathen2003}).
+
+We shall need to evaluate and interpolate polynomials of degree $d$ at
+$O(d)$ points of $\ff{Q}$. Using the asymptotically fast algorithms
+for evaluation and interpolation in~\cite[Chapter~10]{Gathen2003},
+both operations can be performed in $O(\Mul_q(dn)\log d)$
+operations.  In Section~\ref{sec:impl-exper-results} we will present
+variants of these algorithms for special instances of the problem.
 
 Finally, we let $ω$ be the \emph{exponent of linear algebra}, i.e., a
 constant such that $n\times n$ matrices with coefficients in any field
@@ -348,6 +356,8 @@ experimental results.
 \section{Root-finding algorithms and their relationships}
 \label{sec:root-find-algor}
 
+
+
 \begin{itemize}
 \item Introduction
 \item High level view of main principles and links between the
@@ -361,12 +371,10 @@ experimental results.
 \item Comparative chart of algorithms
 \end{itemize}
 
-\Notes{Some bits from beginning of Section 3 in Christophe's document, and beginning of Section 3.2 in ISSAC}
 
-\subsection{Affine geometric algorithms}
+\subsection{Additive algorithms}
 \label{sec:affine-geom-algor}
 \Notes{Some bits from beginning of Section 3 in Christophe's document, to be split between here and  intro of Section 2}
-ATTENTION: il faut mentionner que $f$ est squarefree.
 
 \medskip 
 
