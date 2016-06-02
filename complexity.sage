@@ -27,21 +27,27 @@ if ARITHMETIC == "FAST":
 else:
     BigFieldMul = SmallFieldMul * n^2
 
+BigFieldDiv = BigFieldMul * log(n)
+
+def Mnot(k):
+    return k* log(k)* log(log(k))
+
 def PolynomialAdd(deg):
     return BigFieldAdd * deg 
 
 def PolynomialMul(deg):
     if ARITHMETIC == "FAST":
-        return BigFieldMul * deg * log(deg)*log(log(deg))
+        return BigFieldMul * Mnot(deg)
     else:
         return BigFieldMul * deg^2
 
 def PolynomialGCD(deg1,deg2):
     if ARITHMETIC == "FAST":
         deg = max(deg1,deg2)
-        return BigFieldMul * deg * log(deg)*log(log(deg))
+        return Mnot(deg*n)*log(deg) + d*Mnot(n)*log(n)     # theorem 11.5 Von Zur Gathen M(dn)log(d) + dM(n) log(n)      # simplifies to PolynomialMul(deg) * log(d*n)     
     else:
         return BigFieldMul * deg1 * deg2
+
 
 
 # resolution Hilbert90 of small degree equations
@@ -66,7 +72,7 @@ def Hilbert90(n,d):
 
 # BTA analysis (change complexity type to WORST or AVERAGE if you want deterministic vs probabilistic complexity)
 def BTA(n,d):
-    TraceModF = n * log(q) *d
+    TraceModF = n* log(q) * PolynomialMul(d)         # does not take into account fast modular composition
     if COMPLEXITY_TYPE == "WORST":
         h = n
     else:
@@ -111,3 +117,5 @@ LinearizedPolEvaluation = n*log(q)*BigFieldMul
 Mirho = 2*LinearizedPolEvaluation + PolynomialAdd         # line 9 in Algorithm 5
 Mirhotilde = d*n*BigFieldMul                              # line 10 in Algorithm 5
 Mirhohat = AffineGCD(d,d)                                 # line 11 in Algorithm 5
+
+# will be using a submultiplicative argument here
