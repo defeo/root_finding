@@ -5,7 +5,7 @@
 \usepackage{hyperref}
 \usepackage{color}
 \usepackage{unicode}
-
+\hypersetup{colorlinks}
 
 \hyphenation{Berle-kamp}
 
@@ -297,7 +297,7 @@ many different root finding algorithms. We use our implementation to
 compare the performances of the algorithms in various settings.
 
 
-\subsection{Complexity model and fundamental algorithms}
+\subsection{Notation and complexity model}
 \label{sec:compl-model-fund}
 
 In the rest of the paper, $q$ is a prime or prime power, $n$ is an
@@ -325,7 +325,15 @@ this can be done in $O(\Mul_q(dn))$ operations. Euclidean divisions of
 degree at most $d$ in $\ff{Q}[X]$ and multiplications in the ring
 $\ff{Q}[X]/f(X)$ also cost $O(\Mul_q(dn))$ operations. Finally
 computing the GCD of two polynomials of degree at most $d$ costs
-$O(\Mul_q(dn)\log(dn))$ operations.
+$O(\Mul_q(dn)\log(dn))$ operations
+(see~\cite[Th.~11.5]{Gathen2003}).
+
+We shall need to evaluate and interpolate polynomials of degree $d$ at
+$O(d)$ points of $\ff{Q}$. Using the asymptotically fast algorithms
+for evaluation and interpolation in~\cite[Chapter~10]{Gathen2003},
+both operations can be performed in $O(\Mul_q(dn)\log d)$
+operations.  In Section~\ref{sec:impl-exper-results} we will present
+variants of these algorithms for special instances of the problem.
 
 Finally, we let $ω$ be the \emph{exponent of linear algebra}, i.e., a
 constant such that $n\times n$ matrices with coefficients in any field
@@ -348,25 +356,63 @@ experimental results.
 \section{Root-finding algorithms and their relationships}
 \label{sec:root-find-algor}
 
-\begin{itemize}
-\item Introduction
-\item High level view of main principles and links between the
-  algorithms:
-  \begin{itemize}
-  \item Affine geometry;
-  \item Multiplicative structure;
-  \item Duality: GCD vs resultant;
-  \item Randomization;
-  \end{itemize}
-\item Comparative chart of algorithms
-\end{itemize}
+We present here \Notes{keep this updated: six} root finding
+algorithms. We make a first classification by dividing them in two
+families: \emph{additive} and \emph{multiplicative} algorithms.
 
-\Notes{Some bits from beginning of Section 3 in Christophe's document, and beginning of Section 3.2 in ISSAC}
+Additive algorithms are based on the structure of the \emph{affine
+  geometry} $\AG$. They are most efficient when the base field
+$\ff{q}$ is small.  Berlekamp's BTA~\cite{berl70}, Menezes, van
+Oorschot and Vanstone's ARM~\cite{Menvanovans92}, and Petit's
+SRA~\cite{cgUCL-P14} all belong to this family.  We present them in
+Section~\ref{sec:affine-geom-algor}.
 
-\subsection{Affine geometric algorithms}
+Multiplicative algorithms based on the structure of the multiplicative
+group $\ff{q}^\ast$ (or $\ff{Q}^\ast$, \emph{mutatis mutandis}). They
+are most efficient when the largest prime divisor of $q-1$ is
+small. Legendre's method, Moenk's SRM~\cite{Moenck77}, and Grenet, van
+der Hoeven and Lecerf's~\cite{grenet2015deterministic} GTA all belong
+to this family. We present them in Section~\ref{sec:mult-algor}.
+
+In an orthogonal way, we categorize the previous algorithms by the
+algorithmic principle they are based upon. By this criterion, BTA and
+Legendre's method are based on intersecting the root set of $f$ with
+sets of codimension 1 or index 2, respectively. ARM and SRM are based
+on intersecting the root set of $f$ with increasingly finer partitions
+of the root space. All four algorithms use GCD computations to perform
+the set intersections. Finally, SRA and GTA are based on projecting
+the roots of $f$ onto increasingly smaller root spaces, then inverting
+the process to get back to the roots of $f$. The projections in both
+algorithms are done by means of resultant computations. We will also
+highlight how SRA and GTA are in a sense \emph{dual} algorithms to ARM
+and SRM respectively. Our classification of root finding algorithms is
+summarized in Table~\ref{tab:algorithms}.
+
+\begin{table}
+  \centering
+  \begin{tabular}{l | c c}
+    & Additive & Multiplicative\\
+    \hline
+    Intersection & BTA~\cite{berl70} & Legendre\\
+    Partition refinement & ARM~\cite{Menvanovans92} & SRM~\cite{Moenck77}\\
+    Projection & SRA\cite{cgUCL-P14} & GTA~\cite{grenet2015deterministic}
+  \end{tabular}
+  \caption{Categorization of root finding algorithms by mathematical structure (columns) and algorithmic principle (rows).}
+  \label{tab:algorithms}
+\end{table}
+
+Finally, randomization plays an important role in all root finding
+algorithms, usually by improving average complexity bounds.  We end
+the section by discussing the randomization of each of the previous
+algorithms, and by giving details on those algorithms whose
+randomization is non-trivial, such as the randomized GTA
+of~\cite{grenet-hoeven-lecerf-roots}, and a new randomized variant of
+SRA.
+
+
+\subsection{Additive algorithms}
 \label{sec:affine-geom-algor}
 \Notes{Some bits from beginning of Section 3 in Christophe's document, to be split between here and  intro of Section 2}
-ATTENTION: il faut mentionner que $f$ est squarefree.
 
 \medskip 
 
