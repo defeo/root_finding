@@ -454,9 +454,10 @@ is $V_{n}=\extf$ and each leaf is in one-to-one correspondence with an element o
 
 \medskip
 
-\paragraph{Principle of BTA, ARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of $V_{i,\rho}$. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this proceduce the roots of $f$ may be deduced because 
+
+\paragraph{Principle of BTA, ARM, BTARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of this $i$-flat. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this proceduce the roots of $f$ may be deduced because 
 theses sets will ultimately contain one element whose (monic) minimal polynomials are linear with the element as a constant term. In BTA method minimal polynomials representing the children of $V_{i,\rho}$ 
-are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage.
+are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage. A third new variant BTARM combined both approach.
 
 \medskip
  
@@ -473,7 +474,7 @@ mathematical tools.
 %\subsubsection{Algebraic objects related to the affine geometry AG(\qq,\nn)}
 %\label{sec:affine-geom}
 
-\paragraph{Algebraic objects related to BTA, ARM and SRA}
+\paragraph{Algebraic objects related to BTA, ARM, BTARM and SRA}
 
 To each of the subspaces $V_i$ we associate its minimal polynomial, that we denote by
 $L_i$. The polynomials $L_i$ satisfy a recurrence relation 
@@ -530,6 +531,14 @@ $$
 \right.
 $$
 %\paragraph{The affine geometry of $\extf$} 
+According to the definition of the dual  basis $\{\beta_1,\ldots,\beta_\nn\}$, the $V_i$ may be represented as 
+the intersection of the kernels of the linear maps $X \mapsto \Tr_{\extf/\basef}(\beta_j X )$ for $j>i$. It turns out that the polynomials 
+ $L_i$ may be alternatively described as
+ \begin{equation}
+ \label{L_i_alt_formula}
+ L_i(X)=\gcd\bigl(Tr_{\extf/\basef}(\beta_j X );j>i\bigr) \,.
+ \end{equation}
+%$$V_i=\cap_{j > i} \Ker( \Tr_{\extf/\basef}(\beta_j X )) \,. $$
 Finally, we define the polynomial $M_{i,\rho}$ as the minimal
 polynomial of $V_{i,\rho}$, hence
 \begin{equation}
@@ -538,37 +547,300 @@ polynomial of $V_{i,\rho}$, hence
 %$V_{i,\rho}=V_{i,\rho'}$
 Similarly to the $i$-flats $V_{i,\rho}$, we observe that $M_{i,\rho}=M_{i,\rho'}$ if and only if $\rho-\rho'\in V_i$. Hence
 any $M_{i,\rho}$ can be represented canonically by taking $\rho$ of
-the form $\rho=\sum_{j>i}r_j\upsilon_j$. According to the decomposition rule~(\ref{decomposition-tree-iflats}) concerning the $i$-flats $V_{i,\rho}$, we have
+the form $\rho=\sum_{j>i}r_j\upsilon_j$. The alternative expression of $L_i$ allows us to represent $M_{i,\rho}$ as
+\begin{equation}
+\label{alternative_M_i_rho}
+\begin{array}{lll}
+M_{i,\rho}(X)&=& L_i(X-\rho) \\
+&=&\gcd\bigl(Tr_{\extf/\basef}(\beta_j \cdot  (X-\rho) );j>i\bigr)  \\
+&=& \gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -Tr_{\extf/\basef}(\beta_j \rho) ;j>i\bigr)  \\
+&=&  \gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)  \\
+\end{array}
+\end{equation}
+Finally, according to the decomposition rule~(\ref{decomposition-tree-iflats}) concerning the $i$-flats $V_{i,\rho}$, we have
 \begin{equation}
 \label{node_product}
-  M_{i,\rho}(X) = \prod_{c\in\basef} M_{i-1,\rho+c\upsilon_i}(X).
+  M_{i,\rho}(X) = \prod_{r_i\in\basef} M_{i-1,\rho+r_i\upsilon_i}(X).
 \end{equation}
 This defines a decomposition of $X^{\qn}-X$ into a product tree, where
 each node at level $i$ is a $M_{i,\rho}$, defined by a
-$\rho=\sum_{j>n-i}r_j\upsilon_j$, and has $\qq$ children, defined by
-the elements $c\upsilon_{n-i}+\rho$ for $c\in\basef$. In particular,
+$\rho=\sum_{j>i}r_j\upsilon_j$, and has $\qq$ children, defined by
+the elements $r_i\upsilon_{i}+\rho$ for $r_i \in\basef$. In particular,
 the leaves are the linear polynomials $X-\rho$ for all points
 $\rho\in\extf$.
 %
 Note that the product tree depends on the basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ and is isomorphic to the $q$-ary defined in terms of $i$-flats $V_{i,\rho}$.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\paragraph{Algebraic description of BTA/ARM/BTARM} Theses methods consist in \emph{intersecting} the roots of $f$ with the $i$-flats $V_{i,\rho}$, i.e, with the fibers by $L_i$ of each element $\ell_{i,\rho} \in V_i^\ast$.
+%The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
+This is achieved by computing the non-constant GCDs among the set
+% the computation of the minimal polynomial of those intersections by means of gcd's, i.e.
+\begin{equation}
+\label{base_ARM}
+\gcd(L_i(X)-\ell_{i,\rho},f(X)) \mbox{ for any } \ell_{i,\rho} \in V_i^\ast\,,
+\end{equation}
+for $i$ starting from $n$ and going down to 0.
+It ultimately leads to the roots of $f$ because the GCD's satisfying
+$$\gcd(L_0(X)-\ell_{0,\rho},f(X))=\gcd(X-\ell_{0,\rho},f(X)) \ne 1$$
+yield the linear factors of $f$.
+Note that
+\begin{equation}
+\label{eq:duality-gcd}
+\gcd(L_i(X)-\ell_{i,\rho},f(X)) \ne 1
+\end{equation}
+implies that there is a root of $f$ in $V_{i,\rho}$.
+In practice, these GCDs are computed in a recursive way. Let us first define
+$$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,$$
+where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
+Using Eq.~\eqref{base_ARM} and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.,
+$$f_{n,0}(X)=\gcd(L_n(X),f(X))=\gcd(X^{q^\nn}-X,f(X))\,.$$
+The recursive step is based on Eq.~\eqref{node_product} and works as follows: for any $L_i(\rho) \in V_i^\ast$ such that $f_{i,\rho}(X)$ is neither a constant polynomial nor a linear factor,
+$$
+\begin{array}{lll}
+f_{i,\rho}(X)&=&\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i,\rho}(X)) \\
+&=&\prod_{c \in \basef} \gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),f_{i,\rho}(X)) \\
+&=&\prod_{c \in \basef} f_{i-1,\rho+c \cdot \upsilon_i}(X)\\
+\end{array}
+$$
+This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 have children. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity).
+
+\medskip
+
+\noindent It is possible to deduce three variants of this method, i.e. BTA, ARM and a new combined method BTRAM. These algorithms mainly differ by the way the minimal polynomials of the $i$-flats $V_{i,\rho}$ are represented and therefore the way the $f_{i,\rho}(X)$'s are computed at the different stages.
+
+\medskip 
+ 
+\noindent  
+ 
+\subsubsection{Affine Refinement Method (ARM)}
+\label{sec:ARM}
+ \Notes{Start mainly from Section 3.2 in ISSAC, maybe a bit from Section 3.2 in Christophe}
+
+ 
+In ARM, the minimal polynomials of the $i$-flats $V_{i}$ are effectively computed and the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s are computed as
+ \begin{equation}
+ \label{gcd_ARM}
+ \gcd(L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i),f_{i,\rho}(X)) \,,
+ \end{equation}
+ where $L_{i-1}(\rho +  c \cdot \upsilon_i)$ is determined from precomputed values. ARM is summarized in Algorithm~\ref{alg:arm}.
+%Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
+\begin{algorithm}
+\caption{Affine Refinement Method}
+\label{alg:arm}
+\begin{algorithmic}[1]
+\REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
+A basis $\upsilon_1,\dots,\upsilon_\nn$ of $\extf$,\\
+The matrix $\Gamma=(\gamma_{i,j})$ defined in~\eqref{eq:Gamma}.}
+\ENSURE {The roots of $f$ in $\extf$.}
+\STATE Set $L_0 = X$;
+\FOR {$1 \le i \le \nn$}
+\STATE\label{alg:arm:Li} Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
+\ENDFOR
+\STATE Initialize tree with root $f_{\nn,0} = f \mod L_\nn$;
+\FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
+\FOR {any node $f_{k,\rho}$ of degree $>1$ in the tree}
+\STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho) = \sum_j r_j\gamma_{i-1,j}$;
+\ENDFOR
+\FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
+\STATE\label{alg:arm:mod} Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
+\FOR {any $c\in\basef$}
+\STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
+\ENDFOR
+\ENDFOR
+\IF {all leaves have degree $\le 1$}
+\RETURN The root of each leaf of degree $1$.
+\ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\noindent {\bf Remark}: originally~\cite{van1989geometric} expression~(\ref{gcd_ARM}) was computed in three steps. First the Least Affine Multiple of 
+$f_{i,\rho}(X)$ was computed, i.e. $LAM(f_{i,\rho}(X))$ which is  the smallest degree monic affine polynomial $F$ such that $f_{i,\rho}(X)|F$. Then the gcd between to affine polynomials was determined, i.e. 
+$$G_c(X)=\gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),LAM(f_{i,\rho}(X)) ) $$
+Finally, expression~(\ref{gcd_ARM}) was derived by computing
+$$\gcd(G_c(X), f_{i,\rho}(X))\,.$$
+\Notes{the reason of this modification should be detailled probably. May be define LAM with the other notions (Trace, dual basis ect). Note that there is 
+another two variants, one with shifted $f_{i,\rho}(X)$ and another without this shift}
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-
-\subsubsection{Berlekamp's Trace Algorithm}
+\subsubsection{Berlekamp's Trace Algorithm (BTA)}
 \label{sec:BTA}
-\Notes{Start from Section 3.1 in Christophe's document; MQ wants additional links with set intersections}
+In BTA, the minimal polynomials of the $i$-flats $V_{i}$ are not effectively computed and are expressed as the intersection of hyperplans which allows an alternative way to compute the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s. Indeed, according to expression~(\ref{alternative_M_i_rho})
+$$L_i(X)-L_i(\rho)=\gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)\,.$$
+where $\rho=\sum_{j>i}r_j\upsilon_j$. Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
+$$
+\gcd\bigl(\gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+$$
+Therefore, 
+\begin{equation}
+\label{alt_formula}
+L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
+\gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+\end{equation}
+By definition 
+$$f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$ 
+Thus, $f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f_{i,\rho}(X))$.
+We conclude that 
+$$
+\begin{array}{lll}
+f_{i-1,\rho+c \cdot \upsilon_i}(X)&=&\gcd(L_{i-1}(x)-L_{i-1}(\rho +c \cdot \upsilon_i) ,f_{i,\rho}(X)  ) \\
+&=&  \gcd(  \gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)     ,  f_{i,\rho}(X) )    \\
+&=&  \gcd( Tr_{\extf/\basef}(\beta_i X) -c ,  f_{i,\rho}(X) )    \\
+\end{array}
+$$
+BTA is summarized in Algorithm~\ref{alg:bta}.\Notes{we use $\upsilon$ but actually we don't need to compute this basis}
 
-\subsubsection{Affine Refinement Method}
-\label{sec:ARN}
-\Notes{Start mainly from Section 3.2 in ISSAC, maybe a bit from Section 3.2 in Christophe}
+\begin{algorithm}
+\caption{Berlekamp's Trace Algorithm (BTA)}
+\label{alg:bta}
+\begin{algorithmic}[2]
+\REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
+A basis $\beta_1,\dots,\beta_\nn$ of $\extf$.}
+\ENSURE {The roots of $f$ in $\extf$.}
+\STATE Initialize tree with root $f_{\nn,0} = f \mod X^{q^n}-X$;
+\FOR {$\nn \ge i \ge 1$}\label{alg:bta:for}
+\FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
+\FOR {any $c\in\basef$}
+\STATE\label{alg:bta:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} =\gcd( Tr_{\extf/\basef}(\beta_i X) -c ,f_{i,\rho}(X) )$;    
+\ENDFOR
+\ENDFOR
+\IF {all leaves have degree $\le 1$}
+\RETURN The root of each leaf of degree $1$.
+\ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{Lem}
+
+Steps~4-6 of Algorithm~\ref{alg:bta} use HOWMANY operations over $\fqn$.
+
+\end{Lem}
+
+\begin{proof}
+
+%REWRITE
+
+%The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
+
+%$O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
+
+%the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
+
+%algorithm must be restarted with a different $\alpha$. 
+
+%The process is then recursively applied on the factors. 
+
+
+
+
+
+
+
+\end{proof}
+
+
+
+
+
+
+\begin{Theo}~\cite{Menvanovans92}
+
+The worst-case and average case complexities of Algorithm~\ref{alg:bta} are respectively  HOWMANY
+
+%$\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ and $\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \log\dd)$.
+
+\end{Theo}
+
+
+
+
+
+
+
+%
+% \begin{Lem}
+% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
+% \end{Lem}
+%\begin{proof}
+For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
+%On average, $\bigO(\log_\qq(d))$ attempts are required to find one such element \cite{Menvanovans92}. 
+The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
+$O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
+the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
+algorithm must be restarted with a different $\alpha$. 
+The process is then recursively applied on the factors. 
+ If the $\alpha$ are carefully managed, it can be show that the worst case complexity is 
+%$\bigO((\nn^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
+$\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ 
+operations (see~\cite{Menvanovans92}).
+
+
+
+% Therefore, splitting $f$ in at least two distinct factors costs
+%$\bigO(\nn\log \dd \nn \Mul(\dd)\log\qq + \qq\Mul(\dd)\log\dd)$ on average,
+%or $O(\nn^2\Mul(\dd)\log\qq+\qq\Mul(\dd)\log\dd)$ in the worts case.
+
+%\end{proof}
+
+
+
+
+Note the similarity with ARM and SRA. All algorithms separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. While ARM and SRA represent the affine subspaces with minimal polynomials, BTA represents them by means of intersections of affine polynomials of the form $\Tr(\alpha X)-r$.
+
+
+
+
+
+\subsubsection{BTRA}
+%\Notes{See whether we have something competitive and worth mentioning; mention link with Moenck}
+
+
+There are some alternative methods that I should develop. Again, it is an alternative way to compute equation~(\ref{gcd_ARM}), i.e.
+$$\gcd(L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i),f_{i,\rho}(X)) \,,$$
+We may evaluate $L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i)$ first (like in ARM) and then the gcd. There two way's to compute this expression.
+\begin{enumerate}
+\item Using formula~(\ref{alt_formula})
+$$
+L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
+\gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr) \,.$$
+The main advantage is that you don't need to compute the $\gamma_{i,j}$ anymore.
+\item Using formula~(\ref{L_i_alt_formula})
+$$ L_{i-1}(X)=\gcd\bigl(L_i(X),Tr_{\extf/\basef}(\beta_i X )\bigr) \,.$$
+ then follow the approach of ARM.
+\end{enumerate}
+of course we need to analyze precsiely the complexity of the algorithm computing the gcd of two affine porlynomials.
 
 
 \subsubsection{The Successive Resultants Algorithm}
@@ -576,8 +848,15 @@ Note that the product tree depends on the basis $\{\upsilon_1,\ldots,\upsilon_\n
 \Notes{Start from either Section 3.3 in Christophe's document or ISSAC 3.2, but be careful to keep parallelism with ARM}
 
 
-\subsubsection{BTRA}
-\Notes{See whether we have something competitive and worth mentioning; mention link with Moenck}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
 
 
 \subsection{Multiplicative algorithms}
