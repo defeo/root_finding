@@ -442,6 +442,7 @@ any $V_{i,\rho}$ can be represented canonically by taking $\rho$ of
 the form $\rho=\sum_{j>i}r_j\upsilon_j$. There are exactly
 $\qq^{n-i}$ distinct $i$-flats, each of size $\qq^i$. By definition we have
 \begin{equation}
+  \label{decomposition-tree-iflats}
   V_{i,\rho} = \bigcup_{r_i \in\basef} V_{i-1,\rho + r_i \upsilon_i},
 \end{equation}
 where $\rho$ may be canonically chosen as $\sum_{j>i}r_j\upsilon_j$.
@@ -456,8 +457,8 @@ is $V_{n}=\extf$ and each leaf is in one-to-one correspondence with an element o
 
 
 \paragraph{Principle of BTA, ARM, BTARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of this $i$-flat. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this proceduce the roots of $f$ may be deduced because 
-theses sets will ultimately contain one element whose (monic) minimal polynomials are linear with the element as a constant term. In BTA method minimal polynomials representing the children of $V_{i,\rho}$ 
-are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage. A third new variant BTARM combined both approach.
+these sets will ultimately contain one element whose (monic) minimal polynomial is linear with the element as a constant term. In BTA method minimal polynomials representing the children of $V_{i,\rho}$
+are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage. A third new variant BTARM combines both approaches.
 
 \medskip
  
@@ -536,7 +537,7 @@ the intersection of the kernels of the linear maps $X \mapsto \Tr_{\extf/\basef}
  $L_i$ may be alternatively described as
  \begin{equation}
  \label{L_i_alt_formula}
- L_i(X)=\gcd\bigl(Tr_{\extf/\basef}(\beta_j X );j>i\bigr) \,.
+ L_i(X)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X );j>i\bigr) \,.
  \end{equation}
 %$$V_i=\cap_{j > i} \Ker( \Tr_{\extf/\basef}(\beta_j X )) \,. $$
 Finally, we define the polynomial $M_{i,\rho}$ as the minimal
@@ -552,9 +553,9 @@ the form $\rho=\sum_{j>i}r_j\upsilon_j$. The alternative expression of $L_i$ all
 \label{alternative_M_i_rho}
 \begin{array}{lll}
 M_{i,\rho}(X)&=& L_i(X-\rho) \\
-&=&\gcd\bigl(Tr_{\extf/\basef}(\beta_j \cdot  (X-\rho) );j>i\bigr)  \\
-&=& \gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -Tr_{\extf/\basef}(\beta_j \rho) ;j>i\bigr)  \\
-&=&  \gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)  \\
+&=&\gcd\bigl(\Tr_{\extf/\basef}(\beta_j \cdot  (X-\rho) );j>i\bigr)  \\
+&=& \gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -\Tr_{\extf/\basef}(\beta_j \rho) ;j>i\bigr)  \\
+&=&  \gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)  \\
 \end{array}
 \end{equation}
 Finally, according to the decomposition rule~(\ref{decomposition-tree-iflats}) concerning the $i$-flats $V_{i,\rho}$, we have
@@ -569,13 +570,13 @@ the elements $r_i\upsilon_{i}+\rho$ for $r_i \in\basef$. In particular,
 the leaves are the linear polynomials $X-\rho$ for all points
 $\rho\in\extf$.
 %
-Note that the product tree depends on the basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ and is isomorphic to the $q$-ary defined in terms of $i$-flats $V_{i,\rho}$.
+Note that the product tree depends on the basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ and is isomorphic to the $q$-ary tree defined in terms of $i$-flats $V_{i,\rho}$.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\paragraph{Algebraic description of BTA/ARM/BTARM} Theses methods consist in \emph{intersecting} the roots of $f$ with the $i$-flats $V_{i,\rho}$, i.e, with the fibers by $L_i$ of each element $\ell_{i,\rho} \in V_i^\ast$.
+\paragraph{Algebraic description of BTA/ARM/BTARM} These methods consist in \emph{intersecting} the roots of $f$ with the $i$-flats $V_{i,\rho}$, i.e, with the fibers by $L_i$ of each element $\ell_{i,\rho} \in V_i^\ast$.
 %The method consists in \emph{projecting} the roots of $f$ onto the spaces $V_i^\ast$ while simultaneously \emph{intersecting} those with the corresponding fibers of $L_i$ identified by $\ell_i$.
 This is achieved by computing the non-constant GCDs among the set
 % the computation of the minimal polynomial of those intersections by means of gcd's, i.e.
@@ -672,17 +673,17 @@ another two variants, one with shifted $f_{i,\rho}(X)$ and another without this 
 
 \subsubsection{Berlekamp's Trace Algorithm (BTA)}
 \label{sec:BTA}
-In BTA, the minimal polynomials of the $i$-flats $V_{i}$ are not effectively computed and are expressed as the intersection of hyperplans which allows an alternative way to compute the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s. Indeed, according to expression~(\ref{alternative_M_i_rho})
-$$L_i(X)-L_i(\rho)=\gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)\,.$$
+In BTA, the minimal polynomials of the $i$-flats $V_{i}$ are not effectively computed and are expressed as the intersection of hyperplanes, which gives an alternative way to compute the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s. Indeed, according to expression~(\ref{alternative_M_i_rho})
+$$L_i(X)-L_i(\rho)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)\,.$$
 where $\rho=\sum_{j>i}r_j\upsilon_j$. Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
 $$
-\gcd\bigl(\gcd\bigl(Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+\gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
 $$
 Therefore, 
 \begin{equation}
 \label{alt_formula}
 L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
-\gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
 \end{equation}
 By definition 
 $$f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$ 
@@ -691,8 +692,8 @@ We conclude that
 $$
 \begin{array}{lll}
 f_{i-1,\rho+c \cdot \upsilon_i}(X)&=&\gcd(L_{i-1}(x)-L_{i-1}(\rho +c \cdot \upsilon_i) ,f_{i,\rho}(X)  ) \\
-&=&  \gcd(  \gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr)     ,  f_{i,\rho}(X) )    \\
-&=&  \gcd( Tr_{\extf/\basef}(\beta_i X) -c ,  f_{i,\rho}(X) )    \\
+&=&  \gcd(  \gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)     ,  f_{i,\rho}(X) )    \\
+&=&  \gcd( \Tr_{\extf/\basef}(\beta_i X) -c ,  f_{i,\rho}(X) )    \\
 \end{array}
 $$
 BTA is summarized in Algorithm~\ref{alg:bta}.\Notes{we use $\upsilon$ but actually we don't need to compute this basis}
@@ -708,7 +709,7 @@ A basis $\beta_1,\dots,\beta_\nn$ of $\extf$.}
 \FOR {$\nn \ge i \ge 1$}\label{alg:bta:for}
 \FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
 \FOR {any $c\in\basef$}
-\STATE\label{alg:bta:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} =\gcd( Tr_{\extf/\basef}(\beta_i X) -c ,f_{i,\rho}(X) )$;    
+\STATE\label{alg:bta:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} =\gcd( \Tr_{\extf/\basef}(\beta_i X) -c ,f_{i,\rho}(X) )$;
 \ENDFOR
 \ENDFOR
 \IF {all leaves have degree $\le 1$}
@@ -801,7 +802,7 @@ $O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
 the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
 algorithm must be restarted with a different $\alpha$. 
 The process is then recursively applied on the factors. 
- If the $\alpha$ are carefully managed, it can be show that the worst case complexity is 
+ If the $\alpha$ are carefully managed, it can be shown that the worst case complexity is
 %$\bigO((\nn^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
 $\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ 
 operations (see~\cite{Menvanovans92}).
@@ -834,10 +835,10 @@ We may evaluate $L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i)$ first (like in A
 \item Using formula~(\ref{alt_formula})
 $$
 L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
-\gcd\bigl(L_i(X)-L_i(\rho), Tr_{\extf/\basef}(\beta_i X) -c  \bigr) \,.$$
+\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr) \,.$$
 The main advantage is that you don't need to compute the $\gamma_{i,j}$ anymore.
 \item Using formula~(\ref{L_i_alt_formula})
-$$ L_{i-1}(X)=\gcd\bigl(L_i(X),Tr_{\extf/\basef}(\beta_i X )\bigr) \,.$$
+$$ L_{i-1}(X)=\gcd\bigl(L_i(X),\Tr_{\extf/\basef}(\beta_i X )\bigr) \,.$$
  then follow the approach of ARM.
 \end{enumerate}
 of course we need to analyze precsiely the complexity of the algorithm computing the gcd of two affine porlynomials.
