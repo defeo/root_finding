@@ -521,7 +521,8 @@ where $L_i^\ast$ is called the \emph{dual} of $L_i$.
 
 \medskip
 
-Another important linear map is the trace application over $\extf$ relative to $\basef$ defined by $\Tr_{\extf/\basef}(X)=\sum_{i=0}^{n-1} X^{\qq^i}$. Its kernel is a subspace of $\extf$ with dimension $n-1$. For any basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, there exists a \emph{dual basis} $\{\beta_1,\ldots,\beta_\nn\}$ satisfying  
+Another important linear map is the trace application over $\extf$ relative to $\basef$ defined by $\Tr_{\extf/\basef}(X)=\sum_{i=0}^{n-1} X^{\qq^i}$. Its kernel is a subspace of $\extf$ with dimension $n-1$. For any basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, there exists a \emph{dual basis} $\{\beta_1,\ldots,\beta_\nn\}$ satisfying
+\Notes{$\beta_i$ is already used for the diagonal of $\Gamma$}
 $$
 \Tr_{\extf/\basef}(\upsilon_i \cdot \beta_j)=
 \left\{
@@ -595,7 +596,10 @@ Note that
 \end{equation}
 implies that there is a root of $f$ in $V_{i,\rho}$.
 In practice, these GCDs are computed in a recursive way. Let us first define
-$$f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,$$
+\begin{equation}
+  \label{eq:f_i,rho_def}
+  f_{i,\rho}(X)=\gcd(L_i(X)-L_i(\rho),f(X))\,  
+\end{equation}
 where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rho-\rho' \in V_i$.
 Using Eq.~\eqref{base_ARM} and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.,
 $$f_{n,0}(X)=\gcd(L_n(X),f(X))=\gcd(X^{q^\nn}-X,f(X))\,.$$
@@ -635,29 +639,130 @@ In ARM, the minimal polynomials of the $i$-flats $V_{i}$ are effectively compute
 \begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
 A basis $\upsilon_1,\dots,\upsilon_\nn$ of $\extf$,\\
-The matrix $\Gamma=(\gamma_{i,j})$ defined in~\eqref{eq:Gamma}.}
+The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
 \ENSURE {The roots of $f$ in $\extf$.}
 \STATE Set $L_0 = X$;
 \FOR {$1 \le i \le \nn$}
 \STATE\label{alg:arm:Li} Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
 \ENDFOR
-\STATE Initialize tree with root $f_{\nn,0} = f \mod L_\nn$;
+\STATE Set $S = \emptyset$, $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
 \FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
-\FOR {any node $f_{k,\rho}$ of degree $>1$ in the tree}
-\STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho) = \sum_j r_j\gamma_{i-1,j}$;
-\ENDFOR
-\FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
-\STATE\label{alg:arm:mod} Compute $\bar{L}_\rho = L_{i-1}\mod f_{i,\rho}$;
+\FOR {each $\rho\in R_i$}
+\STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
+\STATE\label{alg:arm:mod} Compute $\bar{L}_{i-1,\rho} = L_{i-1}\mod f_{i,\rho}$;
 \FOR {any $c\in\basef$}
-\STATE\label{alg:arm:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_\rho - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
+\STATE\label{alg:arm:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_{i-1,\rho} - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
+\STATE\label{alg:arm:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = X - \delta$, \textbf{then} add $\delta$ to $S$;
 \ENDFOR
 \ENDFOR
-\IF {all leaves have degree $\le 1$}
-\RETURN The root of each leaf of degree $1$.
-\ENDIF
+\STATE\label{alg:arm:nextloop} Let $R_{i-1} = \{\rho \mid \deg f_{i-1,\rho} > 1\}$
 \ENDFOR
+\RETURN $S$.
 \end{algorithmic}
 \end{algorithm}
+
+\begin{Theo}
+  Algorithm~\ref{alg:arm} is correct. It can be implemented so as to
+  run in $O\bigl(n\Mul(dn)(\log(q) + q\log(dn)) + n^3d\bigr)$
+  operations in $\basef$ in the worst case, and
+  $O\bigl(n\Mul(dn)\log(q) + q\Mul(dn)\log(d)\log(dn) +
+  nd\log(d)\bigr)$ operations on average.
+\end{Theo}
+\begin{proof}
+  Correctness is straightforward. The polynomials $L_i$ computed in
+  Step~\ref{alg:arm:Li} correspond to their definition in
+  Eq.~\eqref{Li_generation}, and the polynomials $f_{i,\rho}$ computed
+  in Step~\ref{alg:arm:gcd} correspond to their definition in
+  Eq.~\eqref{eq:f_i,rho_def}. %
+  At each iteration, the set $S$ contains the roots of $f$ that have
+  already been found, while the sets $R_i$ contain
+  \emph{approximations} to those roots that have not been found yet. %
+  For any $0\le i\le n$, the roots of $f$ are exactly the reunion of
+  the roots of the $f_{i,\rho}$ for all $\rho$; this shows that $S$
+  only contains roots of $f$. %
+  By definition $\deg f_{0,\rho}\le 1$, thus $R_n$ is empty, and all
+  the roots of $f$ eventually enter in $S$.
+
+  \paragraph{Worst-case complexity.} We set $Q=q^n$.  The degree of the
+  polynomials in Step~\ref{alg:arm:Li} is always bounded by the degree
+  $d$ of $f$, hence each $L_i$ is computed using in
+  $O(\Mul_Q(d)\log(q))$ operations in $\basef$, yielding a total of
+  $O(n\Mul_q(dn)\log(q))$ for all of them.
+
+  We now analyze the cost of each iteration of Loop~\ref{alg:arm:for}
+  separately. For a fixed $i$, we give the costs of
+  Steps~\ref{alg:arm:combili},~\ref{alg:arm:mod}
+  and~\ref{alg:arm:gcd}.
+
+  There are many ways to compute the values $\ell_{i,\rho}$ in
+  Step~\ref{alg:arm:combili}. We choose to represent the
+  approximations $\rho\in R_i$ by their coefficient vector over the
+  basis $\upsilon_1,\dots,\upsilon_n$, so that
+  \[
+    \rho = \sum_{j=1}^n r_j\upsilon_j 
+    \quad\text{and}\quad
+    \ell_{i-1,\rho} = \sum_{j=1}^n r_j\gamma_{i-1,j}.
+  \]
+  The linear combination on the right require at most $n^2$ products
+  in $\basef$, and there are at most $d$ such values to compute, hence
+  the total cost for this step is $O(n^2d)$ operations in $\basef$.
+
+  The modular reductions in Step~\ref{alg:arm:mod} can be grouped
+  together for each $i$. %
+  Because all degrees are bounded by $d$, putting the polynomials
+  $f_{i,\rho}$ in a binary subproduct tree structure as
+  in~\cite[Lemma~10.4]{Gathen2003} allows one to compute all
+  $L_{i-1,\rho}$ using $O(\Mul_q(dn)\log(d))$ operations.
+
+  In Step~\ref{alg:arm:gcd} the degrees of the polynomials
+  $f_{i,\rho}$ sum up to $d$. %
+  For each of these, we compute $q$ GCDs with polynomials of similar
+  degree. %
+  Each GCD costs $O(\Mul_q(d_\rho n)\log(d_\rho n))$ operations, where
+  $d_\rho$ is the degree of $f_{i,\rho}$. %
+  Summing over all $\rho$, and using the super-linearity of the
+  function $\Mul$, we bound this cost by $O(q\Mul_q(dn)\log(dn))$
+  operations.
+
+  In the worse case, Loop~\ref{alg:arm:for} is repeated $n$ times,
+  thus the overall cost for the whole algorithm is bounded by
+  $O(n\Mul_q(dn)\log(q) + nq\Mul_q(dn)\log(dn) + n^3d)$ operations in
+  $\basef$.
+
+  \paragraph{Average-case complexity.} When all $f_{i,\rho}$ have
+  degree $\le 1$, the set $S$ contains all roots of $f$, and the sets
+  $R_i$ become empty; thus the algorithm quickly terminates without
+  any further computation. %
+  It follows that the average complexity is determined by the average
+  depth at which the flats $V_{i,\rho}$ separate the roots of $f$. %
+  As already observed by Menezes, Van Oorschot and
+  Vanstone~\cite[Theorem~7]{Menvanovans92}, this depth is related to
+  the height of a data structure called \emph{digital trie}, and is
+  bounded on average by $2\log_q(d) + O(1)$.
+
+  Hence we can assume that on average Loop~\ref{alg:arm:for}
+  terminates after $O(\log(d))$ iterations. %
+  But then, we can refine the analysis of Step~\ref{alg:arm:combili}
+  even further. %
+  Indeed, let $h$ be the depth at which ARM stops, note that at each
+  iteration only the first $h$ coefficients in the vector of $\rho$
+  are non-zero. %
+  Assume $q$ is prime. By using a $q$-ary Gray code to enumerate all
+  integers between $0$ and $q^h-1$, we can evaluate all linear
+  combinations $\sum_{j\le h} r_j\gamma_{i-1,j}$ using only one
+  addition in $\extf$ for each. %
+  Among those linear combinations, we select the ones that correspond
+  to the $\ell_{i,\rho}$'s. %
+  Since $q^h\in O(d)$, the total cost to compute all $\ell_{i,\rho}$
+  is of $O(dn)$ operations in $\basef$. %
+  This can be easily generalized to the case where $q$ is a prime
+  power.
+
+  In conclusion, the overall complexity of ARM is bounded on average
+  by
+  $O\bigl(n\Mul_q(dn)\log(q) + q\Mul_q(dn)\log(d)\log(dn) +
+  nd\log(d)\bigr)$ operations in $\basef$.
+\end{proof}
 
 \noindent {\bf Remark}: originally~\cite{van1989geometric} expression~(\ref{gcd_ARM}) was computed in three steps. First the Least Affine Multiple of 
 $f_{i,\rho}(X)$ was computed, i.e. $LAM(f_{i,\rho}(X))$ which is  the smallest degree monic affine polynomial $F$ such that $f_{i,\rho}(X)|F$. Then the gcd between to affine polynomials was determined, i.e. 
