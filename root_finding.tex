@@ -418,7 +418,7 @@ SRA.
 
 \medskip 
 
-We now present three root finding algorithms based on the structure of $\AG$. Our presentation will not necessarily follow the original ones and algorithmic changes will be explicitly mentionned. 
+We now present three root finding algorithms based on the structure of $\AG$. Our presentation will not necessarily follow the original ones and algorithmic changes will be explicitly mentioned. 
 This first method is called Berlekamp's trace algorithm (BTA)~\cite{berl70} and was designed in the seventies. The second one was developped by Menezes, van Oorschot and Vanstone~\cite{Menvanovans92}
  twenty years later and is called the Affine Refinement Method (ARM). The third method was recently 
  proposed by Petit~\cite{cgUCL-P14} and is called the Successive Resultants Algorithm (SRA). In order to present these methods we need to introduce some basic concepts of affine geometry.
@@ -668,10 +668,10 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
 \begin{Theo}
   \label{th:arm}
   Algorithm~\ref{alg:arm} is correct. It can be implemented so as to
-  run in $O\bigl(n\Mul(dn)(\log(q) + q\log(dn)) + n^3d\bigr)$
+  run in $O\bigl(n\Mul(dn)(\log(q) + q\log(dn)) + dn^3\bigr)$
   operations in $\basef$ in the worst case, and
-  $O\bigl(n\Mul(dn)\log(q) + q\Mul(dn)\log(d)\log(dn) +
-  nd\log^2(d)\bigr)$ operations on average.
+  $O\bigl(\Mul(dn)(n\log(q) + q\log(dn)\log(d))\bigr)$ operations on
+  average.
 \end{Theo}
 \begin{proof}
   Correctness is straightforward. The polynomials $L_i$ computed in
@@ -710,7 +710,7 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
   \]
   The linear combination on the right requires at most $n^2$ products
   in $\basef$, and there are at most $d$ such values to compute, hence
-  the total cost for this step is $O(n^2d)$ operations in $\basef$.
+  the total cost for this step is $O(dn^2)$ operations in $\basef$.
 
   The modular reductions in Step~\ref{alg:arm:mod} can be grouped
   together for each $i$. %
@@ -731,7 +731,7 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
 
   In the worse case, Loop~\ref{alg:arm:for} is repeated $n$ times,
   thus the overall cost for the whole algorithm is bounded by
-  $O(n\Mul_q(dn)\log(q) + nq\Mul_q(dn)\log(dn) + n^3d)$ operations in
+  $O(n\Mul_q(dn)\log(q) + nq\Mul_q(dn)\log(dn) + dn^3)$ operations in
   $\basef$.
 
   \paragraph{Average-case complexity.} When all $f_{i,\rho}$ have
@@ -752,13 +752,13 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
   Indeed, let $h$ be the depth at which ARM stops, note that at each
   iteration the last $n-h$ coefficients in the vector of $\rho$ are
   all zero. %
-  Hence, the cost of evaluating $\ell_{i-1,\rho}$ for all $\rho$ is
-  of $O(dn\log(d))$ operations.
+  Hence, the cost of evaluating $\ell_{i-1,\rho}$ for all $\rho$ is of
+  $O(dn\log(d))$ operations, but this is negligible in front of the
+  factor $O(q\Mul_q(dn)\log(dn))$ coming from Step~\ref{alg:arm:gcd}.
 
   In conclusion, the overall complexity of ARM is bounded on average
-  by
-  $O\bigl(n\Mul_q(dn)\log(q) + q\Mul_q(dn)\log(d)\log(dn) +
-  nd\log(d)\bigr)$ operations in $\basef$.
+  by $O\bigl(n\Mul_q(dn)\log(q) + q\Mul_q(dn)\log(dn)\log(d)\bigr)$
+  operations in $\basef$.
 \end{proof}
 
 \noindent {\bf Remark}: originally~\cite{van1989geometric} expression~(\ref{gcd_ARM}) was computed in three steps. First the Least Affine Multiple of 
@@ -841,10 +841,10 @@ A basis $\{\nu_1,\dots,\nu_\nn\}$ of $\extf$.}
 \end{proof}
 
 \begin{Theo}
-  BTA is correct. It can be implemented so as to run in
-  $O\bigl(n\Mul(dn)(q\log(dn) + n\log(q))\bigr)$ operations in
+  Algorithm~\ref{alg:bta} is correct. It can be implemented so as to run in
+  $O\bigl(n\Mul(dn)(n\log(q) + q\log(dn))\bigr)$ operations in
   $\basef$ in the worst case, and
-  $O\bigl(\Mul(dn)(q\log(dn) + n\log(q))\log(d)\bigr)$ operations on
+  $O\bigl(\Mul(dn)(n\log(q) + q\log(dn))\log(d)\bigr)$ operations on
   average.
 \end{Theo}
 \begin{proof}
@@ -852,7 +852,7 @@ A basis $\{\nu_1,\dots,\nu_\nn\}$ of $\extf$.}
   Theorem~\ref{th:arm}, since the root set $S$ coincides with the one
   returned by ARM.
 
-  As for complexity, we analyze the cost of each iteration of
+  We analyze the cost of each iteration of
   Loop~\ref{alg:bta:for}. The polynomial
   $\prod_{\rho\in R_i}f_{i,\rho}$ has degree at most $d$, and can be
   computed by arranging all polynomials $f_{i,\rho}$ in a binary
@@ -876,7 +876,7 @@ A basis $\{\nu_1,\dots,\nu_\nn\}$ of $\extf$.}
   
   Adding all terms together, we see that one iteration of
   Loop~\ref{alg:bta:for} costs at most
-  $O\bigl(\Mul_q(dn)(q\log(dn) + n\log(q))\bigr)$ operations in
+  $O\bigl(\Mul_q(dn)(n\log(q) + q\log(dn))\bigr)$ operations in
   $\basef$. The worst-case complexity estimate is then evident, and
   the average-case follows easily from Lemma~\ref{th:bta_eq_arm}.
 \end{proof}
@@ -981,7 +981,7 @@ of course we need to analyze precsiely the complexity of the algorithm computing
 
 \begin{algorithm}
 \caption{ARM variant with low precomputation}
-\label{alg:arm}
+\label{alg:arm-low}
 \begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
 An a priori bound $h$ on the height of the tree,\\
@@ -1005,14 +1005,14 @@ A free set $\upsilon_1,\dots,\upsilon_h$ of $\extf$.}
 \STATE Set $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
 \FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
 \FOR {each $\rho\in R_i$}
-\STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
-\STATE\label{alg:arm:mod} Compute $\bar{L}_{i-1,\rho} = L_{i-1}\mod f_{i,\rho}$;
+\STATE\label{alg:arm-low:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
+\STATE\label{alg:arm-low:mod} Compute $\bar{L}_{i-1,\rho} = L_{i-1}\mod f_{i,\rho}$;
 \FOR {any $c\in\basef$}
-\STATE\label{alg:arm:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_{i-1,\rho} - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
-\STATE\label{alg:arm:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = X - \delta$, \textbf{then} add $\delta$ to $S$;
+\STATE\label{alg:arm-low:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_{i-1,\rho} - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
+\STATE\label{alg:arm-low:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = X - \delta$, \textbf{then} add $\delta$ to $S$;
 \ENDFOR
 \ENDFOR
-\STATE\label{alg:arm:nextloop} Let $R_{i-1} = \{\rho \mid \deg f_{i-1,\rho} > 1\}$
+\STATE\label{alg:arm-low:nextloop} Let $R_{i-1} = \{\rho \mid \deg f_{i-1,\rho} > 1\}$
 \ENDFOR
 \RETURN $S$. \Notes{Adapt output, maybe change indices in line 2-3 to remove line 4}
 \end{algorithmic}
