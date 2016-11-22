@@ -162,6 +162,7 @@ Decisions to be made:
 \item worst case vs average case -> both of them for deterministic algorithms
 \item notation O tilde -> precise analysis, then simplified with O tilde
 \item q is not O(1)
+\item Traces: just write Tr when context is clear?
 \end{itemize}
 }
 
@@ -256,7 +257,7 @@ best known probabilistic methods such as BTA and Cantor-Zassenhaus.
 
 Niederreiter~\cite{nied94} proposed an algorithm based on the
 resolution of differential equations over finite fields.  As mentioned
-by several authors~\cite{Fleis96} this algorithm is highly related
+by several authors~\cite{Fleis96} this algorithm is highly related to
 Berlekamp's factoring algorithm.
 
 Recently, Petit~\cite{cgUCL-P14} introduced a method related to BTA
@@ -267,7 +268,7 @@ suggested methods based on Graeffe transforms, adapted for \emph{FFT
   fields}, i.e., fields $\ff{q}$ where $q-1$ has a large $2$-adic
 valuation. We call these methods \emph{Graeffe Transform Algorithms}
 (GTA). SRA and GTA are similar in that they use resultants to reduce
-the root finding problem to one in a smaller space, however are based
+the root finding problem to one in a smaller space; they are however based
 on different mathematical structures, as we shall see in the next
 section.
 
@@ -317,7 +318,7 @@ of~\cite[Chapter~8.3]{Gathen2003}. When $q$ is clear from the context,
 we simply write $\Mul(n)$.  Using FFT multiplication, one can take
 $\Mul(n)∈ O(n\log(n)\loglog(n))$.  With this notation, elements of
 $\ff{Q}$ can be multiplied in $O(\Mul_q(n))$ operations, and their
-inverses in $O(\Mul_q(n)\log n)$ operations.
+inverses can be computed in $O(\Mul_q(n)\log n)$ operations.
 
 We also let $M_Q(d)$ be the cost of multiplying two polynomials in
 $\ff{Q}[X]$ of degree at most $d$.  Using Kronecker's
@@ -368,7 +369,7 @@ Oorschot and Vanstone's ARM~\cite{Menvanovans92}, and Petit's
 SRA~\cite{cgUCL-P14} all belong to this family.  We present them in
 Section~\ref{sec:affine-geom-algor}.
 
-Multiplicative algorithms based on the structure of the multiplicative
+Multiplicative algorithms are based on the structure of the multiplicative
 group $\ff{q}^\ast$ (or $\ff{Q}^\ast$, \emph{mutatis mutandis}). They
 are most efficient when the largest prime divisor of $q-1$ is
 small. Legendre's method, Moenk's SRM~\cite{Moenck77}, and Grenet, van
@@ -403,7 +404,7 @@ summarized in Table~\ref{tab:algorithms}.
 \end{table}
 
 Finally, randomization plays an important role in all root finding
-algorithms, usually by improving average complexity bounds.  We end
+algorithms, usually by improving average case complexity bounds.  We end
 the section by discussing the randomization of each of the previous
 algorithms, and by giving details on those algorithms whose
 randomization is non-trivial, such as the randomized GTA
@@ -417,20 +418,20 @@ SRA.
 
 \medskip 
 
-We now present three root finding algorithms based on the structure of $\AG$. Our presentation will not necessarily follow the original ones and algorithmic change will be explicitly mentionned. 
+We now present three root finding algorithms based on the structure of $\AG$. Our presentation will not necessarily follow the original ones and algorithmic changes will be explicitly mentionned. 
 This first method is called Berlekamp's trace algorithm (BTA)~\cite{berl70} and was designed in the seventies. The second one was developped by Menezes, van Oorschot and Vanstone~\cite{Menvanovans92}
- twenty years later and is called Affine Refinement Method (ARM). The third method was recently 
- proposed by Petit and is called the Successive Resultants Algorithm (SRA) of Petit~\cite{cgUCL-P14}. In order to present these methods we need to introduce some basic concepts of affine geometry.
+ twenty years later and is called the Affine Refinement Method (ARM). The third method was recently 
+ proposed by Petit~\cite{cgUCL-P14} and is called the Successive Resultants Algorithm (SRA). In order to present these methods we need to introduce some basic concepts of affine geometry.
 
 \paragraph{Affine geometry of $\AG$.} The \emph{finite affine geometry} $\AG$ is the set of all vector subspaces of $\basef^\nn$ and their translates. Fixing a basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, we can
-identify the elements of $\extf$ with the points of $\AG$. To this basis, we associate the flag of linear
+identify the elements of $\extf$ with the points of $\AG$. \Notes{not really, just by computing argument} To this basis, we associate the flag of linear
 subspaces $V_0\subset V_1\subset \cdots \subset V_\nn$ defined by
 \begin{equation}
   V_i = \Span(\upsilon_1,\dots,\upsilon_i),
 \end{equation}
 so that $\dim V_i = i$ and $\card V_i = \qq^i$.
 
-Let now $\rho\in\extf$, such that $\rho=\sum_j r_j\upsilon_j$.  For any
+Let now $\rho\in\extf$, and $r_i\in\fq$ such that $\rho=\sum_j r_j\upsilon_j$.  For any
 $V_i$ we define the affine space (also called an $i$-flat)
 \begin{equation}
   V_{i,\rho} = V_i + \rho.
@@ -457,18 +458,16 @@ is $V_{n}=\extf$ and each leaf is in one-to-one correspondence with an element o
 \medskip
 
 
-\paragraph{Principle of BTA, ARM, BTARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of this $i$-flat. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this proceduce the roots of $f$ may be deduced because 
+\paragraph{Principle of BTA, ARM, BTARM and SRA methods.} Consider a polynomial $f$ of degree $\dd$ over $\extf$. In BTA and ARM methods, the roots of $f$ are determined by recursively separating the roots of $f$ contained in $V_{i,\rho}$ into sets of roots contained in the different children of this $i$-flat. These methods consist in intersecting sets which is pratically achieved by computing GCD's between minimal polynomials representing these sets. From this procedure the roots of $f$ may be deduced because 
 these sets will ultimately contain one element whose (monic) minimal polynomial is linear with the element as a constant term. In BTA method minimal polynomials representing the children of $V_{i,\rho}$
 are expressed as a GCD of hyperplanes while in ARM method they are explicitly computed at each stage. A third new variant BTARM combines both approaches.
 
 \medskip
  
 SRA method consists in recursively identifying the children of $V_{i,\rho}$ containing roots of $f$. 
-This can be pratically achieved by determining among the minimal polynomials of the children of 
+This can be practically achieved by determining among the minimal polynomials of the children of 
 $V_{i,\rho}$ the ones having a zero resultant with $f$. %This method consists therefore in projecting the roots of $f$ onto the space $V_{i-1}^\ast$.
-From this proceduce the roots of $f$ may be deduced because the method ultimately determines the leafs containing a root of $f$ which are sets containing a single element.
-
-
+From this procedure the roots of $f$ may be deduced because the method ultimately determines the leaves containing a root of $f$, which are sets containing a single element.
 
 In order to implement the above general principles practically we need to introduce some 
 mathematical tools.
@@ -500,7 +499,7 @@ $\gamma_{i,j}:=L_i(\upsilon_j)$, and
 Observe that by definition $\gamma_{i,j}=0$ whenever $j\le i$, hence
 $\Gamma$ is an upper triangular matrix, associated to a linear map
 $\extf\to\extf^\nn$ sending any $\delta\in\extf$ to the vector
-$\bigl(L_0(\delta),\dots,\allowbreak L_{n-1}(\delta)\bigr)$.  The diagonal elements of $\Gamma$ play a special role in our algorithms.
+$\bigl(L_0(\delta),\dots,\allowbreak L_{n-1}(\delta)\bigr)$.  The diagonal elements of $\Gamma$ play a special role in the algorithms we analyze.
 We define $\beta_i:=\gamma_{i-1,i}$ and $\alpha_i:=\beta_i^{\qq-1}$
 for any $1\le i \le \nn$. We deduce a decomposition
 \begin{equation}
@@ -541,6 +540,7 @@ the intersection of the kernels of the linear maps $X \mapsto \Tr_{\extf/\basef}
  \label{L_i_alt_formula}
  L_i(X)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X );j>i\bigr) \,.
  \end{equation}
+ \Notes{Should be proved}
 %$$V_i=\cap_{j > i} \Ker( \Tr_{\extf/\basef}(\beta_j X )) \,. $$
 Finally, we define the polynomial $M_{i,\rho}$ as the minimal
 polynomial of $V_{i,\rho}$, hence
@@ -566,7 +566,7 @@ Finally, according to the decomposition rule~(\ref{decomposition-tree-iflats}) c
   M_{i,\rho}(X) = \prod_{r_i\in\basef} M_{i-1,\rho+r_i\upsilon_i}(X).
 \end{equation}
 This defines a decomposition of $X^{\qn}-X$ into a product tree, where
-each node at level $i$ is a $M_{i,\rho}$, defined by a
+each node at level $i$ corresponds to a $M_{i,\rho}$, defined by a
 $\rho=\sum_{j>i}r_j\upsilon_j$, and has $\qq$ children, defined by
 the elements $r_i\upsilon_{i}+\rho$ for $r_i \in\basef$. In particular,
 the leaves are the linear polynomials $X-\rho$ for all points
@@ -614,6 +614,8 @@ f_{i,\rho}(X)&=\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i
 \end{aligned}
 \end{equation}
 This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 have children. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity).
+
+\Notes{Include picture?}
 
 \medskip
 
@@ -771,8 +773,9 @@ $f_{i,\rho}(X)$ was computed, i.e. $LAM(f_{i,\rho}(X))$ which is  the smallest d
 $$G_c(X)=\gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),LAM(f_{i,\rho}(X)) ) $$
 Finally, expression~(\ref{gcd_ARM}) was derived by computing
 $$\gcd(G_c(X), f_{i,\rho}(X))\,.$$
-\Notes{the reason of this modification should be detailled probably. May be define LAM with the other notions (Trace, dual basis ect). Note that there is 
-another two variants, one with shifted $f_{i,\rho}(X)$ and another without this shift}
+%\Notes{the reason of this modification should be detailled probably. May be define LAM with the other notions (Trace, dual basis ect). Note that there is 
+%another two variants, one with shifted $f_{i,\rho}(X)$ and another without this shift}
+When fast arithmetic is not available, \cite{van1989geometric} shows that computing the gcd in this way is computationally more efficient when $d<n$. Our modification of their algorithm is justified as fast arithmetic is common today.
 
 
 
@@ -786,6 +789,7 @@ Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
 $$
 \gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr).
 $$
+\Notes{???}
 Therefore, 
 \begin{equation}
 \label{alt_formula}
@@ -1026,6 +1030,45 @@ of course we need to analyze precsiely the complexity of the algorithm computing
 
 \subsection{ARM variant with low precomputation}
 \label{sec:low-precomputation}
+
+\begin{algorithm}
+\caption{ARM variant with low precomputation}
+\label{alg:arm}
+\begin{algorithmic}[1]
+\REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
+An a priori bound $h$ on the height of the tree,\\
+A free set $\upsilon_1,\dots,\upsilon_h$ of $\extf$.}
+\ENSURE {Partial factorization of $f$, and a factorization in linear terms when the a priori bound $h$ is correct.}
+\STATE Set $L_0(X)=X$;
+\FOR {$1 \le i \le h$}
+\STATE Compute $\alpha_i=L_{i-1}(v_i)^{q-1}$;
+\ENDFOR
+\STATE Set $(\alpha_n,\ldots,\alpha_{n-h+1})=(\alpha_h,\ldots,\alpha_1)$
+%
+\FOR{$1\leq j\leq n$}
+\STATE Compute $(X^{q^j}\bmod f)$ from $(X^{q^{j-1}}\bmod f)$
+\ENDFOR
+%
+\STATE Set $L_n(X)=X^{q^n}-X$
+\FOR{$n-1\ge i\ge n-h$}
+\STATE Compute $L_i$ such that $L_{i+1}(X)=(X^q-\alpha_iX)\circ L_i(X)$
+\STATE Compute $(L_i\bmod f)$ using computed values $(X^{q^j}\bmod f)$
+\ENDFOR
+\STATE Set $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
+\FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
+\FOR {each $\rho\in R_i$}
+\STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
+\STATE\label{alg:arm:mod} Compute $\bar{L}_{i-1,\rho} = L_{i-1}\mod f_{i,\rho}$;
+\FOR {any $c\in\basef$}
+\STATE\label{alg:arm:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_{i-1,\rho} - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
+\STATE\label{alg:arm:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = X - \delta$, \textbf{then} add $\delta$ to $S$;
+\ENDFOR
+\ENDFOR
+\STATE\label{alg:arm:nextloop} Let $R_{i-1} = \{\rho \mid \deg f_{i-1,\rho} > 1\}$
+\ENDFOR
+\RETURN $S$. \Notes{Adapt output, maybe change indices in line 2-3 to remove line 4}
+\end{algorithmic}
+\end{algorithm}
 
 
 \subsection{Composite degree extensions}
