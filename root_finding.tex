@@ -521,10 +521,9 @@ where $L_i^\ast$ is called the \emph{dual} of $L_i$.
 
 \medskip
 
-Another important linear map is the trace application over $\extf$ relative to $\basef$ defined by $\Tr_{\extf/\basef}(X)=\sum_{i=0}^{n-1} X^{\qq^i}$. Its kernel is a subspace of $\extf$ with dimension $n-1$. For any basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, there exists a \emph{dual basis} $\{\beta_1,\ldots,\beta_\nn\}$ satisfying
-\Notes{$\beta_i$ is already used for the diagonal of $\Gamma$}
+Another important linear map is the trace application over $\extf$ relative to $\basef$ defined by $\Tr_{\extf/\basef}(X)=\sum_{i=0}^{n-1} X^{\qq^i}$. Its kernel is a subspace of $\extf$ with dimension $n-1$. For any basis $\{\upsilon_1,\ldots,\upsilon_\nn\}$ of $\extf$ over $\basef$, there exists a \emph{dual basis} $\{\nu_1,\ldots,\nu_\nn\}$ satisfying
 $$
-\Tr_{\extf/\basef}(\upsilon_i \cdot \beta_j)=
+\Tr_{\extf/\basef}(\upsilon_i \cdot \nu_j)=
 \left\{
 \begin{array}{ll}
 1 & \mbox{if } i=j, \\
@@ -533,12 +532,12 @@ $$
 \right.
 $$
 %\paragraph{The affine geometry of $\extf$} 
-According to the definition of the dual  basis $\{\beta_1,\ldots,\beta_\nn\}$, the $V_i$ may be represented as 
-the intersection of the kernels of the linear maps $X \mapsto \Tr_{\extf/\basef}(\beta_j X )$ for $j>i$. It turns out that the polynomials 
+According to the definition of the dual  basis $\{\nu_1,\ldots,\nu_\nn\}$, the $V_i$ may be represented as 
+the intersection of the kernels of the linear maps $X \mapsto \Tr_{\extf/\basef}(\nu_j X )$ for $j>i$. It turns out that the polynomials 
  $L_i$ may be alternatively described as
  \begin{equation}
  \label{L_i_alt_formula}
- L_i(X)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X );j>i\bigr) \,.
+ L_i(X)=\gcd\bigl(\Tr_{\extf/\basef}(\nu_j X );j>i\bigr) \,.
  \end{equation}
  \Notes{Should be proved}
 %$$V_i=\cap_{j > i} \Ker( \Tr_{\extf/\basef}(\beta_j X )) \,. $$
@@ -555,9 +554,9 @@ the form $\rho=\sum_{j>i}r_j\upsilon_j$. The alternative expression of $L_i$ all
 \label{alternative_M_i_rho}
 \begin{array}{lll}
 M_{i,\rho}(X)&=& L_i(X-\rho) \\
-&=&\gcd\bigl(\Tr_{\extf/\basef}(\beta_j \cdot  (X-\rho) );j>i\bigr)  \\
-&=& \gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -\Tr_{\extf/\basef}(\beta_j \rho) ;j>i\bigr)  \\
-&=&  \gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)  \\
+&=&\gcd\bigl(\Tr_{\extf/\basef}(\nu_j \cdot  (X-\rho) );j>i\bigr)  \\
+&=& \gcd\bigl(\Tr_{\extf/\basef}(\nu_j X) -\Tr_{\extf/\basef}(\nu_j \rho) ;j>i\bigr)  \\
+&=&  \gcd\bigl(\Tr_{\extf/\basef}(\nu_j X) -r_j ;j>i\bigr)  \\
 \end{array}
 \end{equation}
 Finally, according to the decomposition rule~(\ref{decomposition-tree-iflats}) concerning the $i$-flats $V_{i,\rho}$, we have
@@ -637,19 +636,20 @@ In ARM, the spaces $V_{i}$ are effectively represented by their minimal polynomi
  \end{equation}
 ARM is summarized in Algorithm~\ref{alg:arm}.
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
+
 \begin{algorithm}
 \caption{Affine Refinement Method}
 \label{alg:arm}
 \begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
-A basis $\upsilon_1,\dots,\upsilon_\nn$ of $\extf$,\\
+A basis $\{\upsilon_1,\dots,\upsilon_\nn\}$ of $\extf$,\\
 The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
 \ENSURE {The roots of $f$ in $\extf$.}
 \STATE Set $L_0 = X$;
-\FOR {$1 \le i \le \nn$}
+\FOR {$1 \le i < \nn$}
 \STATE\label{alg:arm:Li} Compute $L_i = L_{i-1}^\qq - \gamma_{i-1,i}^{\qq-1} L_{i-1} \mod f$;
 \ENDFOR
-\STATE Set $S = \emptyset$, $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
+\STATE Set $S = \emptyset$, $R_n=\{0\}$, and $f_{\nn,0} = f$;
 \FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
 \FOR {each $\rho\in R_i$}
 \STATE\label{alg:arm:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
@@ -666,11 +666,12 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
 \end{algorithm}
 
 \begin{Theo}
+  \label{th:arm}
   Algorithm~\ref{alg:arm} is correct. It can be implemented so as to
   run in $O\bigl(n\Mul(dn)(\log(q) + q\log(dn)) + n^3d\bigr)$
   operations in $\basef$ in the worst case, and
   $O\bigl(n\Mul(dn)\log(q) + q\Mul(dn)\log(d)\log(dn) +
-  nd\log(d)\bigr)$ operations on average.
+  nd\log^2(d)\bigr)$ operations on average.
 \end{Theo}
 \begin{proof}
   Correctness is straightforward. The polynomials $L_i$ computed in
@@ -749,18 +750,10 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
   But then, we can refine the analysis of Step~\ref{alg:arm:combili}
   even further. %
   Indeed, let $h$ be the depth at which ARM stops, note that at each
-  iteration the last $n-h$ coefficients in the vector of $\rho$
-  are all zero. %
-  Assume $q$ is prime. By using a $q$-ary Gray code to enumerate all
-  integers between $0$ and $q^h-1$, we can evaluate all linear
-  combinations $\sum_{j\le h} r_j\gamma_{i-1,j}$ using only one
-  addition in $\extf$ for each. %
-  Among those linear combinations, we select the ones that correspond
-  to the $\ell_{i,\rho}$'s. %
-  Since $q^h\in O(d)$, the total cost to compute all $\ell_{i,\rho}$
-  is of $O(dn)$ operations in $\basef$. %
-  This can be easily generalized to the case where $q$ is a prime
-  power.
+  iteration the last $n-h$ coefficients in the vector of $\rho$ are
+  all zero. %
+  Hence, the cost of evaluating $\ell_{i-1,\rho}$ for all $\rho$ is
+  of $O(dn\log(d))$ operations.
 
   In conclusion, the overall complexity of ARM is bounded on average
   by
@@ -784,154 +777,109 @@ When fast arithmetic is not available, \cite{van1989geometric} shows that comput
 \subsubsection{Berlekamp's Trace Algorithm (BTA)}
 \label{sec:BTA}
 In BTA, the spaces $V_{i}$ are not effectively represented by their minimal polynomials $L_i$. They are instead expressed as an intersection of hyperplanes, thus giving an alternative way to compute the $f_{i,\rho}(X)$'s. Indeed, according to expression~\eqref{alternative_M_i_rho}, if $\rho=\sum_{j>i}r_j\upsilon_j$ then
-$$L_i(X)-L_i(\rho)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)\,.$$
+$$L_i(X)-L_i(\rho)=\gcd\bigl(\Tr_{\extf/\basef}(\nu_j X) -r_j ;j>i\bigr)\,.$$
 Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
 $$
-\gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr).
+\gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\nu_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\nu_i X) -c  \bigr).
 $$
 \Notes{???}
 Therefore, 
 \begin{equation}
 \label{alt_formula}
 L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
-\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr).
+\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\nu_i X) -c  \bigr).
 \end{equation}
 By definition 
 $$f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$ 
 Thus, $f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f_{i,\rho}(X))$.
 We conclude that 
-$$
-\begin{array}{lll}
-f_{i-1,\rho+c \cdot \upsilon_i}(X)&=&\gcd(L_{i-1}(x)-L_{i-1}(\rho +c \cdot \upsilon_i) ,f_{i,\rho}(X)  ) \\
-&=&  \gcd(  \gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)     ,  f_{i,\rho}(X) )    \\
-&=&  \gcd( \Tr_{\extf/\basef}(\beta_i X) -c ,  f_{i,\rho}(X) )    \\
-\end{array}
-$$
-BTA is summarized in Algorithm~\ref{alg:bta}.\Notes{we use $\upsilon$ but actually we don't need to compute this basis}
+\begin{equation}
+\label{eq:bta:key}
+\begin{aligned}
+f_{i-1,\rho+c \cdot \upsilon_i}(X)&=\gcd(L_{i-1}(x)-L_{i-1}(\rho +c \cdot \upsilon_i) ,f_{i,\rho}(X)  ) \\
+&=  \gcd(  \gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\nu_i X) -c  \bigr)     ,  f_{i,\rho}(X) )    \\
+&=  \gcd( \Tr_{\extf/\basef}(\nu_i X) -c ,  f_{i,\rho}(X) )    \\
+\end{aligned}
+\end{equation}
+BTA is summarized in Algorithm~\ref{alg:bta}.
 
 \begin{algorithm}
 \caption{Berlekamp's Trace Algorithm (BTA)}
 \label{alg:bta}
 \begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
-A basis $\beta_1,\dots,\beta_\nn$ of $\extf$.}
+A basis $\{\nu_1,\dots,\nu_\nn\}$ of $\extf$.}
 \ENSURE {The roots of $f$ in $\extf$.}
-\STATE Initialize tree with root $f_{\nn,0} = f \mod X^{q^n}-X$;
+\STATE Set $S=\emptyset$, $R_n={0}$, and $f_{\nn,0} = f$;
 \FOR {$\nn \ge i \ge 1$}\label{alg:bta:for}
-\FOR {any leaf in the tree $f_{i,\rho}$ of degree $>1$}
+\STATE\label{alg:bta:prod} Compute $T_i(X) = \Tr_{\extf/\basef}(\nu_i X) \mod \prod_{\rho\in R_i}f_{i,\rho}(X)$;
+\FOR {each $\rho\in R_i$}
 \FOR {any $c\in\basef$}
-\STATE\label{alg:bta:gcd} $f_{i-1,\rho+c\cdot \upsilon_i} =\gcd( \Tr_{\extf/\basef}(\beta_i X) -c ,f_{i,\rho}(X) )$;
+\STATE\label{alg:bta:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} =\gcd( T_i(X)-c ,f_{i,\rho}(X) )$;
+\STATE \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = (X-\delta)$, \textbf{then} add $\delta$ to $S$.
 \ENDFOR
 \ENDFOR
-\IF {all leaves have degree $\le 1$}
-\RETURN The root of each leaf of degree $1$.
-\ENDIF
+\STATE Let $R_i = \{\rho \mid \deg f_{i-1,\rho} > 1\}$.
 \ENDFOR
+\RETURN $S$.
 \end{algorithmic}
 \end{algorithm}
 
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \begin{Lem}
+  \label{th:bta_eq_arm}
+  Let $f\in\extf[X]$ be a separable polynomial that splits completely
+  in $\extf$. Let $\{\upsilon_1,\dots,\upsilon_n\}$ be a basis of
+  $\extf$, and let $\{\nu_1,\dots,\nu_n\}$ be its dual basis.
 
-Steps~4-6 of Algorithm~\ref{alg:bta} use HOWMANY operations over $\fqn$.
-
+  On input $f$ and $\{\upsilon_1,\dots,\upsilon_n\}$ ARM computes the
+  same sets $R_1,\dots,R_n$ and $S$ as does BTA on input $f$ and
+  $\{\nu_1,\dots,\nu_n\}$.
 \end{Lem}
-
 \begin{proof}
-
-%REWRITE
-
-%The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
-
-%$O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
-
-%the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
-
-%algorithm must be restarted with a different $\alpha$. 
-
-%The process is then recursively applied on the factors. 
-
-
-
-
-
-
-
+  This is an immediate consequence of Eqs.~\eqref{gcd_ARM}
+  and~\eqref{eq:bta:key}.
 \end{proof}
 
-
-
-
-
-
-\begin{Theo}~\cite{Menvanovans92}
-
-The worst-case and average case complexities of Algorithm~\ref{alg:bta} are respectively  HOWMANY
-
-%$\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ and $\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \log\dd)$.
-
+\begin{Theo}
+  BTA is correct. It can be implemented so as to run in
+  $O\bigl(n\Mul(dn)(q\log(dn) + n\log(q))\bigr)$ operations in
+  $\basef$ in the worst case, and
+  $O\bigl(\Mul(dn)(q\log(dn) + n\log(q))\log(d)\bigr)$ operations on
+  average.
 \end{Theo}
+\begin{proof}
+  Correctness follows immediately from Lemma~\ref{th:bta_eq_arm} and
+  Theorem~\ref{th:arm}, since the root set $S$ coincides with the one
+  returned by ARM.
 
+  As for complexity, we analyze the cost of each iteration of
+  Loop~\ref{alg:bta:for}. The polynomial
+  $\prod_{\rho\in R_i}f_{i,\rho}$ has degree at most $d$, and can be
+  computed by arranging all polynomials $f_{i,\rho}$ in a binary
+  subproduct tree structure as in~\cite[Lemma~10.4]{Gathen2003}, at a
+  cost of $O(\Mul_q(dn)\log(d))$ operations in $\basef$.
+  
+  Then, the polynomial $T_i(x)$ in Step~\ref{alg:bta:prod} can be
+  computed by $O(n)$ exponentiations of polynomials of degree at most
+  $d$ to the power $q$, for a total cost of $O(n\Mul_q(dn)\log(q))$.
 
+  Using the same subproduct tree structure computed above, all the
+  polynomials $T_i(X)\mod f_{i,\rho}(X)$ in Step~\ref{alg:bta:gcd} can
+  be computed using again $O(\Mul_q(dn)\log(d))$ operations. 
 
-
-
-
-
-%
-% \begin{Lem}
-% Berlekamp's trace algorithm (BTA) is correct. It terminates after at most $\bigO(n  \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) \cdot \log(d))$ operations on average, and at most $\bigO(n^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$ in the worst case.
-% \end{Lem}
-%\begin{proof}
-For any basis of $\extf$ over $\basef$, the equality~\eqref{BTA_eq1} leads to a non-trivial factorization of $f$ for at least one basis element $\alpha$~\cite{berl70}.
-%On average, $\bigO(\log_\qq(d))$ attempts are required to find one such element \cite{Menvanovans92}. 
-The polynomial $\trextbase(\alpha X) \mod f$ is computed iteratively using
-$O(\nn\Mul(d)\log\qq)$ operations. If the result is not a constant,
-the $\qq$ GCDs are computed in $O(\qq\Mul(d)\log\dd)$, otherwise the
-algorithm must be restarted with a different $\alpha$. 
-The process is then recursively applied on the factors. 
- If the $\alpha$ are carefully managed, it can be shown that the worst case complexity is
-%$\bigO((\nn^2 \cdot \log(n) \cdot q \cdot \log(q) \cdot M(d) )$
-$\bigO((\nn\Mul(d)\log\qq+\qq\Mul(d)\log\dd) \nn)$ 
-operations (see~\cite{Menvanovans92}).
-
-
-
-% Therefore, splitting $f$ in at least two distinct factors costs
-%$\bigO(\nn\log \dd \nn \Mul(\dd)\log\qq + \qq\Mul(\dd)\log\dd)$ on average,
-%or $O(\nn^2\Mul(\dd)\log\qq+\qq\Mul(\dd)\log\dd)$ in the worts case.
-
-%\end{proof}
-
-
-
-
-Note the similarity with ARM and SRA. All algorithms separate the roots of $f$ into affine spaces $V_{i,\rho}$ of smaller and smaller dimensions, such that $V_{i,\rho}\subset V_{i+1,\rho}$. While ARM and SRA represent the affine subspaces with minimal polynomials, BTA represents them by means of intersections of affine polynomials of the form $\Tr(\alpha X)-r$.
-
-
+  Finally, for each $\rho$ we compute $q$ GCDs of polynomials of
+  degree $d_\rho$, at a cost of $O(q\Mul_q(d_\rho n)\log(d_\rho n))$
+  operations. Using the superlinearity of the function $\Mul$, and the
+  fact that $\sum d_\rho \le d$, we conclude that
+  Step~\ref{alg:bta:gcd} contributes $O(q\Mul_q(dn)\log(dn))$
+  operations to the total complexity.
+  
+  Adding all terms together, we see that one iteration of
+  Loop~\ref{alg:bta:for} costs at most
+  $O\bigl(\Mul_q(dn)(q\log(dn) + n\log(q))\bigr)$ operations in
+  $\basef$. The worst-case complexity estimate is then evident, and
+  the average-case follows easily from Lemma~\ref{th:bta_eq_arm}.
+\end{proof}
 
 
 
@@ -946,10 +894,10 @@ We may evaluate $L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i)$ first (like in A
 \item Using formula~(\ref{alt_formula})
 $$
 L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
-\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr) \,.$$
+\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\nu_i X) -c  \bigr) \,.$$
 The main advantage is that you don't need to compute the $\gamma_{i,j}$ anymore.
 \item Using formula~(\ref{L_i_alt_formula})
-$$ L_{i-1}(X)=\gcd\bigl(L_i(X),\Tr_{\extf/\basef}(\beta_i X )\bigr) \,.$$
+$$ L_{i-1}(X)=\gcd\bigl(L_i(X),\Tr_{\extf/\basef}(\nu_i X )\bigr) \,.$$
  then follow the approach of ARM.
 \end{enumerate}
 of course we need to analyze precsiely the complexity of the algorithm computing the gcd of two affine porlynomials.
