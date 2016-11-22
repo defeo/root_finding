@@ -158,6 +158,7 @@ Decisions to be made:
 \begin{itemize}
 \item notations $n$, $d$, $q$, $Q=q^n$ then $Q_i$ for subfields
 \item complexity model: bit vs field operations -> we will keep small field operations complexity
+\item Only analyze for fast polynomial arithmetic, use M(n) notation.
 \item worst case vs average case -> both of them for deterministic algorithms
 \item notation O tilde -> precise analysis, then simplified with O tilde
 \item q is not O(1)
@@ -604,13 +605,14 @@ where $\rho \in \extf$. Hence $f_{i,\rho}(X)=f_{i,\rho'}(X)$ if and only if $\rh
 Using Eq.~\eqref{base_ARM} and the fact that $V_n^\ast=\{0\}$, $f_{n,0}(X)$ is first computed, i.e.,
 $$f_{n,0}(X)=\gcd(L_n(X),f(X))=\gcd(X^{q^\nn}-X,f(X))\,.$$
 The recursive step is based on Eq.~\eqref{node_product} and works as follows: for any $L_i(\rho) \in V_i^\ast$ such that $f_{i,\rho}(X)$ is neither a constant polynomial nor a linear factor,
-$$
-\begin{array}{lll}
-f_{i,\rho}(X)&=&\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i,\rho}(X)) \\
-&=&\prod_{c \in \basef} \gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),f_{i,\rho}(X)) \\
-&=&\prod_{c \in \basef} f_{i-1,\rho+c \cdot \upsilon_i}(X)\\
-\end{array}
-$$
+\begin{equation}
+\label{eq:f_i,rho_rec}
+\begin{aligned}
+f_{i,\rho}(X)&=\prod_{c \in \basef} \gcd(M_{i-1,\rho+c \cdot \upsilon_i}(X),f_{i,\rho}(X)) \\
+&=\prod_{c \in \basef} \gcd(L_{i-1}(X)-L_{i-1}(\rho+c \cdot \upsilon_i),f_{i,\rho}(X)) \\
+&=\prod_{c \in \basef} f_{i-1,\rho+c \cdot \upsilon_i}(X)\\
+\end{aligned}
+\end{equation}
 This procedure builds a tree where at each level only the nodes containing a polynomial of degree strictly greater than 1 have children. Said otherwise, the leafs of the tree are either constant polynomials or the distinct linear factors of $f$ (without their algebraic multiplicity).
 
 \medskip
@@ -626,12 +628,12 @@ This procedure builds a tree where at each level only the nodes containing a pol
  \Notes{Start mainly from Section 3.2 in ISSAC, maybe a bit from Section 3.2 in Christophe}
 
  
-In ARM, the minimal polynomials of the $i$-flats $V_{i}$ are effectively computed and the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s are computed as
+In ARM, the spaces $V_{i}$ are effectively represented by their minimal polynomials $L_i$, and the factors $f_{i,\rho}(X)$'s are recursively computed via Eq.~\eqref{eq:f_i,rho_rec} as
  \begin{equation}
  \label{gcd_ARM}
- \gcd(L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i),f_{i,\rho}(X)) \,,
+ f_{i-1,\rho+x\cdot\upsilon_i} = \gcd(L_{i-1}(X)-L_{i-1}(\rho + c \cdot \upsilon_i),f_{i,\rho}(X)) \,.
  \end{equation}
- where $L_{i-1}(\rho +  c \cdot \upsilon_i)$ is determined from precomputed values. ARM is summarized in Algorithm~\ref{alg:arm}.
+ARM is summarized in Algorithm~\ref{alg:arm}.
 %Note that the $l_i$ for which $\gcd(f(X),L_i(X)-l_i) \ne 1$ correspond to the $L_i$-projections onto $V_i^\ast$ of the roots of $f$.
 \begin{algorithm}
 \caption{Affine Refinement Method}
@@ -678,14 +680,14 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
   already been found, while the sets $R_i$ contain
   \emph{approximations} to those roots that have not been found yet. %
   For any $0\le i\le n$, the roots of $f$ are exactly the reunion of
-  the roots of the $f_{i,\rho}$ for all $\rho$; this shows that $S$
+  the roots of the $f_{i,\rho}$'s for all $\rho$; this shows that $S$
   only contains roots of $f$. %
   By definition $\deg f_{0,\rho}\le 1$, thus $R_n$ is empty, and all
-  the roots of $f$ eventually enter in $S$.
+  the roots of $f$ eventually enter $S$.
 
   \paragraph{Worst-case complexity.} We set $Q=q^n$.  The degree of the
   polynomials in Step~\ref{alg:arm:Li} is always bounded by the degree
-  $d$ of $f$, hence each $L_i$ is computed using in
+  $d$ of $f$, hence each $L_i$ is computed using
   $O(\Mul_Q(d)\log(q))$ operations in $\basef$, yielding a total of
   $O(n\Mul_q(dn)\log(q))$ for all of them.
 
@@ -703,7 +705,7 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
     \quad\text{and}\quad
     \ell_{i-1,\rho} = \sum_{j=1}^n r_j\gamma_{i-1,j}.
   \]
-  The linear combination on the right require at most $n^2$ products
+  The linear combination on the right requires at most $n^2$ products
   in $\basef$, and there are at most $d$ such values to compute, hence
   the total cost for this step is $O(n^2d)$ operations in $\basef$.
 
@@ -745,8 +747,8 @@ The matrix $\Gamma=(\gamma_{i,j})$ defined in Eq.~\eqref{eq:Gamma}.}
   But then, we can refine the analysis of Step~\ref{alg:arm:combili}
   even further. %
   Indeed, let $h$ be the depth at which ARM stops, note that at each
-  iteration only the first $h$ coefficients in the vector of $\rho$
-  are non-zero. %
+  iteration the last $n-h$ coefficients in the vector of $\rho$
+  are all zero. %
   Assume $q$ is prime. By using a $q$-ary Gray code to enumerate all
   integers between $0$ and $q^h-1$, we can evaluate all linear
   combinations $\sum_{j\le h} r_j\gamma_{i-1,j}$ using only one
@@ -778,17 +780,17 @@ another two variants, one with shifted $f_{i,\rho}(X)$ and another without this 
 
 \subsubsection{Berlekamp's Trace Algorithm (BTA)}
 \label{sec:BTA}
-In BTA, the minimal polynomials of the $i$-flats $V_{i}$ are not effectively computed and are expressed as the intersection of hyperplanes, which gives an alternative way to compute the $f_{i-1,\rho+c \cdot \upsilon_i}(X)$'s. Indeed, according to expression~(\ref{alternative_M_i_rho})
+In BTA, the spaces $V_{i}$ are not effectively represented by their minimal polynomials $L_i$. They are instead expressed as an intersection of hyperplanes, thus giving an alternative way to compute the $f_{i,\rho}(X)$'s. Indeed, according to expression~\eqref{alternative_M_i_rho}, if $\rho=\sum_{j>i}r_j\upsilon_j$ then
 $$L_i(X)-L_i(\rho)=\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr)\,.$$
-where $\rho=\sum_{j>i}r_j\upsilon_j$. Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
+Also, $L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)$ may be expressed as
 $$
-\gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+\gcd\bigl(\gcd\bigl(\Tr_{\extf/\basef}(\beta_j X) -r_j ;j>i\bigr), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr).
 $$
 Therefore, 
 \begin{equation}
 \label{alt_formula}
 L_{i-1}(X)-L_{i-1}(\rho +c \cdot \upsilon_i)=
-\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr)
+\gcd\bigl(L_i(X)-L_i(\rho), \Tr_{\extf/\basef}(\beta_i X) -c  \bigr).
 \end{equation}
 By definition 
 $$f_{i,\rho(X)}=\gcd(L_i(X)-L_i(\rho),f(X))\,.$$ 
@@ -806,7 +808,7 @@ BTA is summarized in Algorithm~\ref{alg:bta}.\Notes{we use $\upsilon$ but actual
 \begin{algorithm}
 \caption{Berlekamp's Trace Algorithm (BTA)}
 \label{alg:bta}
-\begin{algorithmic}[2]
+\begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
 A basis $\beta_1,\dots,\beta_\nn$ of $\extf$.}
 \ENSURE {The roots of $f$ in $\extf$.}
