@@ -1,4 +1,3 @@
-?e3773947-6b5c-4496-bb74-754b8884cb3e?
 # symbolic variables
 %var q,d,n,omega,B
 
@@ -56,20 +55,22 @@ def PolynomialAdd(deg):
 
 def PolynomialMul(deg):
     if ARITHMETIC == "FAST":
-        return BigFieldMul * Mnot(deg)
+        return Mnot(deg*n)
     else:
         return BigFieldMul * deg^2
 
 def PolynomialGCD(deg1,deg2):
     if ARITHMETIC == "FAST":
         deg = max(deg1,deg2)
-        return Mnot(deg*n)*log(deg) + d*Mnot(n)*log(n)     # theorem 11.5 Von Zur Gathen M(dn)log(d) + dM(n) log(n)      # simplifies to PolynomialMul(deg) * log(d*n)     
+        return Mnot(deg*n)*log(d*n)
+    #Mnot(deg*n)*log(deg) + d*Mnot(n)*log(n)     # theorem 11.5 Von Zur Gathen M(dn)log(d) + dM(n) log(n)      # simplifies to PolynomialMul(deg) * log(d*n)     
     else:
         return BigFieldMul * deg1 * deg2
 
 def MultiEvaluation(deg):
     if ARITHMETIC == "FAST":
-        return log(deg)*PolynomialMul(deg)
+        #return log(deg)*PolynomialMul(deg)
+        return Mnot(deg*n)*log(deg)
     else:
         return BigFieldMul * deg^2
 
@@ -175,24 +176,30 @@ print "ARM costs (version in Christophe's July 2015 draft):  ", ARM
 # ARM analysis
 # Version written by Michael in "final" paper, then modified by Luca
 #precomputation = same as SRA
-step3 = log(q)*PolynomialMul(d) + log(q)*BigFieldMul + d*log(q)*BigFieldMul
+#step3 = log(q)*PolynomialMul(d) + log(q)*BigFieldMul + d*log(q)*BigFieldMul
+step3 = log(q)*PolynomialMul(d) # other terms are neglected
 step23 = n*step3
 if COMPLEXITY_TYPE == "WORST":
     h = n
-    LofRho = n*d
+    LofRho = n^2*d
 else:
     h = log(d)            # use submultiplicative argument here
-    LofRho = d             # use Gray code 
+    LofRho = d*h*n             
 gcdStep = PolynomialGCD(d,d)
-ARMcore = h * (LofRho + gcdStep)
+ARMcore = h * (LofRho + q*gcdStep)
 
-ARM = precomputation + step23 + ARMcore
-print "ARM costs (version in final paper's description):  ", ARM
-print "\n\n"
-
-
-
+#ARM = precomputation + step23 + ARMcore
+ARM = step23 + ARMcore         # assume precomputation given
+print "ARM costs (version in final paper's description, no precomputation):  ", ARM
+#print "\n\n"
 ARM.expand()
+
+if COMPLEXITY_TYPE == "WORST":
+    theorem1 = n*Mnot(d*n)*(log(q)+q*log(d*n))+n^3*d
+else:
+    theorem1 = n*Mnot(d*n)*log(q)+q*Mnot(d*n)*log(d)*log(d*n)+n*d*log(d)^2
+print "costs given by theorem 1 for ARM are", theorem1
+theorem1.expand()
 
 
 
@@ -211,6 +218,29 @@ n = log(q)/log(B)                          # overload variable n
 # follows Christophe's draft Algorithm 9
 line4 = n * log(B) * Mnot(d)
 
+
+
+
+
+# now looking at variants
+# -----------------------
+
+# low precomputation variant
+%var q,d,n,omega,B, H
+step3 = log(q)*H*BigFieldMul
+step23 = H*step3
+step6 = log(q)*PolynomialMul(d)
+step56 = n*step6
+step9 = n*log(q)*BigFieldMul  # division by alpha^{-1} is negligible
+step10 = PolynomialAdd(d)
+step810 = H * (step9 + step10)
+step14 = (n*log(q)*BigFieldMul)*H*d # neglecting additions
+step15 = (Mnot(d*n) * log(d)) * H # cfr analysis Luca for ARM
+step17 = (q*Mnot(d*n)*log(d*n)) * H # cfr analysis Luca
+LOWPRECVARARM = step23 + step56 + step810 + step14 + step15 + step17
+print "costs of the low precomputation variant of ARM", LOWPRECVARARM
+LOWPRECVARARM=LOWPRECVARARM(H=log(d))
+print "costs of the low precomputation variant of ARM", LOWPRECVARARM
 
 
 
