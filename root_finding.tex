@@ -979,42 +979,107 @@ of course we need to analyze precsiely the complexity of the algorithm computing
 \subsection{ARM variant with low precomputation}
 \label{sec:low-precomputation}
 
+While all the methods presented in Section~\ref{sec:affine-geom-algor} are essentially quadratic in $n$ in the average case, ARM and SRA additionally need some cubic pre-processing time to compute the values $\alpha_i$ or $\beta_i=\gamma_{i-1,i}$.
+%
+In this section we show how this cost can be avoided for ARM in the average case. %Interestingly, the resulting algorithm share similarities with both ARM and BTA.
+
+In what follows, $h$ is an \emph{a priori} upper bound on the expected number of iterations of ARM, typically $c \cdot \log_\qq d$ with $c \ge 2$. 
+%
+In the average case, ARM only needs the last $h$ values $\alpha_i$ to split $f$ completely.
+%
+We observe that these last $\alpha_i$ values can be computed without computing all the other ones. Indeed 
+%As seen in Eq.~\eqref{dual_polynomial}, 
+for any linearized polynomial $L_i$ there exists a unique \emph{dual} linearized polynomial $L_i^\ast$ such that $$(L_i^\ast\circ L_i)(X)=(L_i\circ L_i^\ast)(X)=X^{\qq^\nn}-X.$$
+%Any field decomposition leads therefore to several decompositions, i.e. for any $i$
+%$$X^{\qq^\nn}-X=(X^{\qq}-\alpha_\nn) \circ \cdots \circ (X^{\qq}-\alpha_1 X)=L_i(X) \circ L_i^\ast(X)$$
+%where $L_i^\ast(X)=(X^{\qq} -\alpha_n X) \circ \cdots \circ (X^{\qq}-\alpha_{i-1}X)$.
+%
+We can therefore compute suitable $\alpha_i$ values for $L_{n-h}^\ast(X)$ using any basis $\{\upsilon_{1},\ldots,\upsilon_h\}$ of a vector space of dimension $h$ of $\extf/\basef$, and deduce that there exists a decomposition
+$$X^{\qq^\nn}-X=(X^{\qq}-\alpha_n) \circ \cdots \circ (X^{\qq}-\alpha_{n-h+1} X) \circ L_{n-h}(X)\,.$$
+At this point the elements $\alpha_i$ are known, and the polynomial $L_{n-h}(X)$ is unique but not yet computed. %This requires $O(h^2\log\qq)$ operations in $\extf$.
+
+For i starting from $\nn$ and going down to $n-h$, we then recursively compute polynomials $L_i(X)$ which satisfy
+$$X^{\qq^\nn}-X= (X^{\qq}-\alpha_n) \circ \cdots \circ (X^{\qq}-\alpha_{i-1} X) \circ L_{i}(X)\,.  $$
+or equivalently $L_{i+1}(X)=L_i(X)^q-\alpha_{i+1}L_i(X)$. 
+%
+As the polynomials $L_i(X)$ are linearized polynomials, each of these equations reduces to
+a bidiagonal system. %, which may be solved at the cost $O(\nn \log q)$ or $O(h \nn \log q)$ for the $h$ polynomials $L_i$.
+
+Note that Step~\ref{alg:arm:Li} of Algorithm~\ref{alg:arm}, which consists in computing $L_i \bmod f$, needs to be slightly modified as only the last $L_i$ polynomial have been computed. %In Algorithm~\ref{} we first recursively compute the values $X^{q^j}\bmod f$, and then linearly combine these values.
+%The values $X^{q^j}\bmod f$ are first computed in $O(\Mul(\dd)n\log\qq)$ operations, then $L_i\bmod f$ can be computed in $O(\dd \nn)$ operations. This does not change the complexity of the step. 
+We first compute the polynomials $(X^{q^j}\bmod f)$ recursively and deduce the polynomials $(L_i\bmod f)$ using linear combinations.
+%
+Step \ref{alg:arm:combili}  also needs to be modified: we now compute the values $\ell_{i-1, \rho}= L_{i-1}(\rho)$ by simple evaluation of the polynomial $L_{i-1}$ for any any root approximation $\rho=\sum_j r_j \upsilon_j$ candidate appearing in Step~\ref{alg:arm:gcd}. %Each value $\ell_{i-1, \rho}$ requires $\bigO(\nn \log \qq)$ operations and there are at most $d \cdot h$ such values to compute. The overall complexity for the computation of these values is $O(h \nn\dd  \log \qq )$ which is not a bottleneck in the average case. 
+ 
+ Depending on where the roots of $f$ are located, the a priori bound $h$ may in fact not be sufficient to completely factor $f$. In this case, the algorithm should be launched on the remaining factors of $f$ with a newly generated vector basis with $h'$ elements. The value $h'$ should be chosen larger than $\log_{\qq} \max(\deg f_{h,\rho})$ where $f_{h,\rho}$ are the remaining factors of $f$ at level $h$.
+
+This description leads to Algorithm~\ref{alg:armnoprec} and to the following theorem.
+
+\begin{Theo}
+  \label{th:armnoprec}
+  Algorithm~\ref{alg:armnoprec} is correct. When $h=O(\log(d))$ it can be implemented so as to
+  run in 
+  $O\bigl(\Mul(dn)(n\log(q) + q\log(dn)\log(d))  + \Mul(n)dn\log(d)\log(q)  \bigr)$ 
+  operations in $\basef$ on
+  average.
+\end{Theo}
+\begin{proof}
+Step~\ref{alg:armnoprec:alphai} requires $\bigO(h\log(q) \Mul(n))$ operations per $\alpha_i$ or $\bigO(h^2\log(q) \Mul(n))$ in total.
+Step~\ref{alg:armnoprec:Xqj} requires $\bigO(\log(q)\Mul(dn))$ operations for each value of $j$ or $\bigO(n\log(q)\Mul(dn))$ operations in total.
+In Step~\ref{alg:armnoprec:Li}, the coefficients of $L_i$ can be computed recursively starting from the smaller degree coefficient. We neglect the cost of inverting $\alpha_i$, after which each coefficient requires $\bigO(1)$ multiplications over $\fqn$ for a total of $\bigO(n\Mul(n))$ operations.
+Step~\ref{alg:armnoprec:Limod} requires $\bigO(dn\Mul(n))$ operations. Steps~\ref{alg:armnoprec:Li} and~\ref{alg:armnoprec:Limod} will be executed $h$ times for a total of $\bigO(hdn\Mul(n))$ operations.
+Therefore the total cost before the main loop is $\bigO(h^2\log(q)\Mul(n)+n\log(q)\Mul(dn)+hdn\Mul(n))$.
+
+ 
+Step~\ref{alg:arm-low:combili} requires $\bigO(n\log(q)\Mul(n))$ each time and $\bigO(dhn\log(q)\Mul(n))$ in total. The total cost related to the gcds is $O(q\Mul_q(dn)\log(dn))$ as in Theorem~\ref{th:arm}.
+\end{proof}
+
+
+
+While our motivation for Algorithm~\ref{alg:armnoprec} was to remove the precomputation costs of ARM, it is interesting to notice that it can also be seen as a generalization of BTA, which corresponds to setting an a priori bound $h=1$ and repeating the algorithm on smaller factors until they are all split.
+
+
+
+
 \begin{algorithm}
 \caption{ARM variant with low precomputation}
-\label{alg:arm-low}
+\label{alg:armnoprec}
 \begin{algorithmic}[1]
 \REQUIRE {A polynomial $f\in\extf[X]$ of degree $\dd$,\\
 An a priori bound $h$ on the height of the tree,\\
-A free set $\upsilon_1,\dots,\upsilon_h$ of $\extf$.}
+A basis $\upsilon_1,\dots,\upsilon_h$ for a vector space of dimension $h$.}
 \ENSURE {Partial factorization of $f$, and a factorization in linear terms when the a priori bound $h$ is correct.}
 \STATE Set $L_0(X)=X$;
 \FOR {$1 \le i \le h$}
-\STATE Compute $\alpha_i=L_{i-1}(v_i)^{q-1}$;
+\STATE\label{alg:armnoprec:alphai} Compute $\alpha_i=L_{i-1}(v_i)^{q-1}$;
 \ENDFOR
-\STATE Set $(\alpha_n,\ldots,\alpha_{n-h+1})=(\alpha_h,\ldots,\alpha_1)$
+\STATE Set $(\alpha_n,\ldots,\alpha_{n-h+1})\leftarrow(\alpha_h,\ldots,\alpha_1)$
 %
 \FOR{$1\leq j\leq n$}
-\STATE Compute $(X^{q^j}\bmod f)$ from $(X^{q^{j-1}}\bmod f)$
+\STATE\label{alg:armnoprec:Xqj} Compute $(X^{q^j}\bmod f)$ from $(X^{q^{j-1}}\bmod f)$
 \ENDFOR
 %
 \STATE Set $L_n(X)=X^{q^n}-X$
 \FOR{$n-1\ge i\ge n-h$}
-\STATE Compute $L_i$ such that $L_{i+1}(X)=(X^q-\alpha_iX)\circ L_i(X)$
-\STATE Compute $(L_i\bmod f)$ using computed values $(X^{q^j}\bmod f)$
+\STATE\label{alg:armnoprec:Li} Compute $L_i$ such that $L_{i+1}(X)=(X^q-\alpha_iX)\circ L_i(X)$
+\STATE\label{alg:armnoprec:Limod} Compute $(L_i\bmod f)$ using computed values $(X^{q^j}\bmod f)$
 \ENDFOR
-\STATE Set $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
-\FOR {$\nn \ge i \ge 1$}\label{alg:arm:for}
+\STATE Set $S=\{\}$ and $R_n=\{0\}$, and $f_{\nn,0} = f \mod L_\nn$;
+\FOR {$\nn \ge i \ge n-h$}\label{alg:arm:for}
 \FOR {each $\rho\in R_i$}
 \STATE\label{alg:arm-low:combili} Compute $\ell_{i-1,\rho} = L_{i-1}(\rho)$;
 \STATE\label{alg:arm-low:mod} Compute $\bar{L}_{i-1,\rho} = L_{i-1}\mod f_{i,\rho}$;
 \FOR {any $c\in\basef$}
 \STATE\label{alg:arm-low:gcd} Compute $f_{i-1,\rho+c\cdot \upsilon_i} = \gcd(\bar{L}_{i-1,\rho} - \ell_{i-1,\rho} - c\gamma_{i-1,i}, f_{i,\rho})$;
-\STATE\label{alg:arm-low:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i} = X - \delta$, \textbf{then} add $\delta$ to $S$;
+\STATE\label{alg:arm-low:addroot} \textbf{if} $f_{i-1,\rho+c\cdot \upsilon_i}$ has degree 1, \textbf{then} add it to $S$;
 \ENDFOR
 \ENDFOR
 \STATE\label{alg:arm-low:nextloop} Let $R_{i-1} = \{\rho \mid \deg f_{i-1,\rho} > 1\}$
 \ENDFOR
-\RETURN $S$. \Notes{Adapt output, maybe change indices in line 2-3 to remove line 4}
+\FOR{$\rho$ in $R_{n-h}$} 
+\STATE	Add $f_{n-h,\rho}$ to $S$ 
+\ENDFOR
+\RETURN $S$. %\Notes{Adapt output, maybe change indices in line 2-3 to remove line 4}
 \end{algorithmic}
 \end{algorithm}
 
