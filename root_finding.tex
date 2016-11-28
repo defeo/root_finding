@@ -1005,17 +1005,17 @@ A basis $\{\upsilon_1,\dots,\upsilon_\nn\}$ of $\extf$.}
   We prove by induction that $T_i$ contains all the roots of
   $f^{(i)}$. %
   Let $\delta\in S_0$, then $\ell_{i,\rho}=L_i(\delta)$ is in $T_i$. %
-  By Eq.~\eqref{Li_generation}, $\ell_{i-1,\delta}=L_{i-1}(\delta)$ is
+  By Eq.~\eqref{Li_generation}, $\ell_{i-1,\rho+c\cdot\upsilon_i}=L_{i-1}(\delta)$ is
   a root of the equation $X^q - \alpha_iX - \ell_{i,\rho}$, and by
   construction it is also a root of $f^{(i-1)}$, thus it is a root of
   $f_\rho^{(i-1)}$. %
-  Hence, Step~\ref{alg:sra:gcd} adds $L_{i-1}(\delta)$ to $T_i$.
+  Hence, $L_{i-1}(\delta)$ is inserted into $T_{i-1}$.
 \end{proof}
 
 \begin{Theo}
   \label{th:sra}
   Algorithm~\ref{alg:sra} is correct. It can be implemented so as to
-  run in $O\bigl(n\Mul_q(dnq)(\log(d) + \log(nq))\bigr)$ operations in
+  run in $O\bigl(n\Mul_q(dnq)\log(dnq)\bigr)$ operations in
   $\basef$, plus an additional $O(n^2\Mul(n)\log(q))$ operations
   independent of the input $f$.
 \end{Theo}
@@ -1042,7 +1042,7 @@ A basis $\{\upsilon_1,\dots,\upsilon_\nn\}$ of $\extf$.}
   $O(\Mul_q(nq)\log(nq))$ operations each \Notes{give reference}, and
   the final interpolation costs $O(\Mul_q(dn)\log(d))$ operations. %
   Slightly simplifying these terms, we obtain a total of
-  $O\bigl(n\Mul_q(dnq)(\log(d) + \log(nq))\bigr)$ operations to
+  $O\bigl(n\Mul_q(dnq)\log(dnq)\bigr)$ operations to
   compute all $f^{(i)}$'s.
 
   In Step~\ref{alg:sra:gcd} we start by reducing $f^{(i-1)}$ modulo
